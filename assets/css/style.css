@@ -1,0 +1,542 @@
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e67e22;
+}
+
+body {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.auth-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    width: 700px;
+    min-height: 560px;
+    margin: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-header {
+    background: var(--primary-color);
+    padding: 1.5rem;
+    color: white;
+    text-align: center;
+}
+
+.nav-tabs {
+    border: none;
+    justify-content: center;
+    margin: 1.5rem 0;
+}
+
+.nav-link {
+    border: none!important;
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link.active {
+    color: var(--secondary-color);
+}
+
+.nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50%;
+    height: 3px;
+    background: var(--secondary-color);
+}
+
+.form-container {
+    padding: 2rem 3rem;
+    max-height: 700px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.form-control, .form-select {
+    border-radius: 10px;
+    padding: 1rem;
+    border: 2px solid #eee;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--secondary-color);
+    box-shadow: none;
+}
+
+.input-group-text {
+    background: transparent;
+    border: none;
+    color: var(--primary-color);
+}
+
+.btn-primary {
+    background: var(--secondary-color);
+    border: none;
+    padding: 1rem 2rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--primary-color);
+}
+
+.role-selection {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.role-option {
+    flex: 1;
+    border: 2px solid #eee;
+    border-radius: 10px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.role-option:hover {
+    border-color: var(--secondary-color);
+    background: rgba(52, 152, 219, 0.05);
+}
+
+.role-option.selected {
+    border-color: var(--secondary-color);
+    background: rgba(52, 152, 219, 0.1);
+}
+
+.role-option i {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+/* Ensure the input field has enough space for the eye icon */
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px; /* Adjust for positioning */
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    z-index: 2; /* Ensure the icon is above the input */
+    pointer-events: all;
+}
+
+.form-control {
+    padding-right: 40px !important; /* Ensure the input field has space for the eye icon */
+}
+
+/* Optional: If you want to make sure the icon does not overlap */
+.input-group input {
+    padding-right: 40px; /* Make sure to add space for the icon */
+}
+
+/* Style for the red or green border when validating */
+.is-invalid {
+    border-color: red !important;
+}
+
+.is-valid {
+    border-color: green !important;
+}
+
+.login-extras {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #eee;
+}
+
+.features-list {
+    display: grid;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(241, 243, 245, 0.5);
+    border-radius: 10px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: var(--primary-color);
+}
+
+.feature-item i {
+    color: var(--secondary-color);
+    font-size: 1.2rem;
+}
+
+/* .error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+} */
+.error-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none; /* Initially hidden */
+}
+
+
+.is-invalid {
+    border-color: red;
+}
+
+.is-valid {
+    border-color: rgb(0, 128, 45);
+}
+
+/* Custom Styles for Canteen Automation System */
+
+/* General Styles */
+body {
+    font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Card Styles */
+.card {
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    border-bottom: 1px solid rgba(0,0,0,.125);
+    background-color: rgba(0,0,0,.03);
+}
+
+/* Table Styles */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    border-top: none;
+    background-color: #f8f9fa;
+}
+
+/* Button Styles */
+.btn {
+    border-radius: 0.25rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Form Styles */
+.form-control {
+    border-radius: 0.25rem;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Sidebar Styles */
+.sidebar {
+    height: calc(100vh - 3.5rem - 1px);
+    overflow-y: auto;
+}
+
+.sidebar-dark-primary {
+    background-color: #343a40;
+}
+
+.sidebar-dark-primary .nav-sidebar .nav-item .nav-link {
+    color: #c2c7d0;
+}
+
+.sidebar-dark-primary .nav-sidebar .nav-item .nav-link:hover {
+    color: #fff;
+}
+
+.sidebar-dark-primary .nav-sidebar .nav-item .nav-link.active {
+    color: #fff;
+    background-color: #007bff;
+}
+
+/* Main Header Styles */
+.main-header {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.navbar-nav .nav-item .nav-link {
+    padding: 0.5rem 1rem;
+}
+
+/* Content Wrapper Styles */
+.content-wrapper {
+    background-color: #f4f6f9;
+}
+
+/* Info Box Styles */
+.info-box {
+    min-height: 80px;
+    background: #fff;
+    width: 100%;
+    box-shadow: 0 0 1px rgba(0,0,0,.125), 0 1px 3px rgba(0,0,0,.2);
+    border-radius: 0.25rem;
+    margin-bottom: 20px;
+}
+
+.info-box-content {
+    padding: 5px 10px;
+}
+
+.info-box-icon {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: #fff;
+}
+
+/* Chart Container Styles */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+/* Modal Styles */
+.modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .sidebar {
+        height: auto;
+    }
+    
+    .content-wrapper {
+        margin-left: 0;
+    }
+    
+    .main-sidebar {
+        transform: translate(-250px, 0);
+    }
+    
+    .sidebar-open .main-sidebar {
+        transform: translate(0, 0);
+    }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* User Menu Styles */
+.user-image {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.user-header {
+    height: 175px;
+    padding: 20px;
+    text-align: center;
+}
+
+.user-header img {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 10px;
+}
+
+/* Badge Styles */
+.badge {
+    padding: 0.5em 0.75em;
+    font-size: 0.75em;
+    font-weight: 600;
+}
+
+/* Alert Styles */
+.alert {
+    margin-bottom: 1rem;
+    border: none;
+    border-radius: 0.25rem;
+}
+
+/* Custom Colors */
+.bg-custom-primary {
+    background-color: #007bff;
+}
+
+.bg-custom-success {
+    background-color: #28a745;
+}
+
+.bg-custom-warning {
+    background-color: #ffc107;
+}
+
+.bg-custom-danger {
+    background-color: #dc3545;
+}
+
+.bg-custom-info {
+    background-color: #17a2b8;
+}
+
+/* Custom Utilities */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Loading Spinner */
+.spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .content-wrapper {
+        margin-left: 0 !important;
+    }
+    
+    .main-sidebar {
+        display: none !important;
+    }
+}
+
+/* Layout adjustments */
+.wrapper {
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+.content-wrapper {
+    min-height: calc(100vh - calc(3.5rem + 1px) - calc(3.5rem + 1px));
+    width: 100%;
+}
+
+/* Fix container fluid on smaller screens */
+@media (max-width: 768px) {
+    .content-wrapper > .container-fluid {
+        padding-left: 7.5px;
+        padding-right: 7.5px;
+    }
+}
+
+/* Ensure sidebar collapse works properly */
+.sidebar-mini.sidebar-collapse .content-wrapper {
+    margin-left: 4.6rem !important;
+}
+
+.sidebar-mini .content-wrapper {
+    transition: margin-left .3s ease-in-out;
+}
+
+/* Fix content header spacing */
+.content-header {
+    padding: 15px 0.5rem;
+}
+
+.content-header .container-fluid {
+    width: 100%;
+    padding-right: 7.5px;
+    padding-left: 7.5px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Fix main content spacing */
+.content {
+    padding: 0 0.5rem;
+}
+
+/* Ensure tables take full width */
+.card .table {
+    margin-bottom: 0;
+    width: 100%;
+}

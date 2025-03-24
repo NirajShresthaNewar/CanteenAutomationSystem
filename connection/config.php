@@ -2,7 +2,7 @@
 $host = 'localhost';
 $mysql_user = 'root';
 $mysql_pwd = '';
-$dbms = 'cas';
+$dbms = 'camups_dining';
 
 $con = mysqli_connect($host, $mysql_user, $mysql_pwd, $dbms);
 

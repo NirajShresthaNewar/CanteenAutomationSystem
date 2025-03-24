@@ -1,13 +1,16 @@
 <?php
+// TODO: Implement new database connection
+// This file will contain the database connection code for your new database structure
+
+// Placeholder for new database connection
 try {
     $host = 'localhost';
-    $dbname = 'cas';
+    $dbname = 'camups_dining';
     $username = 'root';
     $password = '';
-    
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+    $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e) {
     die("Connection failed: " . $e->getMessage());
 }

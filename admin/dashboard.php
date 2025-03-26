@@ -1,105 +1,162 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 
-// Check if user is logged in and is an admin
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+// Verify role access
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: ../index.php');
-    exit();
+    exit;
 }
 
-$page_title = 'Admin Dashboard';
-ob_start();
-?>
-
-<!-- Content Header -->
-<div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0">Dashboard</h1>
+// Dashboard content
+$content = '
+<!-- Small boxes (Stat box) -->
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3>150</h3>
+                <p>Total Users</p>
             </div>
+            <div class="icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3>53</h3>
+                <p>Active Vendors</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-store"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3>44</h3>
+                <p>New Orders</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3>65</h3>
+                <p>Pending Issues</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
         </div>
     </div>
 </div>
 
-<!-- Main content -->
-<div class="content">
-    <div class="container-fluid">
-        <!-- Info boxes -->
-        <div class="row">
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                    <span class="info-box-icon bg-info"><i class="fas fa-users"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Total Users</span>
-                        <span class="info-box-number">0</span>
-                    </div>
-                </div>
+<!-- Main row -->
+<div class="row">
+    <!-- Left col -->
+    <section class="col-lg-7 connectedSortable">
+        <!-- Custom tabs (Charts with tabs)-->
+        <div class="card">
+            <div class="card-header border-0">
+                <h3 class="card-title">
+                    <i class="fas fa-chart-line mr-1"></i>
+                    Sales Overview
+                </h3>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                    <span class="info-box-icon bg-success"><i class="fas fa-store"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Active Vendors</span>
-                        <span class="info-box-number">0</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                    <span class="info-box-icon bg-warning"><i class="fas fa-shopping-cart"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Today's Orders</span>
-                        <span class="info-box-number">0</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                    <span class="info-box-icon bg-danger"><i class="fas fa-exclamation-triangle"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Pending Issues</span>
-                        <span class="info-box-number">0</span>
-                    </div>
-                </div>
+            <div class="card-body">
+                <canvas id="sales-chart" height="300"></canvas>
             </div>
         </div>
+    </section>
 
-        <!-- Recent Orders -->
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Recent Orders</h3>
-                    </div>
-                    <div class="card-body">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Order ID</th>
-                                    <th>Customer</th>
-                                    <th>Amount</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td colspan="6" class="text-center">No orders found</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+    <!-- Right col -->
+    <section class="col-lg-5 connectedSortable">
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header border-0">
+                <h3 class="card-title">
+                    <i class="fas fa-history mr-1"></i>
+                    Recent Activity
+                </h3>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Activity</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Vendor 1</td>
+                                <td>New registration</td>
+                                <td>2 min ago</td>
+                            </tr>
+                            <tr>
+                                <td>Student 1</td>
+                                <td>Placed order</td>
+                                <td>5 min ago</td>
+                            </tr>
+                            <tr>
+                                <td>Worker 1</td>
+                                <td>Completed order</td>
+                                <td>10 min ago</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 </div>
 
-<?php
-$content = ob_get_clean();
+<script>
+// Sales Chart
+document.addEventListener("DOMContentLoaded", function() {
+    var ctx = document.getElementById("sales-chart").getContext("2d");
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: ["January", "February", "March", "April", "May", "June"],
+            datasets: [{
+                label: "Sales",
+                data: [65, 59, 80, 81, 56, 55],
+                borderColor: "#007bff",
+                tension: 0.3,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+});
+</script>
+';
+
+// Include layout
 require_once '../includes/layout.php';
 ?> 

@@ -125,21 +125,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Redirect based on role
             switch ($role) {
                 case 'vendor':
-                    header("Location: ../vendor/dashboard.php");
+                    header('Location: ../vendor/dashboard.php');
                     break;
                 case 'worker':
-                    header("Location: ../worker/dashboard.php");
+                    header('Location: ../worker/dashboard.php');
                     break;
                 case 'student':
-                    header("Location: ../student/dashboard.php");
+                    header('Location: ../student/dashboard.php');
                     break;
                 case 'staff':
-                    header("Location: ../staff/dashboard.php");
+                    header('Location: ../staff/dashboard.php');
                     break;
                 default:
-                    header("Location: ../index.php");
+                    header('Location: ../index.php');
             }
-            exit();
+            exit;
 
         } catch (Exception $e) {
             if (isset($conn)) {
@@ -151,10 +151,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if (!empty($errors)) {
-        $_SESSION['signup_errors'] = $errors;
-        header("Location: ../index.php");
-        exit();
-    }
+    $_SESSION['form_data'] = $_POST;
+    $_SESSION['signup_errors'] = $errors;
+    header('Location: ../index.php#signup');
+    exit;
 }
 ?> 

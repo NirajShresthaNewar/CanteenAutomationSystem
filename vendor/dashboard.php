@@ -1,12 +1,16 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+session_start();
+
+// Check if user is logged in
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    header('Location: ../index.php');
+    exit;
 }
 
-// Check if user is logged in and is a vendor
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'vendor') {
-    header('Location: ../index.php');
-    exit();
+// Verify correct role for this dashboard
+if ($_SESSION['role'] !== 'vendor') {
+    header('Location: ../' . $_SESSION['role'] . '/dashboard.php');
+    exit;
 }
 
 $page_title = 'Vendor Dashboard';

@@ -11,6 +11,14 @@
 <body>
 <?php
 session_start();
+
+// Clear the form data after displaying it
+if (isset($_SESSION['form_data'])) {
+    unset($_SESSION['form_data']);
+}
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 ?>
 
 <div class="container">
@@ -132,7 +140,7 @@ session_start();
                                 <label class="form-label">Username</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                    <input type="text" name="username" class="form-control" required>
+                                    <input type="text" name="username" class="form-control" value="<?php echo isset($_SESSION['form_data']['username']) ? htmlspecialchars($_SESSION['form_data']['username']) : ''; ?>" required>
                                 </div>
                                 <div class="invalid-feedback">Please enter a username.</div>
                             </div>
@@ -140,7 +148,7 @@ session_start();
                                 <label class="form-label">Email</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                    <input type="email" name="email" class="form-control" required>
+                                    <input type="email" name="email" class="form-control" value="<?php echo isset($_SESSION['form_data']['email']) ? htmlspecialchars($_SESSION['form_data']['email']) : ''; ?>" required>
                                 </div>
                                 <div class="invalid-feedback">Please enter a valid email address.</div>
                             </div>
@@ -151,7 +159,7 @@ session_start();
                                 <label class="form-label">Contact Number</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                    <input type="tel" name="contact_number" class="form-control" required>
+                                    <input type="tel" name="contact_number" class="form-control" value="<?php echo isset($_SESSION['form_data']['contact_number']) ? htmlspecialchars($_SESSION['form_data']['contact_number']) : ''; ?>" required>
                                 </div>
                                 <div class="invalid-feedback">Please enter a contact number.</div>
                             </div>
@@ -161,10 +169,10 @@ session_start();
                                     <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
                                     <select name="role" class="form-select" id="roleSelect" required>
                                         <option value="">Select Role</option>
-                                        <option value="vendor">Vendor</option>
-                                        <option value="worker">Worker</option>
-                                        <option value="student">Student</option>
-                                        <option value="staff">Staff</option>
+                                        <option value="vendor" <?php echo (isset($_SESSION['form_data']['role']) && $_SESSION['form_data']['role'] === 'vendor') ? 'selected' : ''; ?>>Vendor</option>
+                                        <option value="worker" <?php echo (isset($_SESSION['form_data']['role']) && $_SESSION['form_data']['role'] === 'worker') ? 'selected' : ''; ?>>Worker</option>
+                                        <option value="student" <?php echo (isset($_SESSION['form_data']['role']) && $_SESSION['form_data']['role'] === 'student') ? 'selected' : ''; ?>>Student</option>
+                                        <option value="staff" <?php echo (isset($_SESSION['form_data']['role']) && $_SESSION['form_data']['role'] === 'staff') ? 'selected' : ''; ?>>Staff</option>
                                     </select>
                                 </div>
                                 <div class="invalid-feedback">Please select a role.</div>
@@ -200,7 +208,7 @@ session_start();
                                 <label class="form-label">Address</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                    <textarea name="address" class="form-control" required style="height: 38px; resize: none;"></textarea>
+                                    <textarea name="address" class="form-control" required style="height: 38px; resize: none;"><?php echo isset($_SESSION['form_data']['address']) ? htmlspecialchars($_SESSION['form_data']['address']) : ''; ?></textarea>
                                 </div>
                                 <div class="invalid-feedback">Please enter your address.</div>
                             </div>
@@ -247,14 +255,14 @@ session_start();
                                     <label class="form-label">Location</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-                                        <input type="text" name="location" class="form-control">
+                                        <input type="text" name="location" class="form-control" value="<?php echo isset($_SESSION['form_data']['location']) ? htmlspecialchars($_SESSION['form_data']['location']) : ''; ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">License Number (Optional)</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                                        <input type="text" name="license_number" class="form-control">
+                                        <input type="text" name="license_number" class="form-control" value="<?php echo isset($_SESSION['form_data']['license_number']) ? htmlspecialchars($_SESSION['form_data']['license_number']) : ''; ?>">
                                     </div>
                                 </div>
                             </div>
@@ -267,18 +275,19 @@ session_start();
                                     <label class="form-label">Position</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-briefcase"></i></span>
-                                        <select name="position" class="form-select">
+                                        <select name="position" class="form-select" required>
                                             <option value="">Select Position</option>
                                             <option value="kitchen_staff">Kitchen Staff</option>
                                             <option value="waiter">Waiter</option>
                                         </select>
                                     </div>
+                                    <div class="invalid-feedback">Please select a position.</div>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Vendor ID</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-store"></i></span>
-                                        <input type="number" name="vendor_id" class="form-control" required>
+                                        <input type="number" name="vendor_id" class="form-control" min="1" required>
                                     </div>
                                     <div class="invalid-feedback">Please enter a valid vendor ID.</div>
                                 </div>
@@ -288,8 +297,9 @@ session_start();
                                     <label class="form-label">Shift Schedule</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-clock"></i></span>
-                                        <input type="text" name="shift_schedule" class="form-control" placeholder="e.g., Morning (8AM-4PM)">
+                                        <input type="text" name="shift_schedule" class="form-control" placeholder="e.g., Morning (8AM-4PM)" required>
                                     </div>
+                                    <div class="invalid-feedback">Please enter a shift schedule.</div>
                                 </div>
                             </div>
                         </div>
@@ -301,21 +311,21 @@ session_start();
                                     <label class="form-label">Student Number</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-id-badge"></i></span>
-                                        <input type="text" name="student_number" class="form-control">
+                                        <input type="text" name="student_number" class="form-control" value="<?php echo isset($_SESSION['form_data']['student_number']) ? htmlspecialchars($_SESSION['form_data']['student_number']) : ''; ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Program</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
-                                        <input type="text" name="program" class="form-control">
+                                        <input type="text" name="program" class="form-control" value="<?php echo isset($_SESSION['form_data']['program']) ? htmlspecialchars($_SESSION['form_data']['program']) : ''; ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Year of Study</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                                        <input type="number" name="year_of_study" class="form-control" min="1" max="4">
+                                        <input type="number" name="year_of_study" class="form-control" value="<?php echo isset($_SESSION['form_data']['year_of_study']) ? htmlspecialchars($_SESSION['form_data']['year_of_study']) : ''; ?>" min="1" max="4">
                                     </div>
                                 </div>
                             </div>
@@ -328,21 +338,21 @@ session_start();
                                     <label class="form-label">Employee Number</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                                        <input type="text" name="employee_number" class="form-control">
+                                        <input type="text" name="employee_number" class="form-control" value="<?php echo isset($_SESSION['form_data']['employee_number']) ? htmlspecialchars($_SESSION['form_data']['employee_number']) : ''; ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Department</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-building"></i></span>
-                                        <input type="text" name="department" class="form-control">
+                                        <input type="text" name="department" class="form-control" value="<?php echo isset($_SESSION['form_data']['department']) ? htmlspecialchars($_SESSION['form_data']['department']) : ''; ?>">
                                     </div>
                                 </div>
                                 <div class="col-md-4 mb-3">
                                     <label class="form-label">Office Location</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                        <input type="text" name="office_location" class="form-control">
+                                        <input type="text" name="office_location" class="form-control" value="<?php echo isset($_SESSION['form_data']['office_location']) ? htmlspecialchars($_SESSION['form_data']['office_location']) : ''; ?>">
                                     </div>
                                 </div>
                             </div>
@@ -364,6 +374,7 @@ session_start();
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/script.js"></script>
 <script>
@@ -386,34 +397,91 @@ function togglePassword(inputId) {
     }
 }
 
-// Password validation
-document.getElementById('signupPassword').addEventListener('input', function() {
-    const password = this.value;
-    const requirementsDiv = document.getElementById('passwordRequirements');
-    
-    // Show/hide requirements based on whether there's input
-    requirementsDiv.style.display = password.length > 0 ? 'block' : 'none';
-    
-    // Length check
-    document.getElementById('lengthCheck').innerHTML = 
-        `<i class="fas fa-${password.length >= 8 ? 'check text-success' : 'times text-danger'}"></i> At least 8 characters`;
-    
-    // Uppercase check
-    document.getElementById('uppercaseCheck').innerHTML = 
-        `<i class="fas fa-${/[A-Z]/.test(password) ? 'check text-success' : 'times text-danger'}"></i> One uppercase letter`;
-    
-    // Lowercase check
-    document.getElementById('lowercaseCheck').innerHTML = 
-        `<i class="fas fa-${/[a-z]/.test(password) ? 'check text-success' : 'times text-danger'}"></i> One lowercase letter`;
-    
-    // Number check
-    document.getElementById('numberCheck').innerHTML = 
-        `<i class="fas fa-${/[0-9]/.test(password) ? 'check text-success' : 'times text-danger'}"></i> One number`;
-    
-    // Special character check
-    document.getElementById('specialCheck').innerHTML = 
-        `<i class="fas fa-${/[!@#$%^&*(),.?":{}|<>]/.test(password) ? 'check text-success' : 'times text-danger'}"></i> One special character`;
+// Update the role-specific fields toggle
+document.getElementById('roleSelect').addEventListener('change', function() {
+    const selectedRole = this.value;
+    const allFields = document.querySelectorAll('.role-specific-fields');
+    const schoolTextInput = document.getElementById('schoolTextInput');
+    const schoolDropdown = document.getElementById('schoolDropdown');
+
+    // Hide all role-specific fields first
+    allFields.forEach(field => {
+        field.style.display = 'none';
+        // Disable all required inputs in hidden fields
+        field.querySelectorAll('[required]').forEach(input => {
+            input.disabled = true;
+        });
+    });
+
+    if (selectedRole) {
+        const fieldsToShow = document.getElementById(selectedRole + 'Fields');
+        if (fieldsToShow) {
+            fieldsToShow.style.display = 'block';
+            // Enable all required inputs in visible fields
+            fieldsToShow.querySelectorAll('[required]').forEach(input => {
+                input.disabled = false;
+            });
+        }
+
+        // Handle school input visibility
+        if (selectedRole === 'vendor') {
+            schoolTextInput.style.display = 'block';
+            schoolDropdown.style.display = 'none';
+            schoolTextInput.disabled = false;
+            schoolDropdown.disabled = true;
+        } else {
+            schoolTextInput.style.display = 'none';
+            schoolDropdown.style.display = 'block';
+            schoolTextInput.disabled = true;
+            schoolDropdown.disabled = false;
+        }
+    } else {
+        schoolTextInput.disabled = true;
+        schoolDropdown.disabled = true;
+    }
 });
+
+// Form validation
+const form = document.getElementById('signupFormElement');
+if (form) {
+    form.addEventListener('submit', function(e) {
+        if (!this.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        this.classList.add('was-validated');
+    });
+}
+
+// Password validation
+const signupPassword = document.getElementById('signupPassword');
+if (signupPassword) {
+    signupPassword.addEventListener('input', function() {
+        const requirementsDiv = document.getElementById('passwordRequirements');
+        if (requirementsDiv) {
+            requirementsDiv.style.display = this.value.length > 0 ? 'block' : 'none';
+            // Length check
+            document.getElementById('lengthCheck').innerHTML = 
+                `<i class="fas fa-${this.value.length >= 8 ? 'check text-success' : 'times text-danger'}"></i> At least 8 characters`;
+            
+            // Uppercase check
+            document.getElementById('uppercaseCheck').innerHTML = 
+                `<i class="fas fa-${/[A-Z]/.test(this.value) ? 'check text-success' : 'times text-danger'}"></i> One uppercase letter`;
+            
+            // Lowercase check
+            document.getElementById('lowercaseCheck').innerHTML = 
+                `<i class="fas fa-${/[a-z]/.test(this.value) ? 'check text-success' : 'times text-danger'}"></i> One lowercase letter`;
+            
+            // Number check
+            document.getElementById('numberCheck').innerHTML = 
+                `<i class="fas fa-${/[0-9]/.test(this.value) ? 'check text-success' : 'times text-danger'}"></i> One number`;
+            
+            // Special character check
+            document.getElementById('specialCheck').innerHTML = 
+                `<i class="fas fa-${/[!@#$%^&*(),.?":{}|<>]/.test(this.value) ? 'check text-success' : 'times text-danger'}"></i> One special character`;
+        }
+    });
+}
 
 // Password match validation
 document.getElementById('confirmPassword').addEventListener('input', function() {
@@ -428,54 +496,6 @@ document.getElementById('confirmPassword').addEventListener('input', function() 
         this.classList.remove('is-invalid');
         feedback.style.display = 'none';
     }
-});
-
-// Role-specific fields toggle
-document.getElementById('roleSelect').addEventListener('change', function() {
-    // Hide all role-specific fields
-    document.querySelectorAll('.role-specific-fields').forEach(field => {
-        field.style.display = 'none';
-    });
-
-    // Show fields based on selected role
-    const selectedRole = this.value;
-    if (selectedRole) {
-        const fieldsToShow = document.getElementById(selectedRole + 'Fields');
-        if (fieldsToShow) {
-            fieldsToShow.style.display = 'block';
-        }
-
-        // Toggle school input type based on role
-        const schoolTextInput = document.getElementById('schoolTextInput');
-        const schoolDropdown = document.getElementById('schoolDropdown');
-        
-        if (selectedRole === 'vendor') {
-            schoolTextInput.style.display = 'block';
-            schoolDropdown.style.display = 'none';
-            schoolTextInput.disabled = false;
-            schoolDropdown.disabled = true;
-        } else {
-            schoolTextInput.style.display = 'none';
-            schoolDropdown.style.display = 'block';
-            schoolTextInput.disabled = true;
-            schoolDropdown.disabled = false;
-        }
-    } else {
-        // If no role is selected, disable both inputs
-        const schoolTextInput = document.getElementById('schoolTextInput');
-        const schoolDropdown = document.getElementById('schoolDropdown');
-        schoolTextInput.disabled = true;
-        schoolDropdown.disabled = true;
-    }
-});
-
-// Form validation
-document.getElementById('signupFormElement').addEventListener('submit', function(e) {
-    if (!this.checkValidity()) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    this.classList.add('was-validated');
 });
 </script>
 

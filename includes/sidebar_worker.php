@@ -1,75 +1,75 @@
-<ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-    <li class="nav-item">
-        <a href="dashboard.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : ''; ?>">
-            <i class="nav-icon bi bi-speedometer"></i>
-            <p>Dashboard</p>
-        </a>
-    </li>
+<?php
+// Worker Sidebar
+echo '
+<!-- Dashboard -->
+<li class="nav-item">
+    <a href="../worker/dashboard.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-tachometer-alt"></i>
+        <p>Dashboard</p>
+    </a>
+</li>
 
-    <li class="nav-item">
-        <a href="#" class="nav-link">
-            <i class="nav-icon bi bi-cart-fill"></i>
-            <p>
-                Orders
-                <i class="nav-arrow bi bi-chevron-right"></i>
-            </p>
-        </a>
-        <ul class="nav nav-treeview">
-            <li class="nav-item">
-                <a href="pending_orders.php" class="nav-link">
-                    <i class="nav-icon bi bi-circle"></i>
-                    <p>
-                        Pending Orders
-                        <span class="badge text-bg-warning float-end">5</span>
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="completed_orders.php" class="nav-link">
-                    <i class="nav-icon bi bi-circle"></i>
-                    <p>Completed Orders</p>
-                </a>
-            </li>
-        </ul>
-    </li>
+<!-- Orders -->
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['assigned_orders.php', 'order_history.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['assigned_orders.php', 'order_history.php']) ? 'active' : '') . '">
+        <i class="nav-icon fas fa-clipboard-list"></i>
+        <p>
+            Orders
+            <i class="fas fa-angle-left right"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="../worker/assigned_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'assigned_orders.php' ? 'active' : '') . '">
+                <p>Assigned Orders</p>
+                <span class="badge badge-info right">3</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../worker/order_history.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'order_history.php' ? 'active' : '') . '">
+                <p>Order History</p>
+            </a>
+        </li>
+    </ul>
+</li>
 
-    <li class="nav-item">
-        <a href="inventory.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'inventory.php' ? 'active' : ''; ?>">
-            <i class="nav-icon bi bi-box-seam"></i>
-            <p>Inventory</p>
-        </a>
-    </li>
+<!-- Schedule -->
+<li class="nav-item">
+    <a href="../worker/schedule.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'schedule.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-calendar-alt"></i>
+        <p>My Schedule</p>
+    </a>
+</li>
 
-    <li class="nav-item">
-        <a href="schedule.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'schedule.php' ? 'active' : ''; ?>">
-            <i class="nav-icon bi bi-calendar-week"></i>
-            <p>Work Schedule</p>
-        </a>
-    </li>
+<!-- Performance -->
+<li class="nav-item">
+    <a href="../worker/performance.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'performance.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-chart-bar"></i>
+        <p>My Performance</p>
+    </a>
+</li>
 
-    <li class="nav-header">ACCOUNT</li>
-    
-    <li class="nav-item">
-        <a href="profile.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : ''; ?>">
-            <i class="nav-icon bi bi-person-circle"></i>
-            <p>My Profile</p>
-        </a>
-    </li>
+<!-- Time Tracking -->
+<li class="nav-item">
+    <a href="../worker/timesheet.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'timesheet.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-clock"></i>
+        <p>Time Tracking</p>
+    </a>
+</li>
 
-    <li class="nav-item">
-        <a href="notifications.php" class="nav-link <?php echo basename($_SERVER['PHP_SELF']) == 'notifications.php' ? 'active' : ''; ?>">
-            <i class="nav-icon bi bi-bell"></i>
-            <p>
-                Notifications
-                <span class="badge text-bg-danger float-end">2</span>
-            </p>
-        </a>
-    </li>
+<!-- Profile -->
+<li class="nav-item">
+    <a href="../worker/profile.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-user"></i>
+        <p>My Profile</p>
+    </a>
+</li>
 
-    <li class="nav-item">
-        <a href="../auth/logout.php" class="nav-link">
-            <i class="nav-icon bi bi-box-arrow-right"></i>
-            <p>Logout</p>
-        </a>
-    </li>
-</ul> 
+<!-- Logout -->
+<li class="nav-item">
+    <a href="../auth/logout.php" class="nav-link">
+        <i class="nav-icon fas fa-sign-out-alt"></i>
+        <p>Logout</p>
+    </a>
+</li>';
+?> 

@@ -48,12 +48,12 @@ echo '
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
-            <a href="../admin/vendors.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'vendors.php' ? 'active' : '') . '">
+            <a href="../admin/vendors.php" class="nav-link submenu-link ' . (basename($_SERVER['PHP_SELF']) == 'vendors.php' ? 'active' : '') . '">
                 <p>All Vendors</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="../admin/approve_vendors.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'approve_vendors.php' ? 'active' : '') . '">
+            <a href="../admin/approve_vendors.php" class="nav-link submenu-link ' . (basename($_SERVER['PHP_SELF']) == 'approve_vendors.php' ? 'active' : '') . '">
                 <p>Approve Vendors</p>
                 <span class="badge badge-warning right">2</span>
             </a>
@@ -112,6 +112,14 @@ echo '
     <a href="../admin/settings.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-cog"></i>
         <p>Settings</p>
+    </a>
+</li>
+
+<!-- Add this to your admin sidebar menu -->
+<li class="nav-item">
+    <a href="../admin/add_school.php" class="nav-link">
+        <i class="nav-icon fas fa-school"></i>
+        <p>Manage Schools</p>
     </a>
 </li>
 

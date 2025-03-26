@@ -1,0 +1,29 @@
+/* School form styles */
+.form-group textarea:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.form-group textarea::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Custom scrollbar for webkit browsers */
+.form-group textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.form-group textarea::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.form-group textarea::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.form-group textarea::-webkit-scrollbar-thumb:hover {
+    background: #555;
+} 

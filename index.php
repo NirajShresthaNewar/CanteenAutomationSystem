@@ -184,17 +184,15 @@ ini_set('display_errors', 1);
                                 <label class="form-label">School</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-school"></i></span>
-                                    <!-- Text input for vendors -->
-                                    <input type="text" name="school" class="form-control" id="schoolTextInput" required disabled>
-                                    <!-- Dropdown for other roles -->
-                                    <select name="school" class="form-select" id="schoolDropdown" style="display: none;" required disabled>
+                                    <select name="school_id" class="form-select" id="school_id" required>
                                         <option value="">Select School</option>
                                         <?php
                                         require_once 'connection/db_connection.php';
                                         try {
-                                            $stmt = $conn->query("SELECT school_id, name FROM schools ORDER BY name");
-                                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                                                echo "<option value='" . htmlspecialchars($row['school_id']) . "'>" . htmlspecialchars($row['name']) . "</option>";
+                                            $stmt = $conn->query("SELECT id, name, address FROM schools");
+                                            while ($school = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                echo "<option value='" . htmlspecialchars($school['id']) . "'>" . 
+                                                     htmlspecialchars($school['name']) . " (" . htmlspecialchars($school['address']) . ")</option>";
                                             }
                                         } catch (PDOException $e) {
                                             echo "<option value=''>Error loading schools</option>";
@@ -202,15 +200,7 @@ ini_set('display_errors', 1);
                                         ?>
                                     </select>
                                 </div>
-                                <div class="invalid-feedback">Please select or enter your school.</div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Address</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                    <textarea name="address" class="form-control" required style="height: 38px; resize: none;"><?php echo isset($_SESSION['form_data']['address']) ? htmlspecialchars($_SESSION['form_data']['address']) : ''; ?></textarea>
-                                </div>
-                                <div class="invalid-feedback">Please enter your address.</div>
+                                <div class="invalid-feedback">Please select a school.</div>
                             </div>
                         </div>
 
@@ -251,13 +241,6 @@ ini_set('display_errors', 1);
                         <!-- Vendor Fields -->
                         <div id="vendorFields" class="role-specific-fields" style="display: none;">
                             <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Location</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-map-pin"></i></span>
-                                        <input type="text" name="location" class="form-control" value="<?php echo isset($_SESSION['form_data']['location']) ? htmlspecialchars($_SESSION['form_data']['location']) : ''; ?>">
-                                    </div>
-                                </div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">License Number (Optional)</label>
                                     <div class="input-group">
@@ -402,7 +385,7 @@ document.getElementById('roleSelect').addEventListener('change', function() {
     const selectedRole = this.value;
     const allFields = document.querySelectorAll('.role-specific-fields');
     const schoolTextInput = document.getElementById('schoolTextInput');
-    const schoolDropdown = document.getElementById('schoolDropdown');
+    const schoolDropdown = document.getElementById('school_id');
 
     // Hide all role-specific fields first
     allFields.forEach(field => {
@@ -413,6 +396,7 @@ document.getElementById('roleSelect').addEventListener('change', function() {
         });
     });
 
+    // Show role-specific fields
     if (selectedRole) {
         const fieldsToShow = document.getElementById(selectedRole + 'Fields');
         if (fieldsToShow) {
@@ -423,21 +407,29 @@ document.getElementById('roleSelect').addEventListener('change', function() {
             });
         }
 
-        // Handle school input visibility
+        // Handle school selection visibility
         if (selectedRole === 'vendor') {
-            schoolTextInput.style.display = 'block';
-            schoolDropdown.style.display = 'none';
-            schoolTextInput.disabled = false;
-            schoolDropdown.disabled = true;
-        } else {
+            // For vendors, show the dropdown instead of text input
             schoolTextInput.style.display = 'none';
             schoolDropdown.style.display = 'block';
             schoolTextInput.disabled = true;
             schoolDropdown.disabled = false;
+            schoolDropdown.required = true;
+        } else {
+            // For other roles
+            schoolTextInput.style.display = 'none';
+            schoolDropdown.style.display = 'block';
+            schoolTextInput.disabled = true;
+            schoolDropdown.disabled = false;
+            schoolDropdown.required = true;
         }
     } else {
+        // If no role selected
+        schoolTextInput.style.display = 'none';
+        schoolDropdown.style.display = 'none';
         schoolTextInput.disabled = true;
         schoolDropdown.disabled = true;
+        schoolDropdown.required = false;
     }
 });
 

@@ -1,0 +1,58 @@
+/* Reset all nav-link backgrounds */
+.nav-sidebar .nav-link {
+    background-color: transparent !important;
+}
+
+/* Style for parent menu items */
+.nav-sidebar > .nav-item > .nav-link {
+    background-color: transparent !important;
+    color: #c2c7d0 !important;
+}
+
+/* Style for submenu items */
+.nav-treeview > .nav-item > .nav-link {
+    background-color: transparent !important;
+    color: #c2c7d0 !important;
+    padding-left: 35px !important;
+}
+
+/* Active state for submenu items only */
+.nav-treeview > .nav-item > .nav-link.active {
+    background-color: #007bff !important;
+    color: #fff !important;
+}
+
+/* Hover state for submenu items */
+.nav-treeview > .nav-item > .nav-link:hover:not(.active) {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+}
+
+/* Menu open state */
+.nav-sidebar .nav-item.menu-open > .nav-link {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
+}
+
+/* Specific styling for submenu links */
+.nav-treeview .nav-item .submenu-link {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Active submenu link */
+.nav-treeview .nav-item .submenu-link.active {
+    background-color: #007bff !important;
+    color: #fff !important;
+}
+
+/* Inactive submenu links */
+.nav-treeview .nav-item .submenu-link:not(.active) {
+    background-color: transparent !important;
+}
+
+/* Submenu container styling */
+.nav-treeview {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    margin: 0 !important;
+} 

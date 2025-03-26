@@ -1,4 +1,9 @@
 <?php
+// Initialize variables at the top of the file
+$additionalStyles = $additionalStyles ?? '';
+$additionalScripts = $additionalScripts ?? '';
+$pageTitle = $pageTitle ?? 'Dashboard';
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -191,6 +196,14 @@ if (!isset($_SESSION['user_id'])) {
             transition: transform 0.2s ease; /* Faster rotation */
         }
     </style>
+
+    <!-- In the head section, after other CSS links -->
+    <?php if (isset($additionalStyles)): ?>
+        <?php echo $additionalStyles; ?>
+    <?php endif; ?>
+
+    <!-- Additional styles -->
+    <?php $additionalStyles .= '<link rel="stylesheet" href="../assets/css/sidebar.css">'; ?>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -292,94 +305,12 @@ if (!isset($_SESSION['user_id'])) {
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
 <!-- Overlay Scrollbars -->
 <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.13.1/js/OverlayScrollbars.min.js"></script>
+<!-- Common Sidebar JS -->
+<script src="../assets/js/sidebar.js"></script>
 
-<!-- Add this right before the closing </body> tag -->
-<script>
-$(document).ready(function() {
-    // Initialize AdminLTE components
-    if (typeof $.fn.overlayScrollbars !== 'undefined') {
-        $('.sidebar').overlayScrollbars({
-            scrollbars: {
-                autoHide: 'leave',
-                autoHideDelay: 200
-            },
-            className: 'os-theme-light'
-        });
-    }
-    
-    // Improved submenu toggle function to ensure smooth opening AND closing
-    $('.nav-item.has-treeview > .nav-link').on('click', function(e) {
-        e.preventDefault();
-        var $menuItem = $(this).parent();
-        var $submenu = $menuItem.find('.nav-treeview').first();
-        
-        if ($menuItem.hasClass('menu-open')) {
-            // Close this menu - here was the issue, it wasn't properly animating closed
-            $submenu.slideUp(200, function() {
-                $menuItem.removeClass('menu-open');
-                $(this).css('display', ''); // Reset inline style after animation
-            });
-        } else {
-            // Close other open menus at the same level
-            var $openMenus = $menuItem.siblings('.menu-open');
-            $openMenus.find('.nav-treeview').first().slideUp(200, function() {
-                $openMenus.removeClass('menu-open');
-                $(this).css('display', ''); // Reset inline style after animation
-            });
-            
-            // Open this menu
-            $menuItem.addClass('menu-open');
-            $submenu.hide().slideDown(200);
-        }
-    });
-    
-    // Set active menu item based on current page
-    var currentUrl = window.location.pathname;
-    $('.nav-sidebar .nav-link').each(function() {
-        var linkUrl = $(this).attr('href');
-        if (linkUrl && currentUrl.indexOf(linkUrl) !== -1) {
-            $(this).addClass('active');
-            var $parent = $(this).closest('.nav-item.has-treeview');
-            if ($parent.length) {
-                $parent.addClass('menu-open');
-                $parent.children('.nav-link').addClass('active');
-                $parent.find('> .nav-treeview').show();
-            }
-        }
-    });
-    
-    // Close all menus on sidebar collapse
-    $('[data-widget="pushmenu"]').on('click', function() {
-        if (!$('body').hasClass('sidebar-collapse')) {
-            // We're collapsing, close all submenus
-            setTimeout(function() {
-                $('.nav-item.has-treeview.menu-open > .nav-treeview').slideUp(100, function() {
-                    $('.nav-item.has-treeview.menu-open').removeClass('menu-open');
-                    $(this).css('display', ''); // Reset inline style
-                });
-            }, 50);
-        }
-    });
-    
-    // Fix the AdminLTE TreeView initialization
-    try {
-        if (typeof $.fn.Treeview === 'function') {
-            // Remove the existing binding first to prevent conflicts
-            $('.nav-item.has-treeview > .nav-link').off('click');
-            
-            $('[data-widget="treeview"]').Treeview({
-                accordion: true,
-                animationSpeed: 200, // Faster animation
-                expandSidebar: false,
-                sidebarButtonSelector: '[data-widget="pushmenu"]',
-                trigger: '.nav-link',
-                widget: 'Treeview'
-            });
-        }
-    } catch (e) {
-        console.log('Using manual treeview handling');
-    }
-});
-</script>
+<!-- Additional scripts if any -->
+<?php if (isset($additionalScripts)): ?>
+    <?php echo $additionalScripts; ?>
+<?php endif; ?>
 </body>
 </html> 

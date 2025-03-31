@@ -8,19 +8,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     exit();
 }
 
-// Initialize variables for layout
-$pageTitle = 'All Vendors';
-$additionalStyles = '
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
-';
-$additionalScripts = '
-    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../assets/js/vendors.js"></script>
-    <script src="../assets/js/sidebar.js"></script>
-';
-
 // Start output buffering
 ob_start();
 ?>
@@ -111,6 +98,20 @@ ob_start();
 // Get the buffered content
 $content = ob_get_clean();
 
+// Add DataTables CSS and JS
+$additionalStyles = '
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+';
+
+$additionalScripts = '
+<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+<script type="text/javascript" src="../assets/js/vendors.js"></script>
+';
+
+// Set the page title
+$pageTitle = "All Vendors";
+
 // Include the layout
-require_once '../includes/layout.php';
+include '../includes/layout.php';
 ?> 

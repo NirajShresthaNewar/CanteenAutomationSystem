@@ -1,9 +1,4 @@
 <?php
-// Initialize variables at the top of the file
-$additionalStyles = $additionalStyles ?? '';
-$additionalScripts = $additionalScripts ?? '';
-$pageTitle = $pageTitle ?? 'Dashboard';
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
@@ -13,197 +8,72 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: ../index.php');
     exit();
 }
+
+// Initialize variables for additional styles and scripts
+$additionalStyles = '';
+$additionalScripts = '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Campus Dining | Dashboard</title>
-
-    <!-- Google Font: Source Sans Pro -->
+    <title><?php echo isset($pageTitle) ? $pageTitle : 'Canteen Automation System'; ?></title>
+    
+    <!-- Core CSS -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <!-- AdminLTE CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
-    <!-- Overlay Scrollbars -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.13.1/css/OverlayScrollbars.min.css">
+    
+    <!-- Additional page-specific styles -->
+    <?php if (!empty($additionalStyles)) echo $additionalStyles; ?>
 
-    <!-- Add this right before the closing </head> tag -->
     <style>
-        /* Larger font size for sidebar items */
+        /* Sidebar specific styles */
         .nav-sidebar .nav-link p {
-            font-size: 16px !important; 
+            font-size: 14px;
         }
         
         .nav-sidebar .nav-icon {
-            font-size: 18px !important;
+            font-size: 16px;
         }
         
-        /* Improve submenu items */
-        .nav-treeview .nav-link p {
-            font-size: 15px !important;
-        }
-        
-        /* Better spacing */
-        .nav-sidebar .nav-item {
-            margin-bottom: 2px;
-        }
-        
-        .nav-sidebar .nav-link {
-            padding: 10px 15px;
-        }
-        
-        /* Improved hover effects */
-        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #fff;
-        }
-        
-        /* Better active state */
-        .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
-            background-color: #007bff;
-            color: #fff;
-        }
-        
-        /* Smoother transitions */
-        .nav-sidebar .nav-link, 
-        .nav-treeview, 
-        .nav-sidebar .nav-treeview .nav-link {
-            transition: all 0.3s ease;
-        }
-        
-        /* Better badge positioning */
-        .badge-warning.right {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        /* Improved submenu arrow animation */
-        .nav-sidebar .nav-link > .right, 
-        .nav-sidebar .nav-link > p > .right {
-            transition: transform 0.3s ease;
-        }
-        
-        .nav-sidebar .nav-item.menu-open > .nav-link > .right,
-        .nav-sidebar .nav-item.menu-open > .nav-link > p > .right {
-            transform: rotate(-90deg);
-        }
-        
-        /* Remove text decoration from all sidebar links */
-        .nav-sidebar .nav-link,
-        .nav-sidebar .nav-treeview .nav-link,
-        .sidebar a {
-            text-decoration: none !important;
-        }
-        
-        /* Fix the sidebar font to be larger and more readable */
-        .nav-sidebar .nav-link p {
-            font-size: 16px !important;
-            font-weight: 400;
-        }
-        
-        /* Make sidebar main item text larger for better readability */
-        .nav-sidebar > .nav-item > .nav-link p {
-            font-size: 16px !important;
-            font-weight: 500;
-        }
-        
-        /* Fix brand link */
-        .brand-link {
-            text-decoration: none !important;
-        }
-        
-        /* Fix user name in sidebar */
-        .user-panel .info a {
-            text-decoration: none !important;
-            font-size: 15px;
-        }
-        
-        /* Make sure all sidebar links have proper hover states without underlines */
-        .sidebar a:hover {
-            text-decoration: none !important;
-        }
-        
-        /* Fix badge styling to not overflow */
-        .badge.right,
-        .badge-warning.right {
-            right: 5px;
-            position: absolute;
-            font-size: 12px;
-            padding: 3px 6px;
-        }
-        
-        /* Style for collapsed sidebar */
-        .sidebar-mini.sidebar-collapse .main-sidebar:not(.sidebar-no-expand) .nav-sidebar > .nav-item > .nav-treeview {
-            display: none !important;
-        }
-        
-        /* Remove ALL circle markers in the submenu */
-        .nav-sidebar .nav-treeview .nav-item i.far.fa-circle,
-        .nav-sidebar .nav-treeview .nav-item i.nav-icon {
-            display: none !important;
-        }
-        
-        /* Properly align submenu items with no icons */
-        .nav-sidebar .nav-treeview .nav-link {
-            padding-left: 35px !important;
-        }
-        
-        /* Improve dropdown appearance for submenus */
-        .nav-sidebar .nav-treeview {
-            padding-top: 5px;
-            padding-bottom: 5px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-        
-        /* Fix parent menu arrow indicator */
-        .nav-sidebar .nav-item .fa-angle-left.right {
-            margin-top: 3px;
-            transition: transform 0.3s;
-        }
-        
-        .nav-sidebar .nav-item.menu-open .fa-angle-left.right {
-            transform: rotate(-90deg);
-        }
-        
-        /* Clean up conflicting transition styles */
         .nav-treeview {
             display: none;
-            background: rgba(0, 0, 0, 0.2);
-            transition: none; /* Remove the conflicting transitions */
-            max-height: none;
-            overflow: visible;
         }
         
-        /* Fix submenu animation for smoother transitions */
-        .nav-sidebar .nav-treeview {
-            padding: 0;
-            margin: 0;
-        }
-        
-        /* Remove max-height transition which makes it jerky */
         .menu-open > .nav-treeview {
             display: block;
         }
         
-        /* Improve arrow rotation speed */
-        .nav-sidebar .nav-link > .right, 
-        .nav-sidebar .nav-link > p > .right {
-            transition: transform 0.2s ease; /* Faster rotation */
+        .nav-sidebar .nav-link > .right {
+            transition: transform .3s ease-in-out;
+        }
+        
+        .menu-open > .nav-link > .right {
+            transform: rotate(-90deg);
+        }
+        
+        .nav-sidebar .nav-treeview .nav-link {
+            padding-left: 35px;
+        }
+        
+        /* Fix for collapsed sidebar */
+        .sidebar-collapse .main-sidebar:not(.sidebar-focused) .nav-treeview {
+            display: none !important;
+        }
+        
+        .sidebar-collapse .main-sidebar.sidebar-focused .nav-treeview,
+        .sidebar-collapse .main-sidebar:hover .nav-treeview {
+            display: none;
+        }
+        
+        .sidebar-collapse .main-sidebar.sidebar-focused .menu-open > .nav-treeview,
+        .sidebar-collapse .main-sidebar:hover .menu-open > .nav-treeview {
+            display: block;
         }
     </style>
-
-    <!-- In the head section, after other CSS links -->
-    <?php if (isset($additionalStyles)): ?>
-        <?php echo $additionalStyles; ?>
-    <?php endif; ?>
-
-    <!-- Additional styles -->
-    <?php $additionalStyles .= '<link rel="stylesheet" href="../assets/css/sidebar.css">'; ?>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <div class="wrapper">
@@ -297,20 +167,15 @@ if (!isset($_SESSION['user_id'])) {
 </div>
 <!-- ./wrapper -->
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<!-- Bootstrap 4 -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
-<!-- AdminLTE App -->
+<!-- Core Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
-<!-- Overlay Scrollbars -->
 <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.13.1/js/OverlayScrollbars.min.js"></script>
-<!-- Common Sidebar JS -->
-<script src="../assets/js/sidebar.js"></script>
 
-<!-- Additional scripts if any -->
-<?php if (isset($additionalScripts)): ?>
-    <?php echo $additionalScripts; ?>
-<?php endif; ?>
+<!-- Additional page-specific scripts -->
+<?php if (!empty($additionalScripts)) echo $additionalScripts; ?>
+
+<script src="../assets/js/sidebar.js"></script>
 </body>
 </html> 

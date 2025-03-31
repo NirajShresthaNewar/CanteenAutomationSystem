@@ -13,17 +13,7 @@ if ($_SESSION['role'] !== 'vendor') {
     exit;
 }
 
-// Initialize variables for layout
-$pageTitle = 'Vendor Dashboard';
-$additionalStyles = '
-    <link rel="stylesheet" href="../assets/css/sidebar.css">
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
-';
-$additionalScripts = '
-    <script src="../assets/js/sidebar.js"></script>
-    <script src="../assets/js/dashboard.js"></script>
-';
-
+$page_title = 'Vendor Dashboard';
 ob_start();
 ?>
 

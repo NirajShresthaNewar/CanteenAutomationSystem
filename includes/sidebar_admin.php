@@ -1,4 +1,22 @@
 <?php
+// Get database connection if not already included
+require_once dirname(__FILE__) . '/../connection/db_connection.php';
+
+// Get pending vendor count
+$pending_vendor_count = 0;
+try {
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as count
+        FROM vendors
+        WHERE approval_status = 'pending'
+    ");
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $pending_vendor_count = $result['count'];
+} catch (PDOException $e) {
+    // Error handling - keep count as 0
+}
+
 // Dashboard
 echo '
 <!-- Dashboard -->
@@ -55,10 +73,18 @@ echo '
         <li class="nav-item">
             <a href="../admin/approve_vendors.php" class="nav-link submenu-link ' . (basename($_SERVER['PHP_SELF']) == 'approve_vendors.php' ? 'active' : '') . '">
                 <p>Approve Vendors</p>
-                <span class="badge badge-warning right">2</span>
+                ' . ($pending_vendor_count > 0 ? '<span class="badge badge-warning right">' . $pending_vendor_count . '</span>' : '') . '
             </a>
         </li>
     </ul>
+</li>
+
+<!-- School Management -->
+<li class="nav-item">
+    <a href="../admin/manage_schools.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'manage_schools.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-school"></i>
+        <p>Manage Schools</p>
+    </a>
 </li>
 
 <!-- Financial Management -->
@@ -107,19 +133,19 @@ echo '
     </ul>
 </li>
 
+<!-- Profile -->
+<li class="nav-item">
+    <a href="../admin/profile.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-user"></i>
+        <p>My Profile</p>
+    </a>
+</li>
+
 <!-- Settings -->
 <li class="nav-item">
     <a href="../admin/settings.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-cog"></i>
         <p>Settings</p>
-    </a>
-</li>
-
-<!-- Add this to your admin sidebar menu -->
-<li class="nav-item">
-    <a href="../admin/add_school.php" class="nav-link">
-        <i class="nav-icon fas fa-school"></i>
-        <p>Manage Schools</p>
     </a>
 </li>
 

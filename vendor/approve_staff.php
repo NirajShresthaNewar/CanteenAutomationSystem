@@ -24,18 +24,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             try {
                 $conn->beginTransaction();
+                
+                // Get user_id from staff record
+                $stmt = $conn->prepare("SELECT user_id FROM staff_students WHERE id = ? AND role = 'staff'");
+                $stmt->execute([$staff_id]);
+                $staff_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if (!$staff_data) {
+                    throw new Exception("Staff member not found");
+                }
+                
+                $user_id = $staff_data['user_id'];
+                
+                // Update staff_students table
                 $stmt = $conn->prepare("
                     UPDATE staff_students 
                     SET approval_status = ? 
                     WHERE id = ? AND role = 'staff'
                 ");
                 $stmt->execute([$new_status, $staff_id]);
+                
+                // Update users table
+                $stmt = $conn->prepare("
+                    UPDATE users 
+                    SET approval_status = ? 
+                    WHERE id = ?
+                ");
+                $stmt->execute([$new_status, $user_id]);
+                
                 $conn->commit();
                 $_SESSION['success'] = "Staff member has been " . $new_status;
             } catch (PDOException $e) {
                 $conn->rollBack();
                 $_SESSION['error'] = "Error processing request: " . $e->getMessage();
                 error_log("Database Error in approve_staff.php: " . $e->getMessage()); // Log the error
+            } catch (Exception $e) {
+                $conn->rollBack();
+                $_SESSION['error'] = $e->getMessage();
+                error_log("Error in approve_staff.php: " . $e->getMessage()); // Log the error
             }
         } else {
             $_SESSION['error'] = "Invalid request.";

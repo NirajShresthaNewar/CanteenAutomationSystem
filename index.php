@@ -48,6 +48,14 @@ ini_set('display_errors', 1);
                         <?php unset($_SESSION['success_message']); ?>
                     <?php endif; ?>
 
+                    <?php if (isset($_SESSION['login_error'])): ?>
+                        <div class="alert alert-warning alert-dismissible fade show mb-4" role="alert">
+                            <?php echo $_SESSION['login_error']; ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <?php unset($_SESSION['login_error']); ?>
+                    <?php endif; ?>
+
                     <?php if (isset($_SESSION['login_errors'])): ?>
                         <div class="alert alert-danger">
                             <ul class="mb-0">
@@ -267,12 +275,29 @@ ini_set('display_errors', 1);
                                     <div class="invalid-feedback">Please select a position.</div>
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label class="form-label">Vendor ID</label>
+                                    <label class="form-label">Select Vendor</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-store"></i></span>
-                                        <input type="number" name="vendor_id" class="form-control" min="1" required>
+                                        <select name="vendor_id" class="form-select" required>
+                                            <option value="">Select Vendor</option>
+                                            <?php
+                                            try {
+                                                $stmt = $conn->prepare("SELECT v.id, u.username FROM vendors v 
+                                                                      JOIN users u ON v.user_id = u.id 
+                                                                      WHERE v.approval_status = 'approved'
+                                                                      ORDER BY u.username");
+                                                $stmt->execute();
+                                                while ($vendor = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                    echo "<option value='" . htmlspecialchars($vendor['id']) . "'>" . 
+                                                         htmlspecialchars($vendor['username']) . " (ID: " . htmlspecialchars($vendor['id']) . ")</option>";
+                                                }
+                                            } catch (PDOException $e) {
+                                                echo "<option value=''>Error loading vendors</option>";
+                                            }
+                                            ?>
+                                        </select>
                                     </div>
-                                    <div class="invalid-feedback">Please enter a valid vendor ID.</div>
+                                    <div class="invalid-feedback">Please select a vendor.</div>
                                 </div>
                             </div>
                             <div class="row">

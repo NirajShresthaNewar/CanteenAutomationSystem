@@ -30,6 +30,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Debug information for worker login issues
+        if ($user && $user['role'] === 'worker') {
+            // Check if worker record exists
+            $workerStmt = $conn->prepare("SELECT * FROM workers WHERE user_id = ?");
+            $workerStmt->execute([$user['id']]);
+            $workerData = $workerStmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$workerData) {
+                $_SESSION['login_error'] = "Worker record not found. Please contact administrator.";
+                header('Location: ../index.php');
+                exit();
+            }
+            
+            // Log the approval status from both tables
+            error_log("Worker Login - User ID: " . $user['id'] . ", User Status: " . $user['approval_status'] . 
+                      ", Worker Status: " . $workerData['approval_status'] . ", Final Status: " . $user['final_approval_status']);
+        }
 
         if (!$user || !password_verify($password, $user['password'])) {
             $_SESSION['login_error'] = "Invalid email or password";
@@ -39,7 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Check approval status
         if ($user['final_approval_status'] !== 'approved') {
-            $_SESSION['login_error'] = "Your account is pending approval";
+            // Provide specific message based on status and role
+            if ($user['final_approval_status'] === 'pending') {
+                $roleText = ucfirst($user['role']);
+                $_SESSION['login_error'] = "Your $roleText account is pending approval. Please contact the administrator or wait for approval.";
+            } else if ($user['final_approval_status'] === 'rejected') {
+                $roleText = ucfirst($user['role']);
+                $_SESSION['login_error'] = "Your $roleText account has been rejected. Please contact the administrator for more information.";
+            } else {
+                $_SESSION['login_error'] = "Your account is not active. Please contact the administrator.";
+            }
             header('Location: ../index.php');
             exit();
         }

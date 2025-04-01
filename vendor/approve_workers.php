@@ -18,6 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $conn->beginTransaction();
             
+            // Get user_id from worker record
+            $stmt = $conn->prepare("SELECT user_id FROM workers WHERE id = ?");
+            $stmt->execute([$worker_id]);
+            $worker_data = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$worker_data) {
+                throw new Exception("Worker not found");
+            }
+            
+            $user_id = $worker_data['user_id'];
+            
             // Update workers table
             $stmt = $conn->prepare("
                 UPDATE workers 
@@ -26,11 +37,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$new_status, $worker_id]);
             
+            // Update users table
+            $stmt = $conn->prepare("
+                UPDATE users 
+                SET approval_status = ? 
+                WHERE id = ?
+            ");
+            $stmt->execute([$new_status, $user_id]);
+            
             $conn->commit();
             $_SESSION['success'] = "Worker has been " . $new_status;
         } catch (PDOException $e) {
             $conn->rollBack();
             $_SESSION['error'] = "Error processing request: " . $e->getMessage();
+        } catch (Exception $e) {
+            $conn->rollBack();
+            $_SESSION['error'] = $e->getMessage();
         }
     }
     header('Location: ' . $_SERVER['PHP_SELF']);

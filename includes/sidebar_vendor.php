@@ -1,4 +1,72 @@
 <?php
+// Get database connection if not already included
+require_once dirname(__FILE__) . '/../connection/db_connection.php';
+
+// Get vendor ID from session
+$vendor_id = 0;
+if (isset($_SESSION['user_id'])) {
+    $stmt = $conn->prepare("SELECT id FROM vendors WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $vendor = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($vendor) {
+        $vendor_id = $vendor['id'];
+    }
+}
+
+// Get pending counts
+$pending_staff_count = 0;
+$pending_students_count = 0;
+$pending_workers_count = 0;
+$pending_orders_count = 0;
+
+if ($vendor_id > 0) {
+    // Get pending staff count
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as count
+        FROM staff_students
+        WHERE school_id IN (SELECT school_id FROM vendors WHERE id = ?)
+        AND approval_status = 'pending'
+        AND role = 'staff'
+    ");
+    $stmt->execute([$vendor_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $pending_staff_count = $result['count'];
+    
+    // Get pending students count
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as count
+        FROM staff_students
+        WHERE school_id IN (SELECT school_id FROM vendors WHERE id = ?)
+        AND approval_status = 'pending'
+        AND role = 'student'
+    ");
+    $stmt->execute([$vendor_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $pending_students_count = $result['count'];
+    
+    // Get pending workers count
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as count
+        FROM workers
+        WHERE vendor_id = ?
+        AND approval_status = 'pending'
+    ");
+    $stmt->execute([$vendor_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $pending_workers_count = $result['count'];
+    
+    // Get pending orders count
+    $stmt = $conn->prepare("
+        SELECT COUNT(*) as count
+        FROM orders
+        WHERE vendor_id = ?
+        AND status = 'pending'
+    ");
+    $stmt->execute([$vendor_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    $pending_orders_count = $result['count'];
+}
+
 // Vendor Sidebar
 echo '
 <li class="nav-item">
@@ -49,19 +117,19 @@ echo '
         <li class="nav-item">
             <a href="../vendor/approve_staff.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'approve_staff.php' ? 'active' : '') . '">
                 <p>Approve Staff</p>
-                <span class="badge badge-warning right pending-staff-count">0</span>
+                ' . ($pending_staff_count > 0 ? '<span class="badge badge-warning right">' . $pending_staff_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">
             <a href="../vendor/approve_students.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'approve_students.php' ? 'active' : '') . '">
                 <p>Approve Students</p>
-                <span class="badge badge-warning right pending-students-count">0</span>
+                ' . ($pending_students_count > 0 ? '<span class="badge badge-warning right">' . $pending_students_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">
             <a href="../vendor/approve_workers.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'approve_workers.php' ? 'active' : '') . '">
                 <p>Approve Workers</p>
-                <span class="badge badge-warning right pending-workers-count">0</span>
+                ' . ($pending_workers_count > 0 ? '<span class="badge badge-warning right">' . $pending_workers_count . '</span>' : '') . '
             </a>
         </li>
     </ul>
@@ -111,7 +179,7 @@ echo '
         <li class="nav-item">
             <a href="../vendor/pending_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'pending_orders.php' ? 'active' : '') . '">
                 <p>Pending Orders</p>
-                <span class="badge badge-warning right">5</span>
+                ' . ($pending_orders_count > 0 ? '<span class="badge badge-warning right">' . $pending_orders_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">

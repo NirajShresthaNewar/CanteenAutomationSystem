@@ -18,6 +18,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $conn->beginTransaction();
             
+            // Get user_id from student record
+            $stmt = $conn->prepare("SELECT user_id FROM staff_students WHERE id = ? AND role = 'student'");
+            $stmt->execute([$student_id]);
+            $student_data = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if (!$student_data) {
+                throw new Exception("Student not found");
+            }
+            
+            $user_id = $student_data['user_id'];
+            
             // Update staff_students table
             $stmt = $conn->prepare("
                 UPDATE staff_students 
@@ -26,11 +37,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ");
             $stmt->execute([$new_status, $student_id]);
             
+            // Update users table
+            $stmt = $conn->prepare("
+                UPDATE users 
+                SET approval_status = ? 
+                WHERE id = ?
+            ");
+            $stmt->execute([$new_status, $user_id]);
+            
             $conn->commit();
             $_SESSION['success'] = "Student has been " . $new_status;
         } catch (PDOException $e) {
             $conn->rollBack();
             $_SESSION['error'] = "Error processing request: " . $e->getMessage();
+        } catch (Exception $e) {
+            $conn->rollBack();
+            $_SESSION['error'] = $e->getMessage();
         }
     }
     header('Location: ' . $_SERVER['PHP_SELF']);

@@ -99,7 +99,7 @@ $additionalScripts = '';
           <span class="ml-1"><?php echo $_SESSION['username'] ?? 'User'; ?></span>
         </a>
         <div class="dropdown-menu dropdown-menu-right">
-          <a href="../auth/profile.php" class="dropdown-item">
+          <a href="../<?php echo strtolower($_SESSION['role']); ?>/profile.php" class="dropdown-item">
             <i class="fas fa-user-cog mr-2"></i> Profile
           </a>
           <div class="dropdown-divider"></div>

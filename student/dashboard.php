@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Check if user is logged in and is a student
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'student') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     header('Location: ../index.php');
     exit();
 }

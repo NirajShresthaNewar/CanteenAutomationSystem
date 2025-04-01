@@ -116,6 +116,7 @@ ob_start();
                         <tr>
                             <th>Name</th>
                             <th>Email</th>
+                            <th>Contact</th>
                             <th>School</th>
                             <th>Registration Date</th>
                             <th>Status</th>
@@ -146,6 +147,7 @@ ob_start();
                                     ss.id as staff_id,
                                     u.username,
                                     u.email,
+                                    u.contact_number,
                                     s.name as school_name,
                                     ss.school_id,
                                     u.created_at,
@@ -174,6 +176,7 @@ ob_start();
                                 echo "<tr>";
                                 echo "<td>" . htmlspecialchars($staff['username']) . "</td>";
                                 echo "<td>" . htmlspecialchars($staff['email']) . "</td>";
+                                echo "<td>" . ($staff['contact_number'] ? htmlspecialchars($staff['contact_number']) : 'N/A') . "</td>";
                                 echo "<td>" . htmlspecialchars($staff['school_name']) . "</td>";
                                 echo "<td>" . date('Y-m-d H:i', strtotime($staff['created_at'])) . "</td>";
                                 echo "<td><span class='badge badge-" . $status_class . "'>" . ucfirst($staff['approval_status']) . "</span></td>";

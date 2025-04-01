@@ -1,4 +1,45 @@
 <?php
+// Get database connection if not already included
+require_once dirname(__FILE__) . '/../connection/db_connection.php';
+
+// Get cart and active order counts
+$cart_count = 0;
+$active_orders_count = 0;
+
+if (isset($_SESSION['user_id'])) {
+    // Check if cart_items table exists first
+    try {
+        $stmt = $conn->prepare("
+            SELECT COUNT(*) as count
+            FROM cart_items
+            WHERE user_id = ?
+        ");
+        $stmt->execute([$_SESSION['user_id']]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $cart_count = $result['count'];
+    } catch (PDOException $e) {
+        // Table doesn't exist or other error
+        $cart_count = 0;
+    }
+    
+    // Check if orders table has user_id field
+    try {
+        $stmt = $conn->prepare("
+            SELECT COUNT(*) as count
+            FROM orders o
+            JOIN staff_students ss ON o.student_id = ss.id
+            WHERE ss.user_id = ?
+            AND o.status IN ('pending', 'accepted', 'in_progress', 'ready')
+        ");
+        $stmt->execute([$_SESSION['user_id']]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $active_orders_count = $result['count'];
+    } catch (PDOException $e) {
+        // Query failed or other error
+        $active_orders_count = 0;
+    }
+}
+
 // Student Sidebar
 echo '
 <!-- Dashboard -->
@@ -32,7 +73,7 @@ echo '
         <li class="nav-item">
             <a href="../student/cart.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'cart.php' ? 'active' : '') . '">
                 <p>Cart</p>
-                <span class="badge badge-success right">4</span>
+                ' . ($cart_count > 0 ? '<span class="badge badge-success right">' . $cart_count . '</span>' : '') . '
             </a>
         </li>
     </ul>
@@ -51,7 +92,7 @@ echo '
         <li class="nav-item">
             <a href="../student/active_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'active_orders.php' ? 'active' : '') . '">
                 <p>Active Orders</p>
-                <span class="badge badge-info right">2</span>
+                ' . ($active_orders_count > 0 ? '<span class="badge badge-info right">' . $active_orders_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">

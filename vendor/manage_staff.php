@@ -80,6 +80,41 @@ if (isset($_POST['edit_staff'])) {
     exit();
 }
 
+// Handle status update request
+if (isset($_POST['update_status'])) {
+    try {
+        $staff_id = $_POST['staff_id'];
+        $new_status = $_POST['status'];
+        
+        $conn->beginTransaction();
+        
+        // Check if staff belongs to vendor's school
+        $stmt = $conn->prepare("SELECT user_id FROM staff_students WHERE id = ? AND school_id = ? AND role = 'staff'");
+        $stmt->execute([$staff_id, $school_id]);
+        $staff = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($staff) {
+            // Update approval status in staff_students table
+            $stmt = $conn->prepare("UPDATE staff_students SET approval_status = ? WHERE id = ?");
+            $stmt->execute([$new_status, $staff_id]);
+            
+            // Also update approval status in users table
+            $stmt = $conn->prepare("UPDATE users SET approval_status = ? WHERE id = ?");
+            $stmt->execute([$new_status, $staff['user_id']]);
+            
+            $conn->commit();
+            $_SESSION['success'] = "Staff status has been updated to " . ucfirst($new_status);
+        } else {
+            throw new Exception("Unauthorized action");
+        }
+    } catch (Exception $e) {
+        $conn->rollBack();
+        $_SESSION['error'] = "Error updating status: " . $e->getMessage();
+    }
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
 $page_title = 'Manage Staff';
 ob_start();
 ?>
@@ -174,15 +209,37 @@ ob_start();
                                 echo "<td>" . date('Y-m-d H:i', strtotime($staff['created_at'])) . "</td>";
                                 echo "<td><span class='badge badge-" . $status_class . "'>" . ucfirst($staff['approval_status']) . "</span></td>";
                                 echo "<td>
-                                        <button type='button' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#editStaffModal" . $staff['staff_id'] . "'>
-                                            <i class='fas fa-edit'></i> Edit
-                                        </button>
-                                        <form method='POST' style='display:inline;margin-left:5px;'>
-                                            <input type='hidden' name='staff_id' value='" . $staff['staff_id'] . "'>
-                                            <button type='submit' name='delete_staff' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure you want to delete this staff member?\")'>
-                                                <i class='fas fa-trash'></i> Delete
+                                        <div class='btn-group'>
+                                            <button type='button' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#editStaffModal" . $staff['staff_id'] . "'>
+                                                <i class='fas fa-edit'></i> Edit
                                             </button>
-                                        </form>
+                                            <button type='button' class='btn btn-secondary btn-sm dropdown-toggle dropdown-toggle-split' data-toggle='dropdown'>
+                                                <i class='fas fa-cog'></i>
+                                            </button>
+                                            <div class='dropdown-menu'>
+                                                <form method='POST'>
+                                                    <input type='hidden' name='staff_id' value='" . $staff['staff_id'] . "'>
+                                                    <input type='hidden' name='status' value='approved'>
+                                                    <button type='submit' name='update_status' class='dropdown-item text-success'>
+                                                        <i class='fas fa-check'></i> Approve
+                                                    </button>
+                                                </form>
+                                                <form method='POST'>
+                                                    <input type='hidden' name='staff_id' value='" . $staff['staff_id'] . "'>
+                                                    <input type='hidden' name='status' value='rejected'>
+                                                    <button type='submit' name='update_status' class='dropdown-item text-danger'>
+                                                        <i class='fas fa-times'></i> Reject
+                                                    </button>
+                                                </form>
+                                                <div class='dropdown-divider'></div>
+                                                <form method='POST'>
+                                                    <input type='hidden' name='staff_id' value='" . $staff['staff_id'] . "'>
+                                                    <button type='submit' name='delete_staff' class='dropdown-item text-danger' onclick='return confirm(\"Are you sure you want to delete this staff member?\")'>
+                                                        <i class='fas fa-trash'></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </td>";
                                 echo "</tr>";
 

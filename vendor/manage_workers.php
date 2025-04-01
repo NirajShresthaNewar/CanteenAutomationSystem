@@ -8,10 +8,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'vendor') {
     exit();
 }
 
-// Get vendor's school_id
-$stmt = $conn->prepare("SELECT school_id FROM vendors WHERE user_id = ?");
+// Get vendor's information
+$stmt = $conn->prepare("SELECT id, school_id FROM vendors WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $vendor = $stmt->fetch(PDO::FETCH_ASSOC);
+$vendor_id = $vendor['id'];
 $school_id = $vendor['school_id'];
 
 // Handle delete request
@@ -21,9 +22,9 @@ if (isset($_POST['delete_worker'])) {
         
         $conn->beginTransaction();
         
-        // Check if worker belongs to vendor's school
-        $stmt = $conn->prepare("SELECT user_id FROM workers WHERE id = ? AND school_id = ?");
-        $stmt->execute([$worker_id, $school_id]);
+        // Check if worker belongs to this vendor
+        $stmt = $conn->prepare("SELECT user_id FROM workers WHERE id = ? AND vendor_id = ?");
+        $stmt->execute([$worker_id, $vendor_id]);
         $worker = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($worker) {
@@ -58,9 +59,9 @@ if (isset($_POST['edit_worker'])) {
         
         $conn->beginTransaction();
         
-        // Check if worker belongs to vendor's school
-        $stmt = $conn->prepare("SELECT user_id FROM workers WHERE id = ? AND school_id = ?");
-        $stmt->execute([$worker_id, $school_id]);
+        // Check if worker belongs to this vendor
+        $stmt = $conn->prepare("SELECT user_id FROM workers WHERE id = ? AND vendor_id = ?");
+        $stmt->execute([$worker_id, $vendor_id]);
         $worker = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($worker) {
@@ -80,6 +81,41 @@ if (isset($_POST['edit_worker'])) {
     } catch (Exception $e) {
         $conn->rollBack();
         $_SESSION['error'] = "Error updating worker information: " . $e->getMessage();
+    }
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
+}
+
+// Handle status update request
+if (isset($_POST['update_status'])) {
+    try {
+        $worker_id = $_POST['worker_id'];
+        $new_status = $_POST['status'];
+        
+        $conn->beginTransaction();
+        
+        // Check if worker belongs to this vendor
+        $stmt = $conn->prepare("SELECT user_id FROM workers WHERE id = ? AND vendor_id = ?");
+        $stmt->execute([$worker_id, $vendor_id]);
+        $worker = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($worker) {
+            // Update approval status in workers table
+            $stmt = $conn->prepare("UPDATE workers SET approval_status = ? WHERE id = ?");
+            $stmt->execute([$new_status, $worker_id]);
+            
+            // Also update approval status in users table
+            $stmt = $conn->prepare("UPDATE users SET approval_status = ? WHERE id = ?");
+            $stmt->execute([$new_status, $worker['user_id']]);
+            
+            $conn->commit();
+            $_SESSION['success'] = "Worker status has been updated to " . ucfirst($new_status);
+        } else {
+            throw new Exception("Unauthorized action");
+        }
+    } catch (Exception $e) {
+        $conn->rollBack();
+        $_SESSION['error'] = "Error updating status: " . $e->getMessage();
     }
     header('Location: ' . $_SERVER['PHP_SELF']);
     exit();
@@ -157,10 +193,10 @@ ob_start();
                                     w.approval_status
                                 FROM workers w
                                 JOIN users u ON w.user_id = u.id
-                                WHERE w.school_id = ?
+                                WHERE w.vendor_id = ?
                                 ORDER BY u.created_at DESC
                             ");
-                            $stmt->execute([$school_id]);
+                            $stmt->execute([$vendor_id]);
 
                             while ($worker = $stmt->fetch(PDO::FETCH_ASSOC)) {
                                 $status_class = '';
@@ -182,15 +218,37 @@ ob_start();
                                 echo "<td>" . date('Y-m-d H:i', strtotime($worker['created_at'])) . "</td>";
                                 echo "<td><span class='badge badge-" . $status_class . "'>" . ucfirst($worker['approval_status']) . "</span></td>";
                                 echo "<td>
-                                        <button type='button' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#editWorkerModal" . $worker['worker_id'] . "'>
-                                            <i class='fas fa-edit'></i> Edit
-                                        </button>
-                                        <form method='POST' style='display:inline;margin-left:5px;'>
-                                            <input type='hidden' name='worker_id' value='" . $worker['worker_id'] . "'>
-                                            <button type='submit' name='delete_worker' class='btn btn-danger btn-sm' onclick='return confirm(\"Are you sure you want to delete this worker?\")'>
-                                                <i class='fas fa-trash'></i> Delete
+                                        <div class='btn-group'>
+                                            <button type='button' class='btn btn-primary btn-sm' data-toggle='modal' data-target='#editWorkerModal" . $worker['worker_id'] . "'>
+                                                <i class='fas fa-edit'></i> Edit
                                             </button>
-                                        </form>
+                                            <button type='button' class='btn btn-secondary btn-sm dropdown-toggle dropdown-toggle-split' data-toggle='dropdown'>
+                                                <i class='fas fa-cog'></i>
+                                            </button>
+                                            <div class='dropdown-menu'>
+                                                <form method='POST'>
+                                                    <input type='hidden' name='worker_id' value='" . $worker['worker_id'] . "'>
+                                                    <input type='hidden' name='status' value='approved'>
+                                                    <button type='submit' name='update_status' class='dropdown-item text-success'>
+                                                        <i class='fas fa-check'></i> Approve
+                                                    </button>
+                                                </form>
+                                                <form method='POST'>
+                                                    <input type='hidden' name='worker_id' value='" . $worker['worker_id'] . "'>
+                                                    <input type='hidden' name='status' value='rejected'>
+                                                    <button type='submit' name='update_status' class='dropdown-item text-danger'>
+                                                        <i class='fas fa-times'></i> Reject
+                                                    </button>
+                                                </form>
+                                                <div class='dropdown-divider'></div>
+                                                <form method='POST'>
+                                                    <input type='hidden' name='worker_id' value='" . $worker['worker_id'] . "'>
+                                                    <button type='submit' name='delete_worker' class='dropdown-item text-danger' onclick='return confirm(\"Are you sure you want to delete this worker?\")'>
+                                                        <i class='fas fa-trash'></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
                                     </td>";
                                 echo "</tr>";
 
@@ -218,7 +276,10 @@ ob_start();
                                                     </div>
                                                     <div class='form-group'>
                                                         <label for='position" . $worker['worker_id'] . "'>Position</label>
-                                                        <input type='text' class='form-control' id='position" . $worker['worker_id'] . "' name='position' value='" . htmlspecialchars($worker['position']) . "' required>
+                                                        <select class='form-control' id='position" . $worker['worker_id'] . "' name='position' required>
+                                                            <option value='kitchen_staff' " . ($worker['position'] == 'kitchen_staff' ? 'selected' : '') . ">Kitchen Staff</option>
+                                                            <option value='waiter' " . ($worker['position'] == 'waiter' ? 'selected' : '') . ">Waiter</option>
+                                                        </select>
                                                     </div>
                                                 </div>
                                                 <div class='modal-footer'>

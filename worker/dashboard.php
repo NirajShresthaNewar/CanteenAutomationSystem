@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Check if user is logged in and is a worker
-if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'worker') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'worker') {
     header('Location: ../index.php');
     exit();
 }

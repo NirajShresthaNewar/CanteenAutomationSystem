@@ -1,6 +1,22 @@
 <?php
 // Staff Sidebar
 echo '
+
+<!-- User Profile Section -->
+
+ <div class="user-info">
+                <div class="user-avatar">
+                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar">
+                    <span class="status-indicator online"></span>
+                </div>
+                <div class="user-details">
+                    <h5>' . htmlspecialchars($user_details['username'] ?? 'Staff') . '</h5>
+                    <p>' . ucfirst($user_details['role'] ?? 'staff') . '</p>
+                </div>
+            </div>
+
+
+
 <!-- Dashboard -->
 <li class="nav-item">
     <a href="../staff/dashboard.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'dashboard.php' ? 'active' : '') . '">

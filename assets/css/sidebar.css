@@ -49,6 +49,7 @@
 /* Inactive submenu links */
 .nav-treeview .nav-item .submenu-link:not(.active) {
     background-color: transparent !important;
+    
 }
 
 /* Submenu container styling */

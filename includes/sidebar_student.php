@@ -2,6 +2,22 @@
 // Get database connection if not already included
 require_once dirname(__FILE__) . '/../connection/db_connection.php';
 
+// Get user details
+$user_details = null;
+if (isset($_SESSION['user_id'])) {
+    try {
+        $stmt = $conn->prepare("
+            SELECT u.username, u.profile_pic, u.role
+            FROM users u
+            WHERE u.id = ?
+        ");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user_details = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Handle error silently
+    }
+}
+
 // Get cart and active order counts
 $cart_count = 0;
 $active_orders_count = 0;
@@ -40,6 +56,27 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
+// Output the profile section first
+echo '
+<!-- User Profile Section -->
+
+            <div class="user-info">
+            <div class="user-avatar">
+
+           <!-- <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar"> -->
+
+            <img src="' . (isset($user_details['profile_pic']) && $user_details['profile_pic'] ? '../uploads/profile/' . $user_details['profile_pic'] : '../assets/img/default-profile.png') . '" class="profile-image" alt="User Image">
+                    <span class="status-indicator online"></span>
+                </div>
+                <div class="user-details">
+                    <h5>' . htmlspecialchars($user_details['username'] ?? 'Student') . '</h5>
+                    <p>' . ucfirst($user_details['role'] ?? 'student') . '</p>
+                </div>
+            </div>
+
+<!-- Navigation Items -->
+';
+
 // Student Sidebar
 echo '
 <!-- Dashboard -->
@@ -68,6 +105,11 @@ echo '
         <li class="nav-item">
             <a href="../student/menu.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu.php' ? 'active' : '') . '">
                 <p>Menu</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../student/scan_qr.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'scan_qr.php' ? 'active' : '') . '">
+                <p>Scan QR Menu</p>
             </a>
         </li>
         <li class="nav-item">
@@ -103,6 +145,29 @@ echo '
     </ul>
 </li>
 
+<!-- Credit Accounts -->
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['credit_accounts.php', 'credit_transactions.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['credit_accounts.php', 'credit_transactions.php']) ? 'active' : '') . '">
+        <i class="nav-icon fas fa-credit-card"></i>
+        <p>
+            Credit Accounts
+            <i class="fas fa-angle-left right"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="../student/credit_accounts.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_accounts.php' ? 'active' : '') . '">
+                <p>My Credit Accounts</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../student/credit_transactions.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_transactions.php' ? 'active' : '') . '">
+                <p>Transactions</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
 <!-- Favorites -->
 <li class="nav-item">
     <a href="../student/favorites.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'favorites.php' ? 'active' : '') . '">
@@ -111,10 +176,18 @@ echo '
     </a>
 </li>
 
+<!-- Subscription Portal -->
+<li class="nav-item">
+    <a href="../student/subscription_portal.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_portal.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-ticket-alt"></i>
+        <p>Subscription Portal</p>
+    </a>
+</li>
+
 <!-- Payments -->
 <li class="nav-item">
     <a href="../student/payments.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'payments.php' ? 'active' : '') . '">
-        <i class="nav-icon fas fa-credit-card"></i>
+        <i class="nav-icon fas fa-money-bill-wave"></i>
         <p>Payment Methods</p>
     </a>
 </li>

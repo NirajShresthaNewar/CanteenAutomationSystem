@@ -1,0 +1,4 @@
+android {
+    namespace "com.example.canteen_student_app"
+    // ... rest of your android config
+} 

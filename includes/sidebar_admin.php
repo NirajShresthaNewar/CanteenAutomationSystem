@@ -39,16 +39,19 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../admin/staff.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'staff.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-user-tie"></i>
                 <p>Staff</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../admin/students.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'students.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-user-graduate"></i>
                 <p>Students</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../admin/workers.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'workers.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-hard-hat"></i>
                 <p>Workers</p>
             </a>
         </li>
@@ -67,13 +70,46 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../admin/vendors.php" class="nav-link submenu-link ' . (basename($_SERVER['PHP_SELF']) == 'vendors.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-store-alt"></i>
                 <p>All Vendors</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../admin/approve_vendors.php" class="nav-link submenu-link ' . (basename($_SERVER['PHP_SELF']) == 'approve_vendors.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-check-circle"></i>
                 <p>Approve Vendors</p>
                 ' . ($pending_vendor_count > 0 ? '<span class="badge badge-warning right">' . $pending_vendor_count . '</span>' : '') . '
+            </a>
+        </li>
+    </ul>
+</li>
+
+<!-- Inventory Management -->
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['manage_ingredients.php', 'manage_categories.php', 'inventory_alerts.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['manage_ingredients.php', 'manage_categories.php', 'inventory_alerts.php']) ? 'active' : '') . '">
+        <i class="nav-icon fas fa-boxes"></i>
+        <p>
+            Inventory Management
+            <i class="fas fa-angle-left right"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="../admin/manage_ingredients.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'manage_ingredients.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-box"></i>
+                <p>Manage Ingredients</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../admin/manage_categories.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'manage_categories.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-tags"></i>
+                <p>Manage Categories</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../admin/inventory_alerts.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'inventory_alerts.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                <p>Inventory Alerts</p>
             </a>
         </li>
     </ul>
@@ -99,11 +135,13 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../admin/transactions.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'transactions.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-exchange-alt"></i>
                 <p>Transactions</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../admin/financial_reports.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'financial_reports.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-chart-line"></i>
                 <p>Financial Reports</p>
             </a>
         </li>
@@ -122,11 +160,13 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../admin/user_reports.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'user_reports.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-users-cog"></i>
                 <p>User Reports</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../admin/vendor_reports.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'vendor_reports.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-store-alt"></i>
                 <p>Vendor Reports</p>
             </a>
         </li>

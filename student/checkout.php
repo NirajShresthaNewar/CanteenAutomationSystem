@@ -2,178 +2,147 @@
 session_start();
 require_once '../connection/db_connection.php';
 
-// Check if user is logged in and is a student or staff
-if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['student', 'staff'])) {
+// Check if user is logged in and is a student
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     header('Location: ../index.php');
     exit();
 }
 
-// Check if cart is empty
-if (empty($_SESSION['cart'])) {
-    $_SESSION['error'] = "Your cart is empty.";
+// Verify POST request with required data
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['vendor_id'], $_POST['payment_method'])) {
+    $_SESSION['error'] = "Invalid checkout request.";
     header('Location: cart.php');
     exit();
 }
 
-// Get user's school_id
-$stmt = $conn->prepare("
-    SELECT ss.school_id 
-    FROM staff_students ss 
-    WHERE ss.user_id = ?
-");
-$stmt->execute([$_SESSION['user_id']]);
-$user_school = $stmt->fetch(PDO::FETCH_ASSOC);
+$vendor_id = $_POST['vendor_id'];
+$payment_method = $_POST['payment_method'];
 
-if (!$user_school) {
-    $_SESSION['error'] = "User school information not found.";
-    header('Location: cart.php');
-    exit();
-}
+try {
+    // Get cart items for this vendor
+    $stmt = $conn->prepare("
+        SELECT ci.*, mi.name, mi.price
+        FROM cart_items ci
+        JOIN menu_items mi ON ci.menu_item_id = mi.item_id
+        WHERE ci.user_id = ? AND mi.vendor_id = ?
+    ");
+    $stmt->execute([$_SESSION['user_id'], $vendor_id]);
+    $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get vendor information
-$vendor_id = $_SESSION['cart'][0]['vendor_id'];
-$stmt = $conn->prepare("
-    SELECT v.*, u.username as vendor_name 
-    FROM vendors v
-    JOIN users u ON v.user_id = u.id
-    WHERE v.id = ? AND v.school_id = ?
-");
-$stmt->execute([$vendor_id, $user_school['school_id']]);
-$vendor = $stmt->fetch(PDO::FETCH_ASSOC);
-
-if (!$vendor) {
-    $_SESSION['error'] = "Vendor not found or not affiliated with your school.";
-    header('Location: cart.php');
-    exit();
-}
-
-// Process checkout
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    try {
-        $conn->beginTransaction();
-        
-        // Calculate total
-        $total_amount = 0;
-        foreach ($_SESSION['cart'] as $item) {
-            $total_amount += $item['price'] * $item['quantity'];
-        }
-        
-        // Generate receipt number
-        $receipt_number = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
-        
-        // Get payment method
-        $payment_method = $_POST['payment_method'];
-        
-        // Check credit account if payment method is credit
-        $credit_account_id = null;
-        if ($payment_method === 'credit') {
-            $stmt = $conn->prepare("
-                SELECT id, credit_limit, current_balance 
-                FROM credit_accounts 
-                WHERE user_id = ? AND vendor_id = ? AND status = 'active'
-            ");
-            $stmt->execute([$_SESSION['user_id'], $vendor_id]);
-            $credit_account = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$credit_account) {
-                throw new Exception("You don't have an active credit account with this vendor.");
-            }
-            
-            $available_credit = $credit_account['credit_limit'] - $credit_account['current_balance'];
-            if ($available_credit < $total_amount) {
-                throw new Exception("Insufficient credit available. Your available credit is Rs. " . 
-                    number_format($available_credit, 2));
-            }
-            
-            $credit_account_id = $credit_account['id'];
-        }
-        
-        // Create order
-        $stmt = $conn->prepare("
-            INSERT INTO orders (
-                user_id, vendor_id, total_amount, payment_method, 
-                credit_account_id, receipt_number, status, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())
-        ");
-        $stmt->execute([
-            $_SESSION['user_id'],
-            $vendor_id,
-            $total_amount,
-            $payment_method,
-            $credit_account_id,
-            $receipt_number
-        ]);
-        
-        $order_id = $conn->lastInsertId();
-        
-        // Add order items
-        $stmt = $conn->prepare("
-            INSERT INTO order_items (
-                order_id, item_id, quantity, price
-            ) VALUES (?, ?, ?, ?)
-        ");
-        
-        foreach ($_SESSION['cart'] as $item) {
-            $stmt->execute([
-                $order_id,
-                $item['item_id'],
-                $item['quantity'],
-                $item['price']
-            ]);
-        }
-        
-        // If credit payment, update credit account and record transaction
-        if ($payment_method === 'credit') {
-            // Update credit account balance
-            $stmt = $conn->prepare("
-                UPDATE credit_accounts 
-                SET current_balance = current_balance + ?,
-                    updated_at = NOW()
-                WHERE id = ?
-            ");
-            $stmt->execute([$total_amount, $credit_account_id]);
-            
-            // Record credit transaction
-            $stmt = $conn->prepare("
-                INSERT INTO credit_transactions (
-                    user_id, vendor_id, order_id, amount, 
-                    transaction_type, payment_method, created_at
-                ) VALUES (?, ?, ?, ?, 'purchase', 'credit', NOW())
-            ");
-            $stmt->execute([
-                $_SESSION['user_id'],
-                $vendor_id,
-                $order_id,
-                $total_amount
-            ]);
-        }
-        
-        // Send notification to vendor
-        $stmt = $conn->prepare("
-            INSERT INTO notifications (
-                user_id, message, status, created_at
-            ) VALUES (?, ?, 'unread', NOW())
-        ");
-        $stmt->execute([
-            $vendor['user_id'],
-            "New order received: #" . $receipt_number . " - Rs. " . number_format($total_amount, 2)
-        ]);
-        
-        $conn->commit();
-        
-        // Clear cart
-        $_SESSION['cart'] = [];
-        
-        // Redirect to order confirmation
-        header("Location: order_confirmation.php?receipt=" . $receipt_number);
-        exit();
-        
-    } catch (Exception $e) {
-        $conn->rollBack();
-        $_SESSION['error'] = "Error: " . $e->getMessage();
-        header('Location: cart.php');
-        exit();
+    if (empty($cart_items)) {
+        throw new Exception("Your cart is empty.");
     }
+
+    // Calculate total
+    $total_amount = 0;
+    foreach ($cart_items as $item) {
+        $total_amount += $item['price'] * $item['quantity'];
+    }
+
+    // Get student ID
+    $stmt = $conn->prepare("SELECT id FROM staff_students WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $student = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$student) {
+        throw new Exception("Student record not found.");
+    }
+
+    // Start transaction
+    $conn->beginTransaction();
+
+    // Generate receipt number
+    $receipt_number = 'ORD' . date('Ymd') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+    // Create order
+    $stmt = $conn->prepare("
+        INSERT INTO orders (
+            receipt_number, user_id, customer_id, vendor_id,
+            total_amount, payment_method, payment_status,
+            status, order_date
+        ) VALUES (
+            ?, ?, ?, ?,
+            ?, ?, ?,
+            'pending', CURRENT_TIMESTAMP
+        )
+    ");
+    $stmt->execute([
+        $receipt_number,
+        $_SESSION['user_id'],
+        $student['id'],
+        $vendor_id,
+        $total_amount,
+        $payment_method,
+        'pending'
+    ]);
+
+    $order_id = $conn->lastInsertId();
+
+    // Create order items
+    $stmt = $conn->prepare("
+        INSERT INTO order_items (
+            order_id, menu_item_id, quantity,
+            unit_price, subtotal, special_instructions
+        ) VALUES (?, ?, ?, ?, ?, ?)
+    ");
+
+    foreach ($cart_items as $item) {
+        $subtotal = $item['price'] * $item['quantity'];
+        $stmt->execute([
+            $order_id,
+            $item['menu_item_id'],
+            $item['quantity'],
+            $item['price'],
+            $subtotal,
+            $item['special_instructions'] ?? null
+        ]);
+    }
+
+    // Clear cart items for this vendor
+    $stmt = $conn->prepare("
+        DELETE FROM cart_items 
+        WHERE user_id = ? 
+        AND menu_item_id IN (
+            SELECT item_id 
+            FROM menu_items 
+            WHERE vendor_id = ?
+        )
+    ");
+    $stmt->execute([$_SESSION['user_id'], $vendor_id]);
+
+    // Create order tracking entry
+    $stmt = $conn->prepare("
+        INSERT INTO order_tracking (
+            order_id, status, status_changed_at, updated_by
+        ) VALUES (?, 'pending', CURRENT_TIMESTAMP, ?)
+    ");
+    $stmt->execute([$order_id, $_SESSION['user_id']]);
+
+    $conn->commit();
+
+    // Redirect based on payment method
+    switch ($payment_method) {
+        case 'cash':
+            header("Location: cash_payment.php?order_id=" . $order_id);
+            break;
+        case 'esewa':
+            header("Location: esewa_payment.php?order_id=" . $order_id);
+            break;
+        case 'credit':
+            header("Location: credit_payment.php?order_id=" . $order_id);
+            break;
+        default:
+            throw new Exception("Invalid payment method.");
+    }
+    exit();
+
+} catch (Exception $e) {
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+    }
+    $_SESSION['error'] = "Error processing checkout: " . $e->getMessage();
+    header('Location: cart.php');
+    exit();
 }
 
 $page_title = 'Checkout';

@@ -59,12 +59,14 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../worker/assigned_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'assigned_orders.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-tasks"></i>
                 <p>Assigned Orders</p>
                 ' . ($assigned_orders_count > 0 ? '<span class="badge badge-info right">' . $assigned_orders_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">
             <a href="../worker/order_history.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'order_history.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-history"></i>
                 <p>Order History</p>
             </a>
         </li>

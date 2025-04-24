@@ -1,18 +1,27 @@
 <?php
+// Include the functions file
+require_once __DIR__ . '/../includes/functions.php';
+
 // Base URL for QR code generation - Change this to your server's IP address or domain name
 // For local network access, use your computer's IP address (e.g., http://192.168.1.100)
 // For public access, use your domain name (e.g., https://example.com)
 
-// Define the current server IP address
+// Get all valid IP addresses
 $server_ips = getServerIP();
-$wifi_ip = !empty($server_ips) ? $server_ips[0] : '192.168.137.139';
 
-// Uncomment the line below to use automatic IP detection
-// define('BASE_URL', 'http://' . $wifi_ip . '/CanteenAutomationSystem');
+// Select the first valid IP address that's not localhost
+$server_ip = '127.0.0.1'; // default fallback
+foreach ($server_ips as $ip) {
+    if ($ip !== '127.0.0.1' && $ip !== '0.0.0.0') {
+        $server_ip = $ip;
+        break;
+    }
+}
 
-// Manual setting for current network (192.168.137.x)
-define('BASE_URL', 'http://192.168.137.139/CanteenAutomationSystem');
+// Define the base URL using the detected IP
+define('BASE_URL', 'http://' . $server_ip . '/CanteenAutomationSystem');
 
-// Previous manual setting - comment out if not using
-// define('BASE_URL', 'http://192.168.1.72/CanteenAutomationSystem');
+// For debugging purposes
+// error_log('Available IPs: ' . print_r($server_ips, true));
+// error_log('Selected IP: ' . $server_ip);
 ?> 

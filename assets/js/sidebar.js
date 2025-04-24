@@ -1,65 +1,70 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize AdminLTE components
-    if (typeof $.fn.overlayScrollbars !== 'undefined') {
-        $('.sidebar').overlayScrollbars({
-            className: 'os-theme-light',
-            sizeAutoCapable: true,
-            scrollbars: {
-                autoHide: 'leave',
-                clickScrolling: true
-            }
-        });
-    }
-
-    // Handle submenu toggle
-    const menuItems = document.querySelectorAll('.nav-item.has-treeview > a');
-    menuItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const parent = this.parentElement;
-            const submenu = parent.querySelector('.nav-treeview');
-            const arrow = this.querySelector('.fa-angle-left');
-
-            if (submenu) {
-                if (parent.classList.contains('menu-open')) {
-                    // Close submenu
-                    parent.classList.remove('menu-open');
-                    $(submenu).slideUp(300, function() {
-                        if (arrow) arrow.style.transform = 'rotate(0deg)';
-                    });
-                } else {
-                    // Open submenu
-                    parent.classList.add('menu-open');
-                    $(submenu).slideDown(300);
-                    if (arrow) arrow.style.transform = 'rotate(-90deg)';
-                }
-            }
-        });
-    });
-
-    // Set active state based on current URL
-    const currentPath = window.location.pathname;
-    const currentPage = currentPath.split('/').pop();
+$(document).ready(function() {
+    // Prevent AdminLTE's default click handlers
+    $('.nav-sidebar .nav-link').off('click');
     
-    document.querySelectorAll('.nav-link').forEach(link => {
-        const href = link.getAttribute('href');
-        if (href && href.endsWith(currentPage)) {
-            link.classList.add('active');
-            
-            const parentMenu = link.closest('.has-treeview');
-            if (parentMenu) {
-                parentMenu.classList.add('menu-open');
-                const treeView = parentMenu.querySelector('.nav-treeview');
-                if (treeView) {
-                    treeView.style.display = 'block';
-                }
-                const arrow = parentMenu.querySelector('.fa-angle-left');
-                if (arrow) {
-                    arrow.style.transform = 'rotate(-90deg)';
-                }
-            }
+    // Initialize active states based on current URL
+    setInitialActiveStates();
+    
+    // Handle menu item clicks
+    $('.nav-sidebar .nav-link').on('click', function(e) {
+        const $link = $(this);
+        const $item = $link.parent('.nav-item');
+        
+        // If item has submenu, handle toggle
+        if ($item.has('.nav-treeview').length) {
+            e.preventDefault();
+            toggleSubmenu($item);
         }
     });
-}); 
+    
+    // Handle sidebar collapse
+    $('[data-widget="pushmenu"]').on('click', function() {
+        // Close all submenus when sidebar collapses
+        setTimeout(() => {
+            if ($('body').hasClass('sidebar-collapse')) {
+                $('.nav-sidebar .menu-open').removeClass('menu-open');
+                $('.nav-treeview').slideUp(200);
+            }
+        }, 300);
+    });
+});
+
+function toggleSubmenu($item) {
+    const $submenu = $item.children('.nav-treeview');
+    const isOpen = $item.hasClass('menu-open');
+    
+    // Close other open menus at the same level
+    const $siblings = $item.siblings('.menu-open');
+    $siblings.removeClass('menu-open');
+    $siblings.find('.nav-treeview').slideUp(200);
+    
+    // Toggle current menu
+    if (isOpen) {
+        $item.removeClass('menu-open');
+        $submenu.slideUp(200);
+    } else {
+        $item.addClass('menu-open');
+        $submenu.slideDown(200);
+    }
+}
+
+function setInitialActiveStates() {
+    const currentPath = window.location.pathname;
+    
+    // Remove any existing active classes
+    $('.nav-sidebar .nav-link').removeClass('active');
+    
+    // Find and activate the matching link
+    $('.nav-sidebar .nav-link').each(function() {
+        const href = $(this).attr('href');
+        if (href && currentPath.includes(href)) {
+            const $link = $(this);
+            $link.addClass('active');
+            
+            // Open parent menus if this is a submenu item
+            const $parents = $link.parents('.nav-item');
+            $parents.addClass('menu-open');
+            $parents.children('.nav-treeview').show();
+        }
+    });
+} 

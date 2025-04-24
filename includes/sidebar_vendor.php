@@ -88,16 +88,19 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../vendor/manage_staff.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'manage_staff.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-user-tie"></i>
                 <p>Manage Staff</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../vendor/manage_students.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'manage_students.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-user-graduate"></i>
                 <p>Manage Students</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../vendor/manage_workers.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'manage_workers.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-hard-hat"></i>
                 <p>Manage Workers</p>
             </a>
         </li>
@@ -116,18 +119,21 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../vendor/approve_staff.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'approve_staff.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-user-shield"></i>
                 <p>Approve Staff</p>
                 ' . ($pending_staff_count > 0 ? '<span class="badge badge-warning right">' . $pending_staff_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">
             <a href="../vendor/approve_students.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'approve_students.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-user-plus"></i>
                 <p>Approve Students</p>
                 ' . ($pending_students_count > 0 ? '<span class="badge badge-warning right">' . $pending_students_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">
             <a href="../vendor/approve_workers.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) === 'approve_workers.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-user-cog"></i>
                 <p>Approve Workers</p>
                 ' . ($pending_workers_count > 0 ? '<span class="badge badge-warning right">' . $pending_workers_count . '</span>' : '') . '
             </a>
@@ -135,8 +141,8 @@ echo '
     </ul>
 </li>
 
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['menu_items.php', 'add_menu.php', 'categories.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['menu_items.php', 'add_menu.php', 'categories.php']) ? 'active' : '') . '">
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['menu_items.php', 'add_menu.php', 'categories.php', 'manage_recipes.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['menu_items.php', 'add_menu.php', 'categories.php', 'manage_recipes.php']) ? 'active' : '') . '">
         <i class="nav-icon fas fa-utensils"></i>
         <p>
             Menu Management
@@ -146,7 +152,7 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../vendor/menu_items.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu_items.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-th"></i>
+                <i class="nav-icon fas fa-list"></i>
                 <p>All Menu Items</p>
             </a>
         </li>
@@ -162,6 +168,89 @@ echo '
                 <p>Categories</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="../vendor/manage_recipes.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'manage_recipes.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-book"></i>
+                <p>Manage Recipes</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
+<!-- Production Management -->
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['record_production.php', 'production_history.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['record_production.php', 'production_history.php']) ? 'active' : '') . '">
+        <i class="nav-icon fas fa-industry"></i>
+        <p>
+            Production
+            <i class="fas fa-angle-left right"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="../vendor/record_production.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'record_production.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-plus-circle"></i>
+                <p>Record Production</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/production_history.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'production_history.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-history"></i>
+                <p>Production History</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
+<!-- Inventory Management -->
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['inventory.php', 'add_inventory.php', 'inventory_history.php', 'ingredient_settings.php', 'inventory_alerts.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['inventory.php', 'add_inventory.php', 'inventory_history.php', 'ingredient_settings.php', 'inventory_alerts.php']) ? 'active' : '') . '">
+        <i class="nav-icon fas fa-boxes"></i>
+        <p>
+            Inventory Management
+            <i class="fas fa-angle-left right"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="../vendor/inventory.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'inventory.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-box"></i>
+                <p>Current Inventory</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/add_inventory.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'add_inventory.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-plus-circle"></i>
+                <p>Add Inventory</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/inventory_history.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'inventory_history.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-history"></i>
+                <p>Inventory History</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/inventory_alerts.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'inventory_alerts.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-exclamation-triangle"></i>
+                <p>Inventory Alerts';
+
+// Get alert count using the new function
+require_once dirname(__FILE__) . '/../vendor/check_inventory_alerts.php';
+$alert_count = getAlertCount($conn, $vendor_id);
+if ($alert_count > 0) {
+    echo '<span class="badge badge-danger right">' . $alert_count . '</span>';
+}
+
+echo '</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/ingredient_settings.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'ingredient_settings.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-cog"></i>
+                <p>Ingredient Settings</p>
+            </a>
+        </li>
     </ul>
 </li>
 
@@ -173,8 +262,9 @@ echo '
     </a>
 </li>
 
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['manage_orders.php', 'order_history.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['manage_orders.php', 'order_history.php']) ? 'active' : '') . '">
+<!-- Order Management -->
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['manage_orders.php', 'order_history.php', 'manage_payments.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['manage_orders.php', 'order_history.php', 'manage_payments.php']) ? 'active' : '') . '">
         <i class="nav-icon fas fa-shopping-cart"></i>
         <p>
             Order Management
@@ -188,6 +278,12 @@ echo '
                 <i class="nav-icon fas fa-tasks"></i>
                 <p>Manage Orders</p>
                 ' . ($pending_orders_count > 0 ? '<span class="badge badge-danger right">' . $pending_orders_count . '</span>' : '') . '
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/manage_payments.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'manage_payments.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-money-bill-wave"></i>
+                <p>Manage Payments</p>
             </a>
         </li>
         <li class="nav-item">
@@ -211,7 +307,7 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../vendor/credit_accounts.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_accounts.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-users"></i>
+                <i class="nav-icon fas fa-wallet"></i>
                 <p>Credit Accounts</p>
             </a>
         </li>
@@ -223,7 +319,7 @@ echo '
         </li>
         <li class="nav-item">
             <a href="../vendor/credit_settings.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_settings.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-cogs"></i>
+                <i class="nav-icon fas fa-sliders-h"></i>
                 <p>Credit Settings</p>
             </a>
         </li>
@@ -235,7 +331,7 @@ echo '
     <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['subscription_plans.php', 'subscription_transactions.php']) ? 'active' : '') . '">
         <i class="nav-icon fas fa-ticket-alt"></i>
         <p>
-            Subscription Management
+            Subscription
             <i class="fas fa-angle-left right"></i>
         </p>
     </a>
@@ -248,7 +344,7 @@ echo '
         </li>
         <li class="nav-item">
             <a href="../vendor/subscription_transactions.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_transactions.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-history"></i>
+                <i class="nav-icon fas fa-receipt"></i>
                 <p>Transactions</p>
             </a>
         </li>

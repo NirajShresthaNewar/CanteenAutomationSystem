@@ -32,33 +32,42 @@ function getAffiliatedVendors($user_id) {
 }
 
 /**
- * Get server IP addresses with priority for current network (192.168.137.x)
+ * Get server IP addresses with priority for current network
  * @return array Array of server IP addresses with most relevant first
  */
 function getServerIP() {
     $ip_addresses = [];
-
+    
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
         // Windows IP detection
-        exec('ipconfig | findstr IPv4', $output);
+        exec('ipconfig', $output);
         foreach ($output as $line) {
-            if (preg_match('/\d+\.\d+\.\d+\.\d+/', $line, $matches)) {
+            // Skip lines without IPv4
+            if (strpos($line, 'IPv4') === false) {
+                continue;
+            }
+            
+            // Extract IP address
+            if (preg_match('/\b(?:\d{1,3}\.){3}\d{1,3}\b/', $line, $matches)) {
                 $ip = $matches[0];
-                // Prioritize 192.168.137.x addresses (current network)
-                if (preg_match('/^192\.168\.137\./', $ip)) {
+                
+                // Skip localhost and virtual IPs
+                if ($ip === '127.0.0.1' || $ip === '0.0.0.0' || strpos($ip, '192.168.56.') === 0) {
+                    continue;
+                }
+                
+                // Prioritize IPs based on network
+                if (strpos($ip, '192.168.1.') === 0) {
+                    // Home/office network IPs get highest priority
                     array_unshift($ip_addresses, $ip);
-                }
-                // Then 192.168.1.x addresses
-                elseif (preg_match('/^192\.168\.1\./', $ip)) {
+                } elseif (strpos($ip, '192.168.137.') === 0) {
+                    // Secondary priority for specific network
                     if (!in_array($ip, $ip_addresses)) {
                         $ip_addresses[] = $ip;
                     }
-                }
-                // Then any other private network address
-                elseif (preg_match('/^(192\.168\.|10\.|172\.16\.)/', $ip)) {
-                    if (!in_array($ip, $ip_addresses)) {
-                        $ip_addresses[] = $ip;
-                    }
+                } elseif (!in_array($ip, $ip_addresses)) {
+                    // Other valid IPs get lowest priority
+                    $ip_addresses[] = $ip;
                 }
             }
         }
@@ -68,30 +77,29 @@ function getServerIP() {
         if (!empty($output[0])) {
             $ips = explode(' ', trim($output[0]));
             foreach ($ips as $ip) {
-                // Prioritize 192.168.137.x addresses (current network)
-                if (preg_match('/^192\.168\.137\./', $ip)) {
+                // Skip localhost and virtual IPs
+                if ($ip === '127.0.0.1' || $ip === '0.0.0.0' || strpos($ip, '192.168.56.') === 0) {
+                    continue;
+                }
+                
+                // Prioritize IPs based on network
+                if (strpos($ip, '192.168.1.') === 0) {
                     array_unshift($ip_addresses, $ip);
-                }
-                // Then 192.168.1.x addresses
-                elseif (preg_match('/^192\.168\.1\./', $ip)) {
+                } elseif (strpos($ip, '192.168.137.') === 0) {
                     if (!in_array($ip, $ip_addresses)) {
                         $ip_addresses[] = $ip;
                     }
-                }
-                // Then any other private network address
-                elseif (preg_match('/^(192\.168\.|10\.|172\.16\.)/', $ip)) {
-                    if (!in_array($ip, $ip_addresses)) {
-                        $ip_addresses[] = $ip;
-                    }
+                } elseif (!in_array($ip, $ip_addresses)) {
+                    $ip_addresses[] = $ip;
                 }
             }
         }
     }
 
-    // If no addresses found, return a fallback
+    // If no addresses found, return localhost as fallback
     if (empty($ip_addresses)) {
-        return array('192.168.137.139'); // Hardcoded fallback
+        return array('127.0.0.1');
     }
 
-    return array_unique($ip_addresses);
+    return array_values(array_unique($ip_addresses));
 } 

@@ -38,13 +38,14 @@ if (isset($_SESSION['user_id'])) {
         $cart_count = 0;
     }
     
-    // Check if orders table has user_id field
+    // Check active orders count
     try {
         $stmt = $conn->prepare("
             SELECT COUNT(*) as count
             FROM orders o
-            JOIN staff_students ss ON o.student_id = ss.id
-            WHERE ss.user_id = ?
+            WHERE o.customer_id = (
+                SELECT id FROM staff_students WHERE user_id = ?
+            )
             AND o.status IN ('pending', 'accepted', 'in_progress', 'ready')
         ");
         $stmt->execute([$_SESSION['user_id']]);
@@ -99,21 +100,25 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../student/vendors.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'vendors.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-store-alt"></i>
                 <p>Browse Vendors</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../student/menu.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>Menu</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../student/scan_qr.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'scan_qr.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-qrcode"></i>
                 <p>Scan QR Menu</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../student/cart.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'cart.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-shopping-basket"></i>
                 <p>Cart</p>
                 ' . ($cart_count > 0 ? '<span class="badge badge-success right">' . $cart_count . '</span>' : '') . '
             </a>
@@ -133,12 +138,14 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../student/active_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'active_orders.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-spinner"></i>
                 <p>Active Orders</p>
                 ' . ($active_orders_count > 0 ? '<span class="badge badge-info right">' . $active_orders_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">
             <a href="../student/order_history.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'order_history.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-history"></i>
                 <p>Order History</p>
             </a>
         </li>
@@ -157,11 +164,13 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../student/credit_accounts.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_accounts.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-wallet"></i>
                 <p>My Credit Accounts</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../student/credit_transactions.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_transactions.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-exchange-alt"></i>
                 <p>Transactions</p>
             </a>
         </li>

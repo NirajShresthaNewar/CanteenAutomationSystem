@@ -25,158 +25,83 @@ $additionalScripts = '';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.13.1/css/OverlayScrollbars.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
     
     <!-- Additional page-specific styles -->
     <?php if (!empty($additionalStyles)) echo $additionalStyles; ?>
 
-    <style>
-        /* User Profile Section Styles */
-
-        /*start*/
-        .user-info {
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.user-avatar {
-    position: relative;
-    margin-right: 1rem;
+    <!-- Core Scripts - Load jQuery first -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
-}
+    <!-- Additional page-specific scripts that depend on jQuery -->
+    <?php if (!empty($additionalScripts)) echo $additionalScripts; ?>
+    
+    <!-- Bootstrap and other core scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.13.1/js/OverlayScrollbars.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
 
-.user-avatar img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid white;
-    margin-left: 0px;
-}
-
-.status-indicator {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    border: 2px solid white;
-}
-
-.status-indicator.online {
-    background-color: #2ecc71;
-}
-
-.user-details h5 {
-    font-size: 1rem;
-    margin: 0 0 0.2rem 0;
-    font-weight: 550;
-    color: white;
-}
-
-.user-details p {
-    font-size: 0.8rem;
-    margin: 0;
-    opacity: 0.8;
-    color: white;
-}
-/*end*/
-        
-
-        .user-block .info {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.3;
+    <!-- Add this right after the CSS links and before closing </head> tag -->
+    <style>
+        /* AdminLTE Sidebar Fixes */
+        .main-sidebar {
+            width: 250px;
+            transition: width .3s ease-in-out;
         }
 
-        .user-block .username {
-            color: #fff;
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .user-block .role {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            font-weight: 400;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Collapsed Sidebar Styles */
-        .sidebar-collapse .user-block .info {
+        .nav-sidebar .nav-treeview {
             display: none;
         }
 
-        .sidebar-collapse .user-block:hover .info {
-            display: flex;
-            position: absolute;
-            left: 60px;
-            background: #343a40;
-            padding: 8px 12px;
-            border-radius: 4px;
-            z-index: 1000;
-            min-width: 150px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .sidebar-collapse .image-wrapper {
-            margin-right: 0;
-        }
-
-        /* Existing sidebar styles */
-        .nav-sidebar .nav-link p {
-            font-size: 14px;
-        }
-        
-        .nav-sidebar .nav-icon {
-            font-size: 16px;
-        }
-        
-        .nav-treeview {
-            display: none;
-        }
-        
-        .menu-open > .nav-treeview {
+        .nav-sidebar .menu-open > .nav-treeview {
             display: block;
         }
-        
-        .nav-sidebar .nav-link > .right {
-            transition: transform .6s ease-in-out;
-        }
-        
-        .menu-open > .nav-link > .right {
-            transform: rotate(-90deg);
-        }
-        
-        .nav-sidebar .nav-treeview .nav-link {
-            padding-left: 35px;
-        }
-        
-        /* Fix for collapsed sidebar */
-        .sidebar-collapse .main-sidebar:not(.sidebar-focused) .nav-treeview {
+
+        /* Fix for collapsed state */
+        .sidebar-collapse .main-sidebar .nav-sidebar .nav-treeview {
             display: none !important;
         }
-        
-        .sidebar-collapse .main-sidebar.sidebar-focused .nav-treeview,
-        .sidebar-collapse .main-sidebar:hover .nav-treeview {
-            display: none;
+
+        .sidebar-collapse .main-sidebar:hover .nav-sidebar .menu-open > .nav-treeview {
+            display: block !important;
         }
-        
-        .sidebar-collapse .main-sidebar.sidebar-focused .menu-open > .nav-treeview,
-        .sidebar-collapse .main-sidebar:hover .menu-open > .nav-treeview {
-            display: block;
+
+        /* Content margins */
+        .content-wrapper {
+            margin-left: 250px;
+            transition: margin-left .3s ease-in-out;
+        }
+
+        .sidebar-collapse .content-wrapper {
+            margin-left: 4.6rem;
+        }
+
+        /* Transitions */
+        .nav-sidebar .nav-link p,
+        .nav-sidebar .nav-treeview,
+        .nav-sidebar .nav-item i {
+            transition: margin-left .3s linear, opacity .3s ease, visibility .3s ease;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 991.98px) {
+            .main-sidebar {
+                margin-left: -250px;
+            }
+
+            .sidebar-open .main-sidebar {
+                margin-left: 0;
+            }
+
+            .content-wrapper {
+                margin-left: 0;
+            }
         }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
 <div class="wrapper">
 
   <!-- Navbar -->
@@ -217,8 +142,8 @@ $additionalScripts = '';
   <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="../index.php" class="brand-link">
-      <img src="https://adminlte.io/themes/v3/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-      <span class="brand-text font-weight-light">Campus Dining</span>
+        <img src="https://adminlte.io/themes/v3/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <span class="brand-text font-weight-light">Campus Dining</span>
     </a>
 
     <!-- Sidebar -->
@@ -268,15 +193,46 @@ $additionalScripts = '';
 </div>
 <!-- ./wrapper -->
 
-<!-- Core Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.13.1/js/OverlayScrollbars.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialize OverlayScrollbars
+    if (typeof $.fn.overlayScrollbars !== 'undefined') {
+        $('.sidebar').overlayScrollbars({
+            className: 'os-theme-light',
+            sizeAutoCapable: true,
+            scrollbars: {
+                autoHide: 'leave'
+            }
+        });
+    }
 
-<!-- Additional page-specific scripts -->
-<?php if (!empty($additionalScripts)) echo $additionalScripts; ?>
+    // Handle sidebar collapse
+    $('[data-widget="pushmenu"]').on('click', function() {
+        // Close all submenus when sidebar collapses
+        if (!$('body').hasClass('sidebar-collapse')) {
+            $('.nav-item.menu-open').each(function() {
+                $(this).removeClass('menu-open');
+                $(this).find('.nav-treeview').css('display', 'none');
+            });
+        }
+    });
 
-<script src="../assets/js/sidebar.js"></script>
+    // Set active states on load
+    const currentPath = window.location.pathname;
+    const currentPage = currentPath.split('/').pop();
+    
+    $('.nav-link').each(function() {
+        const href = $(this).attr('href');
+        if (href && href.endsWith(currentPage)) {
+            $(this).addClass('active');
+            
+            const $parentMenu = $(this).closest('.has-treeview');
+            if ($parentMenu.length) {
+                $parentMenu.addClass('menu-open');
+            }
+        }
+    });
+});
+</script>
 </body>
 </html> 

@@ -199,8 +199,13 @@ ob_start();
                     
                     <div class="menu-item-content">
                         <h3 class="menu-item-title"><?php echo htmlspecialchars($item['name']); ?></h3>
-                        <p class="menu-item-description"><?php echo htmlspecialchars($item['description']); ?></p>
                         
+                        <?php if ($item['description']): ?>
+                            <p class="menu-item-description">
+                                <?php echo htmlspecialchars($item['description']); ?>
+                            </p>
+                        <?php endif; ?>
+
                         <div class="dietary-info">
                             <?php if ($item['is_vegetarian']): ?>
                                 <span class="dietary-badge">Vegetarian</span>
@@ -217,11 +222,10 @@ ob_start();
                             Rs. <?php echo number_format($item['price'], 2); ?>
                         </div>
                         
-                        <button class="add-to-cart-btn" 
-                                data-item-id="<?php echo $item['item_id']; ?>"
-                                data-item-name="<?php echo htmlspecialchars($item['name']); ?>"
-                                data-item-price="<?php echo $item['price']; ?>">
-                            ADD TO CART
+                        <button onclick="addToCart(<?php echo $item['item_id']; ?>)" 
+                                class="add-to-cart-btn"
+                                data-item-id="<?php echo $item['item_id']; ?>">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
                         </button>
                     </div>
                 </div>
@@ -239,43 +243,43 @@ ob_start();
 </div>
 
 <script>
-$(document).ready(function() {
-    $('.add-to-cart-btn').on('click', function() {
-        var button = $(this);
-        var itemId = button.data('item-id');
-        
-        button.prop('disabled', true);
-        button.text('Adding...');
-        
-        $.ajax({
-            url: 'cart.php',
-            method: 'POST',
-            data: {
-                action: 'add',
-                item_id: itemId,
-                quantity: 1
-            },
-            success: function(response) {
-                if (response.success) {
-                    button.text('Added!');
-                    setTimeout(function() {
-                        button.text('ADD TO CART');
-                        button.prop('disabled', false);
-                    }, 2000);
-                } else {
-                    button.text('Error');
-                    alert(response.message || 'Error adding item to cart');
-                    button.prop('disabled', false);
-                }
-            },
-            error: function() {
-                button.text('Error');
-                button.prop('disabled', false);
-                alert('Error adding item to cart');
+function addToCart(menuItemId) {
+    const button = document.querySelector(`button[data-item-id="${menuItemId}"]`);
+    const originalText = button.innerHTML;
+    button.innerHTML = 'Adding...';
+    button.disabled = true;
+
+    fetch('add_to_cart.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `menu_item_id=${menuItemId}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update cart count in sidebar if it exists
+            const cartBadge = document.querySelector('.cart-count');
+            if (cartBadge) {
+                cartBadge.textContent = data.cart_count;
             }
-        });
+            button.innerHTML = '<i class="fas fa-check"></i> Added';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+        } else {
+            throw new Error(data.error || 'Error adding item to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert(error.message);
+        button.innerHTML = originalText;
+        button.disabled = false;
     });
-});
+}
 </script>
 
 <?php

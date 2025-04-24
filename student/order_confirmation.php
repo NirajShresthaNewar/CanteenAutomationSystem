@@ -20,7 +20,7 @@ $receipt_number = $_GET['receipt'];
 
 // Get order details
 $stmt = $conn->prepare("
-    SELECT o.*, v.name as vendor_name,
+    SELECT o.*, v.user_id as vendor_user_id, u.username as vendor_name,
            CASE 
                 WHEN o.payment_method = 'credit' THEN 'Credit Account'
                 WHEN o.payment_method = 'esewa' THEN 'Online Payment (eSewa)'
@@ -28,7 +28,8 @@ $stmt = $conn->prepare("
            END as payment_method_name
     FROM orders o
     JOIN vendors v ON o.vendor_id = v.id
-    JOIN staff_students ss ON o.student_id = ss.id
+    JOIN users u ON v.user_id = u.id
+    JOIN staff_students ss ON o.customer_id = ss.id
     WHERE o.receipt_number = ? AND ss.user_id = ?
 ");
 $stmt->execute([$receipt_number, $user_id]);
@@ -42,9 +43,9 @@ if (!$order) {
 
 // Get order items
 $stmt = $conn->prepare("
-    SELECT oi.*, mi.name, mi.image
+    SELECT oi.*, mi.name
     FROM order_items oi
-    JOIN menu_items mi ON oi.menu_item_id = mi.id
+    JOIN menu_items mi ON oi.menu_item_id = mi.item_id
     WHERE oi.order_id = ?
 ");
 $stmt->execute([$order['id']]);
@@ -150,21 +151,8 @@ ob_start();
                                 <tbody>
                                     <?php foreach ($items as $item): ?>
                                         <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <?php if (!empty($item['image'])): ?>
-                                                        <img src="../uploads/menu_items/<?php echo $item['image']; ?>" 
-                                                             alt="<?php echo htmlspecialchars($item['name']); ?>" 
-                                                             class="img-thumbnail mr-2" style="width: 40px; height: 40px;">
-                                                    <?php else: ?>
-                                                        <img src="../uploads/menu_items/default.jpg" 
-                                                             alt="Default" 
-                                                             class="img-thumbnail mr-2" style="width: 40px; height: 40px;">
-                                                    <?php endif; ?>
-                                                    <?php echo htmlspecialchars($item['name']); ?>
-                                                </div>
-                                            </td>
-                                            <td>₹<?php echo number_format($item['price'], 2); ?></td>
+                                            <td><?php echo htmlspecialchars($item['name']); ?></td>
+                                            <td>₹<?php echo number_format($item['unit_price'], 2); ?></td>
                                             <td><?php echo $item['quantity']; ?></td>
                                             <td>₹<?php echo number_format($item['subtotal'], 2); ?></td>
                                         </tr>
@@ -187,8 +175,8 @@ ob_start();
                         <?php endif; ?>
                         
                         <div class="mt-4 text-center">
-                            <a href="my_orders.php" class="btn btn-primary">
-                                <i class="fas fa-clipboard-list"></i> View My Orders
+                            <a href="active_orders.php" class="btn btn-primary">
+                                <i class="fas fa-spinner"></i> View Active Orders
                             </a>
                             <a href="menu.php" class="btn btn-success ml-2">
                                 <i class="fas fa-utensils"></i> Continue Shopping

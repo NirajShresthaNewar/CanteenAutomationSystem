@@ -149,6 +149,13 @@ ob_start();
                         
                         while ($plan = $stmt->fetch(PDO::FETCH_ASSOC)) {
                             $features = json_decode($plan['features'], true);
+                            if ($features === null) {
+                                $features = [
+                                    'daily_meals' => 0,
+                                    'priority_service' => false,
+                                    'discount' => 0
+                                ];
+                            }
                             echo "<tr>";
                             echo "<td>" . htmlspecialchars($plan['name']) . "</td>";
                             echo "<td>" . htmlspecialchars($plan['description']) . "</td>";
@@ -156,9 +163,9 @@ ob_start();
                             echo "<td>" . $plan['duration_days'] . " days</td>";
                             echo "<td>
                                     <ul class='list-unstyled'>
-                                        <li><i class='fas fa-utensils'></i> " . $features['daily_meals'] . " meals/day</li>
-                                        <li><i class='fas fa-star'></i> " . ($features['priority_service'] ? 'Priority Service' : 'Standard Service') . "</li>
-                                        <li><i class='fas fa-percent'></i> " . $features['discount'] . "% discount</li>
+                                        <li><i class='fas fa-utensils'></i> " . ($features['daily_meals'] ?? 0) . " meals/day</li>
+                                        <li><i class='fas fa-star'></i> " . (($features['priority_service'] ?? false) ? 'Priority Service' : 'Standard Service') . "</li>
+                                        <li><i class='fas fa-percent'></i> " . ($features['discount'] ?? 0) . "% discount</li>
                                     </ul>
                                   </td>";
                             echo "<td>" . $plan['active_subscribers'] . "</td>";
@@ -207,19 +214,19 @@ ob_start();
                                                 
                                                 <div class='form-group'>
                                                     <label for='daily_meals" . $plan['id'] . "'>Daily Meals</label>
-                                                    <input type='number' class='form-control' id='daily_meals" . $plan['id'] . "' name='daily_meals' min='1' value='" . $features['daily_meals'] . "' required>
+                                                    <input type='number' class='form-control' id='daily_meals" . $plan['id'] . "' name='daily_meals' min='1' value='" . ($features['daily_meals'] ?? 1) . "' required>
                                                 </div>
                                                 
                                                 <div class='form-group'>
                                                     <div class='custom-control custom-switch'>
-                                                        <input type='checkbox' class='custom-control-input' id='priority_service" . $plan['id'] . "' name='priority_service'" . ($features['priority_service'] ? ' checked' : '') . ">
+                                                        <input type='checkbox' class='custom-control-input' id='priority_service" . $plan['id'] . "' name='priority_service'" . (($features['priority_service'] ?? false) ? ' checked' : '') . ">
                                                         <label class='custom-control-label' for='priority_service" . $plan['id'] . "'>Priority Service</label>
                                                     </div>
                                                 </div>
                                                 
                                                 <div class='form-group'>
                                                     <label for='discount" . $plan['id'] . "'>Discount (%)</label>
-                                                    <input type='number' class='form-control' id='discount" . $plan['id'] . "' name='discount' min='0' max='100' value='" . $features['discount'] . "' required>
+                                                    <input type='number' class='form-control' id='discount" . $plan['id'] . "' name='discount' min='0' max='100' value='" . ($features['discount'] ?? 0) . "' required>
                                                 </div>
                                             </div>
                                             <div class='modal-footer'>

@@ -4,7 +4,14 @@ require_once '../connection/db_connection.php';
 
 // Check if user is logged in and is a vendor
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'vendor') {
-    echo json_encode(['success' => false, 'message' => 'Unauthorized access']);
+    http_response_code(403);
+    echo json_encode(['error' => 'Unauthorized access']);
+    exit();
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['error' => 'Method not allowed']);
     exit();
 }
 
@@ -14,14 +21,16 @@ $stmt->execute([$_SESSION['user_id']]);
 $vendor = $stmt->fetch(PDO::FETCH_ASSOC);
 $vendor_id = $vendor['id'];
 
-// Check if required parameters are provided
-if (!isset($_POST['order_id']) || empty($_POST['order_id']) || !isset($_POST['status']) || empty($_POST['status'])) {
-    echo json_encode(['success' => false, 'message' => 'Order ID and status are required']);
+$order_id = $_POST['order_id'] ?? null;
+$new_status = $_POST['status'] ?? null;
+$notes = $_POST['notes'] ?? null;
+$preparation_time = $_POST['preparation_time'] ?? null;
+
+if (!$order_id || !$new_status) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Missing required parameters']);
     exit();
 }
-
-$order_id = $_POST['order_id'];
-$new_status = $_POST['status'];
 
 // Validate status
 $valid_statuses = ['pending', 'accepted', 'in_progress', 'ready', 'completed', 'cancelled'];
@@ -44,15 +53,36 @@ try {
     }
     
     // Update order status
-    $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
-    $stmt->execute([$new_status, $order_id]);
+    $update_query = "UPDATE orders SET status = ?";
+    $params = [$new_status];
+
+    // Add preparation time if provided
+    if ($preparation_time && $new_status === 'accepted') {
+        $update_query .= ", preparation_time = ?, pickup_time = DATE_ADD(NOW(), INTERVAL ? MINUTE)";
+        $params[] = $preparation_time;
+        $params[] = $preparation_time;
+    }
+
+    // Handle completed and cancelled states
+    if ($new_status === 'completed') {
+        $update_query .= ", completed_at = NOW()";
+    } elseif ($new_status === 'cancelled') {
+        $update_query .= ", cancelled_reason = ?";
+        $params[] = $notes;
+    }
+
+    $update_query .= " WHERE id = ?";
+    $params[] = $order_id;
+
+    $stmt = $conn->prepare($update_query);
+    $stmt->execute($params);
     
-    // Add to order tracking
+    // Record in order tracking
     $stmt = $conn->prepare("
-        INSERT INTO order_tracking (order_id, status, updated_at, status_changed_at)
-        VALUES (?, ?, NOW(), NOW())
+        INSERT INTO order_tracking (order_id, status, notes, updated_by)
+        VALUES (?, ?, ?, ?)
     ");
-    $stmt->execute([$order_id, $new_status]);
+    $stmt->execute([$order_id, $new_status, $notes, $_SESSION['user_id']]);
     
     // If status is completed or cancelled, perform additional actions if needed
     if ($new_status === 'completed') {
@@ -64,40 +94,29 @@ try {
     // Commit transaction
     $conn->commit();
     
-    // Send notification to user (this would be enhanced in a real system)
+    // Send success response with updated order details
     $stmt = $conn->prepare("
-        INSERT INTO notifications (user_id, message, status, created_at) 
-        VALUES (?, ?, 'unread', NOW())
+        SELECT o.*, ot.notes, ot.updated_by, u.username as updated_by_name
+        FROM orders o
+        LEFT JOIN order_tracking ot ON o.id = ot.order_id
+        LEFT JOIN users u ON ot.updated_by = u.id
+        WHERE o.id = ?
+        ORDER BY ot.status_changed_at DESC
+        LIMIT 1
     ");
-    
-    $message = '';
-    switch ($new_status) {
-        case 'accepted':
-            $message = 'Your order #' . $order['receipt_number'] . ' has been accepted and will be prepared soon.';
-            break;
-        case 'in_progress':
-            $message = 'Your order #' . $order['receipt_number'] . ' is now being prepared.';
-            break;
-        case 'ready':
-            $message = 'Your order #' . $order['receipt_number'] . ' is ready for pickup.';
-            break;
-        case 'completed':
-            $message = 'Your order #' . $order['receipt_number'] . ' has been completed. Thank you for your purchase!';
-            break;
-        case 'cancelled':
-            $message = 'Your order #' . $order['receipt_number'] . ' has been cancelled. Please contact us for details.';
-            break;
-    }
-    
-    if (!empty($message)) {
-        $stmt->execute([$order['user_id'], $message]);
-    }
-    
-    echo json_encode(['success' => true, 'message' => 'Order status updated successfully']);
+    $stmt->execute([$order_id]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Order status updated successfully',
+        'order' => $order
+    ]);
     
 } catch (Exception $e) {
     // Rollback transaction on error
     $conn->rollBack();
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    http_response_code(500);
+    echo json_encode(['error' => 'Failed to update order status: ' . $e->getMessage()]);
 }
 ?> 

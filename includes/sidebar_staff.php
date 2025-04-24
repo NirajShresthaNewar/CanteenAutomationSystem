@@ -37,11 +37,13 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../staff/vendors.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'vendors.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-store-alt"></i>
                 <p>Browse Vendors</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../staff/menu_options.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu_options.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-clipboard-list"></i>
                 <p>Menu Options</p>
             </a>
         </li>
@@ -60,11 +62,13 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../staff/place_order.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'place_order.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-cart-plus"></i>
                 <p>Place Order</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../staff/order_history.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'order_history.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-history"></i>
                 <p>Order History</p>
             </a>
         </li>

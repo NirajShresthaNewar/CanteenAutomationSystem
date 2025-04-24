@@ -8,6 +8,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'vendor') {
     exit();
 }
 
+// Set page title
+$title = 'Manage Orders';
+$pageTitle = 'Manage Orders';
+
 // Get vendor ID
 $stmt = $conn->prepare("SELECT id FROM vendors WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
@@ -214,7 +218,8 @@ ob_start();
                                     <th>Items</th>
                                     <th>Total</th>
                                     <th>Payment Method</th>
-                                    <th>Order Date</th>
+                                    <th>Time Info</th>
+                                    <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -229,49 +234,105 @@ ob_start();
                                         <td>
                                             <?php
                                             $stmt = $conn->prepare("
-                                                SELECT dish_name, quantity 
-                                                FROM order_items 
-                                                WHERE order_id = ?
+                                                SELECT mi.name as dish_name, oi.quantity, oi.special_instructions 
+                                                FROM order_items oi
+                                                JOIN menu_items mi ON oi.menu_item_id = mi.item_id
+                                                WHERE oi.order_id = ?
                                             ");
                                             $stmt->execute([$order['id']]);
                                             $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             foreach ($items as $item) {
-                                                echo htmlspecialchars($item['quantity'] . 'x ' . $item['dish_name']) . '<br>';
+                                                echo htmlspecialchars($item['quantity'] . 'x ' . $item['dish_name']);
+                                                if (!empty($item['special_instructions'])) {
+                                                    echo ' <small class="text-muted">(' . htmlspecialchars($item['special_instructions']) . ')</small>';
+                                                }
+                                                echo '<br>';
                                             }
                                             ?>
                                         </td>
                                         <td>₹<?php echo number_format($order['total_amount'], 2); ?></td>
                                         <td>
-                                            <?php if ($order['payment_method'] == 'cash'): ?>
-                                                <span class="badge badge-success">Cash</span>
-                                            <?php elseif ($order['payment_method'] == 'esewa'): ?>
-                                                <span class="badge badge-info">eSewa</span>
-                                            <?php endif; ?>
+                                            <?php 
+                                            $badge_class = match($order['payment_method']) {
+                                                'cash' => 'success',
+                                                'esewa' => 'info',
+                                                'credit' => 'warning',
+                                                default => 'secondary'
+                                            };
+                                            ?>
+                                            <span class="badge badge-<?php echo $badge_class; ?>">
+                                                <?php echo ucfirst($order['payment_method']); ?>
+                                            </span>
                                         </td>
-                                        <td><?php echo date('M d, Y h:i A', strtotime($order['order_date'])); ?></td>
+                                        <td>
+                                            <small>
+                                                Ordered: <?php echo date('M d, H:i', strtotime($order['order_date'])); ?><br>
+                                                <?php if ($order['preparation_time']): ?>
+                                                    Prep Time: <?php echo $order['preparation_time']; ?> mins<br>
+                                                <?php endif; ?>
+                                                <?php if ($order['pickup_time']): ?>
+                                                    Pickup: <?php echo date('H:i', strtotime($order['pickup_time'])); ?><br>
+                                                <?php endif; ?>
+                                                <?php if ($order['completed_at']): ?>
+                                                    Completed: <?php echo date('H:i', strtotime($order['completed_at'])); ?>
+                                                <?php endif; ?>
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <?php 
+                                            $status_badge = match($order['status']) {
+                                                'pending' => '<span class="badge badge-danger">Pending</span>',
+                                                'accepted' => '<span class="badge badge-info">Accepted</span>',
+                                                'in_progress' => '<span class="badge badge-primary">In Progress</span>',
+                                                'ready' => '<span class="badge badge-warning">Ready</span>',
+                                                'completed' => '<span class="badge badge-success">Completed</span>',
+                                                'cancelled' => '<span class="badge badge-secondary">Cancelled</span>',
+                                                default => '<span class="badge badge-secondary">Unknown</span>'
+                                            };
+                                            echo $status_badge;
+                                            
+                                            // Show cancelled reason if exists
+                                            if ($order['status'] === 'cancelled' && !empty($order['cancelled_reason'])) {
+                                                echo '<br><small class="text-danger">' . htmlspecialchars($order['cancelled_reason']) . '</small>';
+                                            }
+                                            ?>
+                                        </td>
                                         <td>
                                             <div class="btn-group">
-                                                <button type="button" class="btn btn-sm btn-info view-order" data-toggle="modal" data-target="#viewOrderModal" data-id="<?php echo $order['id']; ?>">
-                                                    <i class="fas fa-eye"></i> View
+                                                <button type="button" class="btn btn-sm btn-info view-order" 
+                                                        data-order-id="<?php echo $order['id']; ?>"
+                                                        title="View Details">
+                                                    <i class="fas fa-eye"></i>
                                                 </button>
-                                                <?php if ($active_tab == 'pending'): ?>
-                                                    <button type="button" class="btn btn-sm btn-success update-status" data-id="<?php echo $order['id']; ?>" data-status="accepted">
-                                                        <i class="fas fa-check"></i> Accept
+                                                
+                                                <?php if ($order['status'] === 'pending'): ?>
+                                                    <button type="button" class="btn btn-sm btn-success accept-order" 
+                                                            data-order-id="<?php echo $order['id']; ?>"
+                                                            title="Accept Order">
+                                                        <i class="fas fa-check"></i>
                                                     </button>
-                                                    <button type="button" class="btn btn-sm btn-danger update-status" data-id="<?php echo $order['id']; ?>" data-status="cancelled">
-                                                        <i class="fas fa-times"></i> Cancel
+                                                    <button type="button" class="btn btn-sm btn-danger cancel-order" 
+                                                            data-order-id="<?php echo $order['id']; ?>"
+                                                            title="Cancel Order">
+                                                        <i class="fas fa-times"></i>
                                                     </button>
-                                                <?php elseif ($active_tab == 'accepted'): ?>
-                                                    <button type="button" class="btn btn-sm btn-primary update-status" data-id="<?php echo $order['id']; ?>" data-status="in_progress">
-                                                        <i class="fas fa-spinner"></i> Start Preparing
+                                                <?php elseif ($order['status'] === 'accepted'): ?>
+                                                    <button type="button" class="btn btn-sm btn-primary start-preparation" 
+                                                            data-order-id="<?php echo $order['id']; ?>"
+                                                            title="Start Preparation">
+                                                        <i class="fas fa-play"></i>
                                                     </button>
-                                                <?php elseif ($active_tab == 'in_progress'): ?>
-                                                    <button type="button" class="btn btn-sm btn-warning update-status" data-id="<?php echo $order['id']; ?>" data-status="ready">
-                                                        <i class="fas fa-utensils"></i> Mark as Ready
+                                                <?php elseif ($order['status'] === 'in_progress'): ?>
+                                                    <button type="button" class="btn btn-sm btn-warning mark-ready" 
+                                                            data-order-id="<?php echo $order['id']; ?>"
+                                                            title="Mark as Ready">
+                                                        <i class="fas fa-utensils"></i>
                                                     </button>
-                                                <?php elseif ($active_tab == 'ready'): ?>
-                                                    <button type="button" class="btn btn-sm btn-success update-status" data-id="<?php echo $order['id']; ?>" data-status="completed">
-                                                        <i class="fas fa-check-double"></i> Complete
+                                                <?php elseif ($order['status'] === 'ready'): ?>
+                                                    <button type="button" class="btn btn-sm btn-success complete-order" 
+                                                            data-order-id="<?php echo $order['id']; ?>"
+                                                            title="Complete Order">
+                                                        <i class="fas fa-check-double"></i>
                                                     </button>
                                                 <?php endif; ?>
                                             </div>
@@ -312,41 +373,192 @@ $content = ob_get_clean();
 $additionalScripts = '
 <script>
 $(document).ready(function() {
+    // Initialize DataTable
+    $("#ordersTable").DataTable({
+        "order": [[0, "desc"]],
+        "pageLength": 25,
+        "responsive": true
+    });
+
     // View order details
     $(".view-order").click(function() {
-        var orderId = $(this).data("id");
+        var orderId = $(this).data("order-id");
         $.ajax({
             url: "get_order_details.php",
             method: "POST",
             data: { order_id: orderId },
             success: function(data) {
                 $("#orderDetails").html(data);
+                $("#viewOrderModal").modal("show");
             }
         });
     });
 
-    // Update order status
-    $(".update-status").click(function() {
-        if (confirm("Are you sure you want to update this order status?")) {
-            var orderId = $(this).data("id");
-            var status = $(this).data("status");
-            $.ajax({
-                url: "update_order_status.php",
-                method: "POST",
-                data: { order_id: orderId, status: status },
-                success: function(response) {
-                    var data = JSON.parse(response);
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert("Error: " + data.message);
-                    }
+    // Accept order with preparation time
+    $(".accept-order").click(function() {
+        var orderId = $(this).data("order-id");
+        var modalHtml = \'<div class="form-group">\' +
+            \'<label for="preparation-time">Preparation Time (minutes)</label>\' +
+            \'<input type="number" id="preparation-time" class="form-control" min="1" max="180" value="30">\' +
+            \'</div>\' +
+            \'<div class="form-group">\' +
+            \'<label for="pickup-time">Pickup Time</label>\' +
+            \'<input type="time" id="pickup-time" class="form-control">\' +
+            \'</div>\';
+
+        Swal.fire({
+            title: "Accept Order",
+            html: modalHtml,
+            showCancelButton: true,
+            confirmButtonText: "Accept Order",
+            cancelButtonText: "Cancel",
+            preConfirm: function() {
+                var prepTime = document.getElementById("preparation-time").value;
+                var pickupTime = document.getElementById("pickup-time").value;
+                if (!prepTime || prepTime < 1) {
+                    Swal.showValidationMessage("Please enter a valid preparation time");
+                    return false;
                 }
-            });
-        }
+                return { prepTime: prepTime, pickupTime: pickupTime };
+            }
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "update_order_status.php",
+                    method: "POST",
+                    data: {
+                        order_id: orderId,
+                        status: "accepted",
+                        preparation_time: result.value.prepTime,
+                        pickup_time: result.value.pickupTime
+                    },
+                    success: function(response) {
+                        var data = JSON.parse(response);
+                        if (data.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Order Accepted",
+                                text: "The order has been accepted successfully.",
+                                timer: 2000
+                            }).then(function() {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: data.message
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    // Cancel order with reason
+    $(".cancel-order").click(function() {
+        var orderId = $(this).data("order-id");
+        var modalHtml = \'<div class="form-group">\' +
+            \'<label for="cancel-reason">Cancellation Reason</label>\' +
+            \'<textarea id="cancel-reason" class="form-control" rows="3"></textarea>\' +
+            \'</div>\';
+
+        Swal.fire({
+            title: "Cancel Order",
+            html: modalHtml,
+            showCancelButton: true,
+            confirmButtonText: "Cancel Order",
+            cancelButtonText: "Go Back",
+            confirmButtonColor: "#dc3545",
+            preConfirm: function() {
+                var reason = document.getElementById("cancel-reason").value;
+                if (!reason.trim()) {
+                    Swal.showValidationMessage("Please provide a reason for cancellation");
+                    return false;
+                }
+                return { reason: reason };
+            }
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "update_order_status.php",
+                    method: "POST",
+                    data: {
+                        order_id: orderId,
+                        status: "cancelled",
+                        cancelled_reason: result.value.reason
+                    },
+                    success: function(response) {
+                        var data = JSON.parse(response);
+                        if (data.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Order Cancelled",
+                                text: "The order has been cancelled.",
+                                timer: 2000
+                            }).then(function() {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: data.message
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    });
+
+    // Other status updates
+    $(".start-preparation, .mark-ready, .complete-order").click(function() {
+        var orderId = $(this).data("order-id");
+        var status = $(this).hasClass("start-preparation") ? "in_progress" :
+                    $(this).hasClass("mark-ready") ? "ready" : "completed";
+        var actionTitle = $(this).hasClass("start-preparation") ? "Start Preparation" :
+                       $(this).hasClass("mark-ready") ? "Mark as Ready" : "Complete Order";
+        
+        Swal.fire({
+            title: actionTitle,
+            text: "Are you sure you want to " + actionTitle.toLowerCase() + "?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+            cancelButtonText: "No"
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "update_order_status.php",
+                    method: "POST",
+                    data: { order_id: orderId, status: status },
+                    success: function(response) {
+                        var data = JSON.parse(response);
+                        if (data.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Status Updated",
+                                text: "The order status has been updated.",
+                                timer: 2000
+                            }).then(function() {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: data.message
+                            });
+                        }
+                    }
+                });
+            }
+        });
     });
 });
 </script>
 ';
-require_once '../includes/layout.php';
+require_once "../includes/layout.php";
 ?> 

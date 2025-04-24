@@ -1,5 +1,11 @@
 <?php
 session_start();
+
+// Prevent caching
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 require_once '../connection/db_connection.php';
 require_once '../vendor/autoload.php';
 require_once '../includes/functions.php';
@@ -56,14 +62,14 @@ if (isset($_POST['generate_qr'])) {
         }
 
         // Define QR code path
-        $qr_filename = "vendor_" . $vendor['id'] . "_" . time() . ".png"; // Add timestamp to filename
+        $qr_filename = "vendor_" . $vendor['id'] . "_" . uniqid() . ".png";
         $qr_path = "uploads/qr_codes/" . $qr_filename;
         $full_path = "../" . $qr_path;
 
         // Delete any old QR files for this vendor
         $old_files = glob("../uploads/qr_codes/vendor_" . $vendor['id'] . "_*.png");
         foreach ($old_files as $file) {
-            if (is_file($file)) {
+            if (is_file($file) && $file !== $full_path) {
                 unlink($file);
             }
         }
@@ -186,14 +192,14 @@ ob_start();
 
                     <?php if ($qr_code): ?>
                         <div class="mb-4">
-                            <img src="<?php echo '../' . $qr_code['qr_code']; ?>?t=<?php echo time(); ?>" 
+                            <img src="<?php echo '../' . $qr_code['qr_code']; ?>?v=<?php echo uniqid(); ?>" 
                                  alt="Menu QR Code" 
                                  class="img-fluid" 
                                  style="max-width: 300px;">
                         </div>
                         <div class="mb-4">
                             <p>QR Code URL: <code><?php echo htmlspecialchars($qr_code['url']); ?></code></p>
-                            <a href="<?php echo '../' . $qr_code['qr_code']; ?>" 
+                            <a href="<?php echo '../' . $qr_code['qr_code']; ?>?download=1" 
                                download="menu_qr_code_<?php echo $vendor['id']; ?>.png" 
                                class="btn btn-success">
                                 <i class="fas fa-download"></i> Download QR Code

@@ -1,0 +1,148 @@
+Absolutely! Here's a step-by-step guide to set up multiple GitHub accounts on Windows using SSH, so you can track different folders/projects with different accounts.
+
+🧰 What You'll Need:
+Git installed: Download Git for Windows
+Git Bash (comes with Git installation)
+Two GitHub accounts (e.g., personal and work)
+
+🪜 Step-by-Step Guide on Windows
+✅ Step 1: Generate SSH keys for both accounts
+Open Git Bash.
+
+Run the first command for Account 1:
+bash
+ssh-keygen -t ed25519 -C "your_personal_email@example.com" -f ~/.ssh/id_ed25519_personal
+
+Run the second command for Account 2:
+
+(in git bash )
+ssh-keygen -t ed25519 -C "your_work_email@example.com" -f ~/.ssh/id_ed25519_work
+Press Enter for all prompts to use default settings.
+
+✅ Step 2: Add SSH keys to the SSH agent
+Start the agent:
+
+(in git bash )
+eval "$(ssh-agent -s)"
+
+Add both keys:
+bash
+
+ssh-add ~/.ssh/id_ed25519_personal
+ssh-add ~/.ssh/id_ed25519_work
+
+✅ Step 3: Configure your SSH settings
+Open or create the config file:
+
+bash
+notepad ~/.ssh/config
+Paste the following:
+
+# Personal GitHub account
+Host github.com-personal
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_personal
+
+# Work GitHub account
+Host github.com-work
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_work
+Save and close.(make sure the saved file is config not config.txt)
+
+✅ Step 4: Add your SSH public keys to GitHub
+For each account:
+
+Run this to get the key:
+
+bash
+cat ~/.ssh/id_ed25519_personal.pub
+Copy the output and add it in:
+
+GitHub → Settings > SSH and GPG keys > New SSH key
+
+Repeat with:
+
+bash
+cat ~/.ssh/id_ed25519_work.pub
+Add this to your second GitHub account.
+
+✅ Step 5: Clone or set remotes using the alias
+For personal projects:
+
+bash
+git clone git@github.com-personal:NirajShresthaNewar/CanteenAutomationSystem.git(make sure you use the username of the personal account and repository of the personal account you want to clone)
+For work projects:
+
+bash
+git clone git@github.com-work:bhojrajbhujel121/Dvm.git(make sure you use the username of the work account and repository of the work account you want to clone)
+
+✅ Step 6: Set local Git user info per repo
+After cloning a repo, go to the repo folder:
+
+bash
+cd c:\xampp\htdocs\CanteenAutomationSystem
+Then set the Git user:
+
+For personal:
+
+bash
+Copy
+Edit
+git config user.name "Your Personal Name"
+git config user.email "your_personal_email@example.com"
+For work:
+
+bash
+Copy
+Edit
+git config user.name "Your Work Name"
+git config user.email "your_work_email@example.com"
+
+✅now while u git init and commit then before pushing follow below steps:
+Step 1: Add your remote
+Since your repo is hosted under your personal GitHub, use this command:
+
+bash
+git remote add origin git@github.com-personal:bhojrajbhujel121/Dvm.git
+✅ This sets origin as your remote and uses your personal SSH config.
+
+Step 2: Push your local master branch
+Now push your local commits to GitHub:
+
+bash
+git push -u origin master
+The -u sets the upstream branch so next time you can just use git push.
+
+
+✅ 1. Go to the repo:
+bash
+Copy
+Edit
+cd /c/xampp/htdocs/CanteenAutomationSystem
+✅ 2. Add the remote using your work GitHub username (example: NirajShresthaNewar)
+bash
+Copy
+Edit
+git remote add origin git@github.com-work:NirajShresthaNewar/CanteenAutomationSystem.git
+
+This tells Git to:
+
+Use the SSH key from ~/.ssh/id_rsa_work
+
+
+Push to your work GitHub repo
+
+✅ 3. Push your branch (if you’re on main)
+bash
+git push -u origin main
+If your branch is master, replace main with master.
+
+🔍 Optional: Confirm your remote
+bash
+git remote -v
+It should show:
+scss
+origin  git@github.com-work:NirajShresthaNewar/CanteenAutomationSystem.git (fetch)
+origin  git@github.com-work:NirajShresthaNewar/CanteenAutomationSystem.git (push)

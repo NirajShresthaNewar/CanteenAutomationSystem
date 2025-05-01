@@ -43,10 +43,19 @@ if (isset($_SESSION['user_id'])) {
         $stmt = $conn->prepare("
             SELECT COUNT(*) as count
             FROM orders o
+            LEFT JOIN (
+                SELECT order_id, status
+                FROM order_tracking
+                WHERE id IN (
+                    SELECT MAX(id)
+                    FROM order_tracking
+                    GROUP BY order_id
+                )
+            ) ot ON o.id = ot.order_id
             WHERE o.customer_id = (
                 SELECT id FROM staff_students WHERE user_id = ?
             )
-            AND o.status IN ('pending', 'accepted', 'in_progress', 'ready')
+            AND COALESCE(ot.status, 'pending') IN ('pending', 'accepted', 'in_progress', 'ready')
         ");
         $stmt->execute([$_SESSION['user_id']]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);

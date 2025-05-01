@@ -9,14 +9,31 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 }
 
 // Verify POST request with required data
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['vendor_id'], $_POST['payment_method'])) {
-    $_SESSION['error'] = "Invalid checkout request.";
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || 
+    !isset($_POST['vendor_id'], $_POST['payment_method'], $_POST['order_type'])) {
+    $_SESSION['error'] = "Invalid checkout request. Please fill in all required fields.";
     header('Location: cart.php');
     exit();
 }
 
 $vendor_id = $_POST['vendor_id'];
 $payment_method = $_POST['payment_method'];
+$order_type = $_POST['order_type'];
+
+// Validate delivery details based on order type
+if ($order_type === 'delivery') {
+    if (empty($_POST['delivery_location']) || empty($_POST['contact_number'])) {
+        $_SESSION['error'] = "Please provide delivery location and contact number.";
+        header('Location: cart.php');
+        exit();
+    }
+}
+
+if ($order_type === 'dine_in' && empty($_POST['table_number'])) {
+    $_SESSION['error'] = "Please provide table number for dine-in orders.";
+    header('Location: cart.php');
+    exit();
+}
 
 try {
     // Get cart items for this vendor
@@ -48,6 +65,16 @@ try {
         throw new Exception("Student record not found.");
     }
 
+    // Get vendor details
+    $stmt = $conn->prepare("
+        SELECT v.*, u.username as vendor_name 
+        FROM vendors v 
+        JOIN users u ON v.user_id = u.id 
+        WHERE v.id = ?
+    ");
+    $stmt->execute([$vendor_id]);
+    $vendor = $stmt->fetch(PDO::FETCH_ASSOC);
+
     // Start transaction
     $conn->beginTransaction();
 
@@ -59,11 +86,11 @@ try {
         INSERT INTO orders (
             receipt_number, user_id, customer_id, vendor_id,
             total_amount, payment_method, payment_status,
-            status, order_date
+            order_date
         ) VALUES (
             ?, ?, ?, ?,
             ?, ?, ?,
-            'pending', CURRENT_TIMESTAMP
+            CURRENT_TIMESTAMP
         )
     ");
     $stmt->execute([
@@ -78,12 +105,38 @@ try {
 
     $order_id = $conn->lastInsertId();
 
+    // Insert order delivery details
+    $stmt = $conn->prepare("
+        INSERT INTO order_delivery_details (
+            order_id,
+            order_type,
+            table_number,
+            delivery_location,
+            building_name,
+            floor_number,
+            room_number,
+            delivery_instructions,
+            contact_number
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->execute([
+        $order_id,
+        $order_type,
+        $_POST['table_number'] ?? null,
+        $_POST['delivery_location'] ?? null,
+        $_POST['building_name'] ?? null,
+        $_POST['floor_number'] ?? null,
+        $_POST['room_number'] ?? null,
+        $_POST['delivery_instructions'] ?? null,
+        $_POST['contact_number'] ?? null
+    ]);
+
     // Create order items
     $stmt = $conn->prepare("
         INSERT INTO order_items (
             order_id, menu_item_id, quantity,
-            unit_price, subtotal, special_instructions
-        ) VALUES (?, ?, ?, ?, ?, ?)
+            unit_price, subtotal
+        ) VALUES (?, ?, ?, ?, ?)
     ");
 
     foreach ($cart_items as $item) {
@@ -93,8 +146,7 @@ try {
             $item['menu_item_id'],
             $item['quantity'],
             $item['price'],
-            $subtotal,
-            $item['special_instructions'] ?? null
+            $subtotal
         ]);
     }
 
@@ -149,91 +201,193 @@ $page_title = 'Checkout';
 ob_start();
 ?>
 
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Checkout</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="dashboard.php">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="cart.php">Cart</a></li>
+                    <li class="breadcrumb-item active">Checkout</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content">
 <div class="container-fluid">
+        <div class="container mt-4">
     <div class="row">
-        <div class="col-md-8">
+                <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Order Summary</h3>
+                            <h4>Checkout</h4>
                 </div>
                 <div class="card-body">
+                            <form id="checkoutForm" method="POST" action="process_order.php">
+                                <input type="hidden" name="vendor_id" value="<?php echo $vendor_id; ?>">
+                                
+                                <!-- Order Type Selection -->
+                                <div class="form-group mb-4">
+                                    <label for="order_type"><strong>Order Type</strong></label>
+                                    <select class="form-control" id="order_type" name="order_type" required>
+                                        <option value="">Select Order Type</option>
+                                        <option value="delivery">Delivery</option>
+                                        <option value="dine_in">Dine In</option>
+                                    </select>
+                                </div>
+
+                                <!-- Delivery Details Section -->
+                                <div id="deliveryDetails" style="display: none;">
+                                    <h5 class="mb-3">Delivery Details</h5>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label for="delivery_location">Delivery Location*</label>
+                                        <input type="text" class="form-control" id="delivery_location" name="delivery_location">
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="building_name">Building Name</label>
+                                        <input type="text" class="form-control" id="building_name" name="building_name">
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label for="floor_number">Floor Number</label>
+                                                <input type="text" class="form-control" id="floor_number" name="floor_number">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group mb-3">
+                                                <label for="room_number">Room Number</label>
+                                                <input type="text" class="form-control" id="room_number" name="room_number">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="contact_number">Contact Number*</label>
+                                        <input type="tel" class="form-control" id="contact_number" name="contact_number">
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label for="delivery_instructions">Delivery Instructions</label>
+                                        <textarea class="form-control" id="delivery_instructions" name="delivery_instructions" rows="2"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Dine-in Details Section -->
+                                <div id="dineInDetails" style="display: none;">
+                                    <h5 class="mb-3">Dine-in Details</h5>
+                                    
+                                    <div class="form-group mb-3">
+                                        <label for="table_number">Table Number*</label>
+                                        <input type="text" class="form-control" id="table_number" name="table_number">
+                                    </div>
+                                </div>
+
+                                <!-- Payment Method Selection -->
+                                <div class="form-group mb-4">
+                                    <label for="payment_method"><strong>Payment Method</strong></label>
+                                    <select class="form-control" id="payment_method" name="payment_method" required>
+                                        <option value="">Select Payment Method</option>
+                                        <option value="credit">Credit Account</option>
+                                        <option value="esewa">Online Payment (eSewa)</option>
+                                        <option value="cash">Cash on Delivery</option>
+                                    </select>
+                                </div>
+
+                                <!-- Order Summary -->
+                                <div class="order-summary mb-4">
+                                    <h5>Order Summary</h5>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
                                     <th>Item</th>
-                                    <th>Price</th>
                                     <th>Quantity</th>
-                                    <th>Total</th>
+                                                    <th class="text-right">Price</th>
+                                                    <th class="text-right">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php 
-                                $total = 0;
-                                foreach ($_SESSION['cart'] as $item): 
-                                    $item_total = $item['price'] * $item['quantity'];
-                                    $total += $item_total;
-                                ?>
+                                                <?php foreach ($cart_items as $item): ?>
                                     <tr>
                                         <td><?php echo htmlspecialchars($item['name']); ?></td>
-                                        <td>Rs. <?php echo number_format($item['price'], 2); ?></td>
                                         <td><?php echo $item['quantity']; ?></td>
-                                        <td>Rs. <?php echo number_format($item_total, 2); ?></td>
+                                                        <td class="text-right">₹<?php echo number_format($item['price'], 2); ?></td>
+                                                        <td class="text-right">₹<?php echo number_format($item['price'] * $item['quantity'], 2); ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
                             <tfoot>
                                 <tr>
-                                    <th colspan="3" class="text-right">Total:</th>
-                                    <th>Rs. <?php echo number_format($total, 2); ?></th>
+                                                    <th colspan="3" class="text-right">Total Amount:</th>
+                                                    <th class="text-right">₹<?php echo number_format($total_amount, 2); ?></th>
                                 </tr>
                             </tfoot>
                         </table>
-                    </div>
-                </div>
             </div>
         </div>
         
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Payment Details</h3>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">Place Order</button>
+                                    <a href="cart.php" class="btn btn-secondary">Back to Cart</a>
                 </div>
-                <div class="card-body">
-                    <form method="POST">
-                        <div class="form-group">
-                            <label>Vendor</label>
-                            <p class="form-control-static"><?php echo htmlspecialchars($vendor['vendor_name']); ?></p>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Payment Method</label>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_method" 
-                                       value="cash" checked>
-                                <label class="form-check-label">Cash</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_method" 
-                                       value="esewa">
-                                <label class="form-check-label">eSewa</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment_method" 
-                                       value="credit">
-                                <label class="form-check-label">Credit Account</label>
+                            </form>
                             </div>
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary btn-block">
-                            Confirm Order
-                        </button>
-                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const orderType = document.getElementById('order_type');
+    const deliveryDetails = document.getElementById('deliveryDetails');
+    const dineInDetails = document.getElementById('dineInDetails');
+    
+    // Required fields for delivery
+    const deliveryFields = ['delivery_location', 'contact_number'];
+    // Required fields for dine-in
+    const dineInFields = ['table_number'];
+    
+    function toggleRequiredFields(fields, required) {
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.required = required;
+            }
+        });
+    }
+
+    orderType.addEventListener('change', function() {
+        if (this.value === 'delivery') {
+            deliveryDetails.style.display = 'block';
+            dineInDetails.style.display = 'none';
+            toggleRequiredFields(deliveryFields, true);
+            toggleRequiredFields(dineInFields, false);
+        } else if (this.value === 'dine_in') {
+            deliveryDetails.style.display = 'none';
+            dineInDetails.style.display = 'block';
+            toggleRequiredFields(deliveryFields, false);
+            toggleRequiredFields(dineInFields, true);
+        } else {
+            deliveryDetails.style.display = 'none';
+            dineInDetails.style.display = 'none';
+            toggleRequiredFields(deliveryFields, false);
+            toggleRequiredFields(dineInFields, false);
+        }
+    });
+});
+</script>
 
 <?php
 $content = ob_get_clean();

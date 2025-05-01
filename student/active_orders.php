@@ -12,23 +12,37 @@ try {
     // Get active orders
     $stmt = $conn->prepare("
         SELECT o.*, v.id as vendor_id, u.username as vendor_name,
+               COALESCE(ot.status, 'pending') as status,
+               odd.order_type, odd.delivery_location, odd.building_name,
+               odd.floor_number, odd.room_number, odd.contact_number,
+               odd.table_number, odd.delivery_instructions,
                CASE 
                     WHEN o.payment_method = 'credit' THEN 'Credit Account'
                     WHEN o.payment_method = 'esewa' THEN 'Online Payment (eSewa)'
                     ELSE 'Cash on Delivery'
                END as payment_method_name,
                CASE
-                    WHEN o.status = 'pending' THEN 'bg-warning'
-                    WHEN o.status = 'accepted' THEN 'bg-info'
-                    WHEN o.status = 'in_progress' THEN 'bg-primary'
-                    WHEN o.status = 'ready' THEN 'bg-success'
+                    WHEN COALESCE(ot.status, 'pending') = 'pending' THEN 'bg-warning'
+                    WHEN COALESCE(ot.status, 'pending') = 'accepted' THEN 'bg-info'
+                    WHEN COALESCE(ot.status, 'pending') = 'in_progress' THEN 'bg-primary'
+                    WHEN COALESCE(ot.status, 'pending') = 'ready' THEN 'bg-success'
                     ELSE 'bg-secondary'
                END as status_class
         FROM orders o
         JOIN vendors v ON o.vendor_id = v.id
         JOIN users u ON v.user_id = u.id
+        LEFT JOIN order_delivery_details odd ON o.id = odd.order_id
+        LEFT JOIN (
+            SELECT ot1.*
+            FROM order_tracking ot1
+            INNER JOIN (
+                SELECT order_id, MAX(status_changed_at) as max_date
+                FROM order_tracking
+                GROUP BY order_id
+            ) ot2 ON ot1.order_id = ot2.order_id AND ot1.status_changed_at = ot2.max_date
+        ) ot ON o.id = ot.order_id
         WHERE o.user_id = ? 
-        AND o.status IN ('pending', 'accepted', 'in_progress', 'ready')
+        AND COALESCE(ot.status, 'pending') IN ('pending', 'accepted', 'in_progress', 'ready')
         ORDER BY o.order_date DESC
     ");
     $stmt->execute([$_SESSION['user_id']]);
@@ -122,6 +136,39 @@ ob_start();
                                     <div class="col-md-6">
                                         <p><strong>Payment Method:</strong> <?php echo $order['payment_method_name']; ?></p>
                                         <p><strong>Total Amount:</strong> ₹<?php echo number_format($order['total_amount'], 2); ?></p>
+                                    </div>
+                                </div>
+
+                                <!-- Add Delivery Details Section -->
+                                <div class="delivery-details mt-3">
+                                    <h6 class="border-bottom pb-2">Order Details</h6>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <p>
+                                                <strong>Order Type:</strong> 
+                                                <span class="badge badge-info">
+                                                    <?php echo ucfirst(str_replace('_', ' ', $order['order_type'])); ?>
+                                                </span>
+                                            </p>
+                                            <?php if ($order['order_type'] === 'delivery'): ?>
+                                                <p><strong>Delivery Location:</strong> <?php echo htmlspecialchars($order['delivery_location']); ?></p>
+                                                <?php if ($order['building_name']): ?>
+                                                    <p><strong>Building:</strong> <?php echo htmlspecialchars($order['building_name']); ?></p>
+                                                <?php endif; ?>
+                                                <?php if ($order['floor_number']): ?>
+                                                    <p><strong>Floor:</strong> <?php echo htmlspecialchars($order['floor_number']); ?></p>
+                                                <?php endif; ?>
+                                                <?php if ($order['room_number']): ?>
+                                                    <p><strong>Room:</strong> <?php echo htmlspecialchars($order['room_number']); ?></p>
+                                                <?php endif; ?>
+                                                <p><strong>Contact:</strong> <?php echo htmlspecialchars($order['contact_number']); ?></p>
+                                                <?php if ($order['delivery_instructions']): ?>
+                                                    <p><strong>Instructions:</strong> <?php echo htmlspecialchars($order['delivery_instructions']); ?></p>
+                                                <?php endif; ?>
+                                            <?php elseif ($order['order_type'] === 'dine_in'): ?>
+                                                <p><strong>Table Number:</strong> <?php echo htmlspecialchars($order['table_number']); ?></p>
+                                            <?php endif; ?>
+                                        </div>
                                     </div>
                                 </div>
 

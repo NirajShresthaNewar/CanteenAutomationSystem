@@ -185,6 +185,76 @@ ob_start();
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="order_type">Order Type</label>
+                                        <select name="order_type" id="order_type" class="form-control" required>
+                                            <option value="">Select Order Type</option>
+                                            <option value="pickup">Pickup</option>
+                                            <option value="delivery">Delivery</option>
+                                            <option value="dine_in">Dine In</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Delivery Details (initially hidden) -->
+                                <div class="col-12" id="deliveryDetails" style="display: none;">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="delivery_location">Delivery Location*</label>
+                                                        <input type="text" class="form-control" id="delivery_location" name="delivery_location" placeholder="Enter delivery location">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="building_name">Building Name</label>
+                                                        <input type="text" class="form-control" id="building_name" name="building_name" placeholder="Enter building name">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="floor_number">Floor Number</label>
+                                                        <input type="text" class="form-control" id="floor_number" name="floor_number" placeholder="Enter floor number">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="room_number">Room Number</label>
+                                                        <input type="text" class="form-control" id="room_number" name="room_number" placeholder="Enter room number">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="contact_number">Contact Number*</label>
+                                                        <input type="tel" class="form-control" id="contact_number" name="contact_number" placeholder="Enter contact number">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="delivery_instructions">Delivery Instructions</label>
+                                                        <textarea class="form-control" id="delivery_instructions" name="delivery_instructions" rows="2" placeholder="Enter any special delivery instructions"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dine-in Details (initially hidden) -->
+                                <div class="col-12" id="dineInDetails" style="display: none;">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="table_number">Table Number*</label>
+                                                <input type="text" class="form-control" id="table_number" name="table_number" placeholder="Enter your table number">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label for="payment_method">Payment Method</label>
                                         <select name="payment_method" id="payment_method" class="form-control" required>
                                             <option value="">Select Payment Method</option>
@@ -194,13 +264,13 @@ ob_start();
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label>&nbsp;</label>
-                                        <button type="submit" class="btn btn-primary btn-block">
+                            </div>
+
+                            <div class="row mt-3">
+                                <div class="col-md-12">
+                                    <button type="submit" class="btn btn-primary float-right">
                                             <i class="fas fa-shopping-cart"></i> Proceed to Checkout
                                         </button>
-                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -216,6 +286,49 @@ ob_start();
         <?php endif; ?>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const orderTypeSelect = document.getElementById('order_type');
+    const deliveryDetails = document.getElementById('deliveryDetails');
+    const dineInDetails = document.getElementById('dineInDetails');
+    
+    // Required fields for delivery
+    const requiredDeliveryFields = ['delivery_location', 'contact_number'];
+    
+    function toggleDeliveryDetails() {
+        const selectedType = orderTypeSelect.value;
+        
+        // Hide both sections initially
+        deliveryDetails.style.display = 'none';
+        dineInDetails.style.display = 'none';
+        
+        // Reset required fields
+        document.querySelectorAll('#deliveryDetails input, #deliveryDetails textarea').forEach(field => {
+            field.required = false;
+        });
+        document.getElementById('table_number').required = false;
+        
+        // Show relevant section based on selection
+        if (selectedType === 'delivery') {
+            deliveryDetails.style.display = 'block';
+            // Set required fields for delivery
+            requiredDeliveryFields.forEach(fieldId => {
+                document.getElementById(fieldId).required = true;
+            });
+        } else if (selectedType === 'dine_in') {
+            dineInDetails.style.display = 'block';
+            document.getElementById('table_number').required = true;
+        }
+    }
+    
+    // Add event listener for order type changes
+    orderTypeSelect.addEventListener('change', toggleDeliveryDetails);
+    
+    // Initial toggle on page load
+    toggleDeliveryDetails();
+});
+</script>
 
 <?php
 // Get the buffered content

@@ -9,6 +9,53 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
     exit();
 }
 
+require_once '../connection/db_connection.php';
+
+// Get active orders count (orders that are not completed, cancelled, or rejected)
+$stmt = $conn->prepare("
+    SELECT COUNT(*) as active_count
+    FROM orders o
+    LEFT JOIN (
+        SELECT ot1.*
+        FROM order_tracking ot1
+        INNER JOIN (
+            SELECT order_id, MAX(status_changed_at) as max_date
+            FROM order_tracking
+            GROUP BY order_id
+        ) ot2 ON ot1.order_id = ot2.order_id AND ot1.status_changed_at = ot2.max_date
+    ) ot ON o.id = ot.order_id
+    WHERE o.user_id = ? 
+    AND COALESCE(ot.status, 'pending') NOT IN ('completed', 'cancelled', 'rejected')
+");
+$stmt->execute([$_SESSION['user_id']]);
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+$active_orders_count = $result['active_count'];
+
+// Get orders count for current month
+$stmt = $conn->prepare("
+    SELECT COUNT(*) as month_count
+    FROM orders
+    WHERE user_id = ? 
+    AND MONTH(order_date) = MONTH(CURRENT_DATE())
+    AND YEAR(order_date) = YEAR(CURRENT_DATE())
+");
+$stmt->execute([$_SESSION['user_id']]);
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+$monthly_orders_count = $result['month_count'];
+
+// Get favorite menu items count - using menu_items table instead of favorites
+$stmt = $conn->prepare("
+    SELECT COUNT(*) as fav_count
+    FROM menu_items mi
+    JOIN order_items oi ON mi.item_id = oi.menu_item_id
+    JOIN orders o ON oi.order_id = o.id
+    WHERE o.user_id = ?
+    GROUP BY mi.item_id
+    HAVING COUNT(*) > 1
+");
+$stmt->execute([$_SESSION['user_id']]);
+$favorite_items_count = $stmt->rowCount();
+
 $page_title = 'Student Dashboard';
 ob_start();
 ?>
@@ -43,7 +90,7 @@ ob_start();
                     <span class="info-box-icon bg-success"><i class="fas fa-shopping-cart"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Orders This Month</span>
-                        <span class="info-box-number">0</span>
+                        <span class="info-box-number"><?php echo $monthly_orders_count; ?></span>
                     </div>
                 </div>
             </div>
@@ -52,7 +99,7 @@ ob_start();
                     <span class="info-box-icon bg-warning"><i class="fas fa-clock"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Active Orders</span>
-                        <span class="info-box-number">0</span>
+                        <span class="info-box-number"><?php echo $active_orders_count; ?></span>
                     </div>
                 </div>
             </div>
@@ -61,7 +108,7 @@ ob_start();
                     <span class="info-box-icon bg-danger"><i class="fas fa-heart"></i></span>
                     <div class="info-box-content">
                         <span class="info-box-text">Favorite Items</span>
-                        <span class="info-box-number">0</span>
+                        <span class="info-box-number"><?php echo $favorite_items_count; ?></span>
                     </div>
                 </div>
             </div>

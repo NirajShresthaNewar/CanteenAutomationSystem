@@ -1,8 +1,12 @@
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded');
+    
     // Initialize DataTables
     if (typeof $.fn !== 'undefined' && $.fn.DataTable) {
+        console.log('DataTables is available');
         $('.table').each(function() {
             if (!$.fn.DataTable.isDataTable(this)) {
+                console.log('Initializing DataTable');
                 $(this).DataTable({
                     "paging": true,
                     "lengthChange": false,
@@ -10,10 +14,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     "ordering": true,
                     "info": true,
                     "autoWidth": false,
-                    "responsive": true
+                    "responsive": true,
+                    "drawCallback": function(settings) {
+                        // Check button visibility after table draw
+                        console.log('Table drawn, checking buttons');
+                        $('.action-button').each(function() {
+                            console.log('Button display style:', $(this).css('display'));
+                        });
+                    }
                 });
             }
         });
+    } else {
+        console.log('DataTables not available');
     }
 
     // Auto-hide alerts after 5 seconds

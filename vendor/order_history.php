@@ -26,60 +26,85 @@ $status = isset($_GET['status']) ? $_GET['status'] : '';
 $payment_method = isset($_GET['payment_method']) ? $_GET['payment_method'] : '';
 
 // Build query conditions
-$conditions = ["o.vendor_id = ?"];
-$params = [$vendor_id];
+$sql = "SELECT o.id, o.receipt_number, o.total_amount, o.payment_method, o.order_date,
+       u.username as customer_name, u.email as customer_email,
+       COALESCE(ot.status, 'pending') as current_status,
+       o.payment_status, o.cash_received, o.amount_tendered, o.change_amount
+FROM orders o
+LEFT JOIN users u ON o.user_id = u.id
+LEFT JOIN (
+    SELECT order_id, status
+    FROM order_tracking
+    WHERE (order_id, status_changed_at) IN (
+        SELECT order_id, MAX(status_changed_at)
+        FROM order_tracking
+        GROUP BY order_id
+    )
+) ot ON o.id = ot.order_id
+WHERE o.vendor_id = :vendor_id";
+
+$params = [':vendor_id' => $vendor_id];
 
 if (!empty($start_date)) {
-    $conditions[] = "DATE(o.order_date) >= ?";
-    $params[] = $start_date;
+    $sql .= " AND DATE(o.order_date) >= :start_date";
+    $params[':start_date'] = $start_date;
 }
 
 if (!empty($end_date)) {
-    $conditions[] = "DATE(o.order_date) <= ?";
-    $params[] = $end_date;
+    $sql .= " AND DATE(o.order_date) <= :end_date";
+    $params[':end_date'] = $end_date;
 }
 
 if (!empty($status)) {
-    $conditions[] = "o.status = ?";
-    $params[] = $status;
+    $sql .= " AND COALESCE(ot.status, 'pending') = :status";
+    $params[':status'] = $status;
 }
 
 if (!empty($payment_method)) {
-    $conditions[] = "o.payment_method = ?";
-    $params[] = $payment_method;
+    $sql .= " AND o.payment_method = :payment_method";
+    $params[':payment_method'] = $payment_method;
 }
 
-$where_clause = implode(" AND ", $conditions);
+$sql .= " ORDER BY o.order_date DESC";
 
 // Get total count of orders
-$stmt = $conn->prepare("
-    SELECT COUNT(*) 
-    FROM orders o
-    WHERE $where_clause
-");
+$stmt = $conn->prepare($sql);
 $stmt->execute($params);
-$total_orders = $stmt->fetchColumn();
+$total_orders = $stmt->rowCount();
 $total_pages = ceil($total_orders / $limit);
 
-// Get orders with pagination
-$stmt = $conn->prepare("
-    SELECT o.*, u.username, u.contact_number 
-    FROM orders o
-    JOIN users u ON o.user_id = u.id
-    WHERE $where_clause
-    ORDER BY o.order_date DESC
-    LIMIT $limit OFFSET $offset
-");
-$stmt->execute($params);
+// Get orders for current page
+$sql .= " LIMIT :offset, :limit";
+$stmt = $conn->prepare($sql);
+
+// Bind all parameters
+foreach ($params as $key => $value) {
+    $stmt->bindValue($key, $value);
+}
+$stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+$stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+$stmt->execute();
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Calculate total revenue
 $stmt = $conn->prepare("
-    SELECT SUM(total_amount) 
-    FROM orders 
-    WHERE vendor_id = ? AND status = 'completed'
+    SELECT SUM(o.total_amount) 
+    FROM orders o
+    LEFT JOIN (
+        SELECT order_id, status
+        FROM order_tracking
+        WHERE (order_id, status_changed_at) IN (
+            SELECT order_id, MAX(status_changed_at)
+            FROM order_tracking
+            GROUP BY order_id
+        )
+    ) ot ON o.id = ot.order_id
+    WHERE o.vendor_id = :vendor_id 
+    AND COALESCE(ot.status, 'pending') = 'completed'
+    AND o.payment_status = 'paid'
 ");
-$stmt->execute([$vendor_id]);
+$stmt->bindValue(':vendor_id', $vendor_id);
+$stmt->execute();
 $total_revenue = $stmt->fetchColumn();
 
 $page_title = 'Order History';
@@ -234,20 +259,30 @@ ob_start();
                                             <tr>
                                                 <td>#<?php echo $order['receipt_number']; ?></td>
                                                 <td>
-                                                    <?php echo htmlspecialchars($order['username']); ?><br>
-                                                    <small class="text-muted"><?php echo htmlspecialchars($order['contact_number']); ?></small>
+                                                    <?php echo htmlspecialchars($order['customer_name']); ?><br>
+                                                    <small class="text-muted"><?php echo htmlspecialchars($order['customer_email']); ?></small>
                                                 </td>
                                                 <td>₹<?php echo number_format($order['total_amount'], 2); ?></td>
                                                 <td>
                                                     <?php if ($order['payment_method'] == 'cash'): ?>
                                                         <span class="badge badge-success">Cash</span>
+                                                        <?php if ($order['payment_status'] == 'paid'): ?>
+                                                            <br>
+                                                            <small class="text-muted">
+                                                                Tendered: ₹<?php echo number_format($order['amount_tendered'], 2); ?><br>
+                                                                Change: ₹<?php echo number_format($order['change_amount'], 2); ?>
+                                                            </small>
+                                                        <?php endif; ?>
                                                     <?php elseif ($order['payment_method'] == 'esewa'): ?>
                                                         <span class="badge badge-info">eSewa</span>
+                                                    <?php elseif ($order['payment_method'] == 'credit'): ?>
+                                                        <span class="badge badge-warning">Credit</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <?php
-                                                    switch ($order['status']) {
+                                                    $status = $order['current_status'] ?? 'pending';
+                                                    switch ($status) {
                                                         case 'pending':
                                                             echo '<span class="badge badge-danger">Pending</span>';
                                                             break;

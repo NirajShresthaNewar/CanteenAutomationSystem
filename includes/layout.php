@@ -26,12 +26,16 @@ $additionalScripts = '';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@1.13.1/css/OverlayScrollbars.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <!-- Add SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     
     <!-- Additional page-specific styles -->
     <?php if (!empty($additionalStyles)) echo $additionalStyles; ?>
 
     <!-- Core Scripts - Load jQuery first -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Add SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <!-- Additional page-specific scripts that depend on jQuery -->
     <?php if (!empty($additionalScripts)) echo $additionalScripts; ?>
@@ -234,5 +238,196 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<!-- Assign Worker Modal -->
+<div class="modal fade" id="assignWorkerModal" tabindex="-1" role="dialog" aria-labelledby="assignWorkerModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignWorkerModalLabel">Assign Worker</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="assignWorkerForm" method="POST" action="../vendor/assign_worker.php">
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <h6><i class="icon fas fa-info"></i> Order Details</h6>
+                        <p id="orderDetailsText"></p>
+                    </div>
+                    <input type="hidden" name="order_id" id="assignOrderId">
+                    <div class="form-group">
+                        <label for="worker_id">Select Worker</label>
+                        <select class="form-control" id="worker_id" name="worker_id" required>
+                            <option value="">-- Select Worker --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign Worker</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Notification Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="notificationModalLabel">Order Ready!</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="notificationMessage">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <a href="#" class="btn btn-primary" id="viewOrderBtn">View Order</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this right before the closing body tag -->
+<script>
+// Function to handle assign worker button click
+function handleAssignWorker(orderId) {
+    // Clear previous data
+    document.getElementById('assignOrderId').value = '';
+    document.getElementById('orderDetailsText').textContent = '';
+    document.getElementById('worker_id').innerHTML = '<option value="">-- Select Worker --</option>';
+
+    // Fetch workers and order details
+    fetch(`../vendor/assign_worker.php?order_id=${orderId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Set order details
+                document.getElementById('assignOrderId').value = data.order.id;
+                document.getElementById('orderDetailsText').textContent = 
+                    `Order #${data.order.receipt_number} - Customer: ${data.order.customer_name}`;
+
+                // Populate workers dropdown
+                const select = document.getElementById('worker_id');
+                data.workers.forEach(worker => {
+                    const option = document.createElement('option');
+                    option.value = worker.id;
+                    option.textContent = `${worker.username} (${worker.contact_number})`;
+                    select.appendChild(option);
+                });
+
+                // Show modal
+                $('#assignWorkerModal').modal('show');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to load worker data'
+            });
+        });
+}
+
+// Handle form submission
+document.getElementById('assignWorkerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('../vendor/assign_worker.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        $('#assignWorkerModal').modal('hide');
+        
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: data.message
+            }).then(() => {
+                window.location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        $('#assignWorkerModal').modal('hide');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to assign worker'
+        });
+    });
+});
+</script>
+
+<?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'student'): ?>
+<script>
+// Function to check for new notifications
+function checkNotifications() {
+    fetch('../student/check_notifications.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.hasNotification) {
+                // Update modal content
+                document.getElementById('notificationMessage').textContent = data.message;
+                document.getElementById('viewOrderBtn').href = data.link;
+                
+                // Show notification modal
+                $('#notificationModal').modal('show');
+                
+                // Play notification sound
+                let audio = new Audio('../assets/notification.mp3');
+                audio.play();
+                
+                // Request permission for browser notification
+                if (Notification.permission === "granted") {
+                    new Notification("Order Ready!", {
+                        body: data.message,
+                        icon: "../assets/favicon.ico"
+                    });
+                } else if (Notification.permission !== "denied") {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === "granted") {
+                            new Notification("Order Ready!", {
+                                body: data.message,
+                                icon: "../assets/favicon.ico"
+                            });
+                        }
+                    });
+                }
+            }
+        })
+        .catch(error => console.error('Error checking notifications:', error));
+}
+
+// Check for notifications every 30 seconds
+setInterval(checkNotifications, 30000);
+
+// Check immediately on page load
+document.addEventListener('DOMContentLoaded', checkNotifications);
+</script>
+<?php endif; ?>
 </body>
 </html> 

@@ -22,9 +22,13 @@ $order_id = $_POST['order_id'];
 
 // Get order details
 $stmt = $conn->prepare("
-    SELECT o.*, u.username, u.email, u.contact_number 
+    SELECT o.*, u.username, u.email, u.contact_number,
+           odd.order_type, odd.table_number, odd.delivery_location,
+           odd.building_name, odd.floor_number, odd.room_number,
+           odd.delivery_instructions, odd.contact_number as delivery_contact
     FROM orders o
     JOIN users u ON o.user_id = u.id
+    LEFT JOIN order_delivery_details odd ON o.id = odd.order_id
     WHERE o.id = ? AND o.vendor_id = ?
 ");
 $stmt->execute([$order_id, $vendor_id]);
@@ -104,6 +108,39 @@ function getStatusBadge($status) {
                     <p><strong>Name:</strong> <?php echo htmlspecialchars($order['username']); ?></p>
                     <p><strong>Email:</strong> <?php echo htmlspecialchars($order['email']); ?></p>
                     <p><strong>Contact:</strong> <?php echo htmlspecialchars($order['contact_number']); ?></p>
+                </div>
+            </div>
+
+            <!-- Add Delivery Information Card -->
+            <div class="card mb-3">
+                <div class="card-header bg-warning text-white">
+                    <h5 class="mb-0">Delivery Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Order Type:</strong> 
+                        <span class="badge badge-info">
+                            <?php echo ucfirst(str_replace('_', ' ', $order['order_type'])); ?>
+                        </span>
+                    </p>
+                    
+                    <?php if ($order['order_type'] === 'delivery'): ?>
+                        <p><strong>Delivery Location:</strong> <?php echo htmlspecialchars($order['delivery_location']); ?></p>
+                        <?php if ($order['building_name']): ?>
+                            <p><strong>Building:</strong> <?php echo htmlspecialchars($order['building_name']); ?></p>
+                        <?php endif; ?>
+                        <?php if ($order['floor_number']): ?>
+                            <p><strong>Floor:</strong> <?php echo htmlspecialchars($order['floor_number']); ?></p>
+                        <?php endif; ?>
+                        <?php if ($order['room_number']): ?>
+                            <p><strong>Room:</strong> <?php echo htmlspecialchars($order['room_number']); ?></p>
+                        <?php endif; ?>
+                        <?php if ($order['delivery_instructions']): ?>
+                            <p><strong>Instructions:</strong> <?php echo htmlspecialchars($order['delivery_instructions']); ?></p>
+                        <?php endif; ?>
+                        <p><strong>Delivery Contact:</strong> <?php echo htmlspecialchars($order['delivery_contact']); ?></p>
+                    <?php elseif ($order['order_type'] === 'dine_in'): ?>
+                        <p><strong>Table Number:</strong> <?php echo htmlspecialchars($order['table_number']); ?></p>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

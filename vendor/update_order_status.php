@@ -2,16 +2,14 @@
 session_start();
 require_once '../connection/db_connection.php';
 
+// Debug log
+error_log("Update Order Status Request: " . print_r($_POST, true));
+
 // Check if user is logged in and is a vendor
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'vendor') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Unauthorized access']);
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(405);
-    echo json_encode(['error' => 'Method not allowed']);
+    error_log("Unauthorized access attempt");
+    $_SESSION['error'] = "Unauthorized access";
+    header('Location: ../auth/login.php');
     exit();
 }
 
@@ -19,104 +17,122 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $stmt = $conn->prepare("SELECT id FROM vendors WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $vendor = $stmt->fetch(PDO::FETCH_ASSOC);
-$vendor_id = $vendor['id'];
 
-$order_id = $_POST['order_id'] ?? null;
-$new_status = $_POST['status'] ?? null;
-$notes = $_POST['notes'] ?? null;
-$preparation_time = $_POST['preparation_time'] ?? null;
-
-if (!$order_id || !$new_status) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Missing required parameters']);
+if (!$vendor) {
+    error_log("Vendor not found for user_id: " . $_SESSION['user_id']);
+    $_SESSION['error'] = "Vendor not found";
+    header('Location: ../auth/logout.php');
     exit();
 }
 
-// Validate status
-$valid_statuses = ['pending', 'accepted', 'in_progress', 'ready', 'completed', 'cancelled'];
-if (!in_array($new_status, $valid_statuses)) {
-    echo json_encode(['success' => false, 'message' => 'Invalid status value']);
+// Check if required parameters are provided
+if (!isset($_POST['order_id']) || !isset($_POST['status'])) {
+    error_log("Missing parameters in request");
+    $_SESSION['error'] = "Missing required parameters";
+    header('Location: manage_orders.php');
     exit();
 }
+
+$order_id = $_POST['order_id'];
+$new_status = $_POST['status'];
+
+error_log("Processing status update - Order ID: $order_id, New Status: $new_status");
 
 try {
-    // Begin transaction
+    // Start transaction
     $conn->beginTransaction();
-    
-    // Check if order exists and belongs to the vendor
+
+    // First, verify the order belongs to this vendor
     $stmt = $conn->prepare("SELECT * FROM orders WHERE id = ? AND vendor_id = ?");
-    $stmt->execute([$order_id, $vendor_id]);
+    $stmt->execute([$order_id, $vendor['id']]);
     $order = $stmt->fetch(PDO::FETCH_ASSOC);
-    
+
     if (!$order) {
-        throw new Exception('Order not found or you do not have permission to update this order');
-    }
-    
-    // Update order status
-    $update_query = "UPDATE orders SET status = ?";
-    $params = [$new_status];
-
-    // Add preparation time if provided
-    if ($preparation_time && $new_status === 'accepted') {
-        $update_query .= ", preparation_time = ?, pickup_time = DATE_ADD(NOW(), INTERVAL ? MINUTE)";
-        $params[] = $preparation_time;
-        $params[] = $preparation_time;
+        error_log("Order not found or access denied - Order ID: $order_id, Vendor ID: {$vendor['id']}");
+        throw new Exception("Order not found or access denied");
     }
 
-    // Handle completed and cancelled states
-    if ($new_status === 'completed') {
-        $update_query .= ", completed_at = NOW()";
-    } elseif ($new_status === 'cancelled') {
-        $update_query .= ", cancelled_reason = ?";
-        $params[] = $notes;
-    }
+    error_log("Order found, proceeding with status update");
 
-    $update_query .= " WHERE id = ?";
-    $params[] = $order_id;
-
-    $stmt = $conn->prepare($update_query);
-    $stmt->execute($params);
-    
-    // Record in order tracking
+    // Record in order tracking with current timestamp
     $stmt = $conn->prepare("
-        INSERT INTO order_tracking (order_id, status, notes, updated_by)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO order_tracking (
+            order_id, 
+            status, 
+            updated_by,
+            status_changed_at,
+            notes
+        ) VALUES (?, ?, ?, CURRENT_TIMESTAMP, ?)
     ");
-    $stmt->execute([$order_id, $new_status, $notes, $_SESSION['user_id']]);
-    
-    // If status is completed or cancelled, perform additional actions if needed
-    if ($new_status === 'completed') {
-        // Could update inventory, add to sales records, etc.
-    } elseif ($new_status === 'cancelled') {
-        // Could handle refunds, etc.
-    }
-    
-    // Commit transaction
-    $conn->commit();
-    
-    // Send success response with updated order details
-    $stmt = $conn->prepare("
-        SELECT o.*, ot.notes, ot.updated_by, u.username as updated_by_name
-        FROM orders o
-        LEFT JOIN order_tracking ot ON o.id = ot.order_id
-        LEFT JOIN users u ON ot.updated_by = u.id
-        WHERE o.id = ?
-        ORDER BY ot.status_changed_at DESC
-        LIMIT 1
-    ");
-    $stmt->execute([$order_id]);
-    $order = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Order status updated successfully',
-        'order' => $order
+    $result = $stmt->execute([
+        $order_id,
+        $new_status,
+        $_SESSION['user_id'],
+        $_POST['notes'] ?? null
     ]);
     
+    if (!$result) {
+        error_log("Failed to insert into order_tracking: " . print_r($stmt->errorInfo(), true));
+        throw new Exception("Failed to update order tracking");
+    }
+    error_log("Order tracking updated successfully");
+
+    // If status is ready, create notification
+    if ($new_status === 'ready') {
+        error_log("Creating ready notification");
+        // Get order details for notification
+        $stmt = $conn->prepare("
+            SELECT o.receipt_number, o.user_id, odd.order_type,
+                   u.username as vendor_name
+            FROM orders o
+            JOIN vendors v ON o.vendor_id = v.id
+            JOIN users u ON v.user_id = u.id
+            LEFT JOIN order_delivery_details odd ON o.id = odd.order_id
+            WHERE o.id = ?
+        ");
+        $stmt->execute([$order_id]);
+        $orderDetails = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Create notification
+        $message = "Your order #{$orderDetails['receipt_number']} from {$orderDetails['vendor_name']} is ready!";
+        
+        $stmt = $conn->prepare("
+            INSERT INTO order_notifications (
+                order_id,
+                user_id,
+                message,
+                type,
+                is_read,
+                created_at
+            ) VALUES (?, ?, ?, 'order_ready', 0, CURRENT_TIMESTAMP)
+        ");
+        $stmt->execute([
+            $order_id,
+            $orderDetails['user_id'],
+            $message
+        ]);
+        error_log("Order notification created successfully");
+    }
+
+    $conn->commit();
+    error_log("Transaction committed successfully");
+    $_SESSION['success'] = "Order status updated to " . ucfirst($new_status);
+
 } catch (Exception $e) {
-    // Rollback transaction on error
-    $conn->rollBack();
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to update order status: ' . $e->getMessage()]);
+    error_log("Error in update_order_status.php: " . $e->getMessage());
+    if ($conn->inTransaction()) {
+        $conn->rollBack();
+        error_log("Transaction rolled back");
+    }
+    $_SESSION['error'] = $e->getMessage();
 }
+
+// Clear any output buffers and session messages from other pages
+if (isset($_SESSION['payment_error'])) {
+    unset($_SESSION['payment_error']);
+}
+
+// Redirect back to manage orders page with a timestamp to prevent caching
+header('Location: manage_orders.php?t=' . time());
+exit();
 ?> 

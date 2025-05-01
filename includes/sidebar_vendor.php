@@ -58,9 +58,18 @@ if ($vendor_id > 0) {
     // Get pending orders count
     $stmt = $conn->prepare("
         SELECT COUNT(*) as count
-        FROM orders
-        WHERE vendor_id = ?
-        AND status = 'pending'
+        FROM orders o
+        LEFT JOIN (
+            SELECT order_id, status
+            FROM order_tracking
+            WHERE id IN (
+                SELECT MAX(id)
+                FROM order_tracking
+                GROUP BY order_id
+            )
+        ) ot ON o.id = ot.order_id
+        WHERE o.vendor_id = ?
+        AND COALESCE(ot.status, 'pending') = 'pending'
     ");
     $stmt->execute([$vendor_id]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);

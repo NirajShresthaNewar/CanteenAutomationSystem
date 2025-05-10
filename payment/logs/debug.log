@@ -1,0 +1,8 @@
+[2025-05-10 15:23:12] Received request
+Data: {
+    "method": "POST",
+    "get": [],
+    "post": [],
+    "raw": "{\"amount\":60,\"purchase_order_id\":\"ORDER-1-1746883392321\",\"purchase_order_name\":\"Food Order\",\"customer_info\":{\"name\":\"student\",\"email\":\"student@gmail.com\",\"phone\":\"9800000001\"},\"order_details\":{\"vendor_id\":\"1\",\"order_type\":\"pickup\",\"form_data\":{\"vendor_id\":\"1\",\"order_type\":\"pickup\",\"delivery_location\":\"\",\"building_name\":\"\",\"floor_number\":\"\",\"room_number\":\"\",\"contact_number\":\"\",\"delivery_instructions\":\"\",\"table_number\":\"\",\"payment_method\":\"khalti\"}}}"
+}
+--------------------------------------------------------------------------------

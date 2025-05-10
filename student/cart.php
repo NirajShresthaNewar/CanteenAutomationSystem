@@ -173,7 +173,7 @@ ob_start();
                                 <tfoot>
                                     <tr>
                                         <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                                        <td><strong>Rs. <?php echo number_format($vendor['total'], 2); ?></strong></td>
+                                        <td><strong class="cart-total">Rs. <?php echo number_format($vendor['total'], 2); ?></strong></td>
                                         <td></td>
                                     </tr>
                                 </tfoot>
@@ -259,8 +259,7 @@ ob_start();
                                         <select name="payment_method" id="payment_method" class="form-control" required>
                                             <option value="">Select Payment Method</option>
                                             <option value="cash">Cash</option>
-                                            <option value="esewa">eSewa</option>
-                                            <option value="credit">Credit</option>
+                                            <option value="khalti">Khalti</option>
                                         </select>
                                     </div>
                                 </div>
@@ -268,7 +267,7 @@ ob_start();
 
                             <div class="row mt-3">
                                 <div class="col-md-12">
-                                    <button type="submit" class="btn btn-primary float-right">
+                                    <button type="submit" class="btn btn-primary float-right" id="checkoutBtn">
                                             <i class="fas fa-shopping-cart"></i> Proceed to Checkout
                                         </button>
                                 </div>
@@ -286,6 +285,9 @@ ob_start();
         <?php endif; ?>
     </div>
 </section>
+
+<!-- Add Khalti JavaScript SDK -->
+<script src="https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.17.0.0.0/khalti-checkout.iffe.js"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -327,7 +329,217 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initial toggle on page load
     toggleDeliveryDetails();
+
+    // Handle form submission
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+            
+            const paymentMethod = this.querySelector('[name="payment_method"]').value;
+            console.log('Payment method:', paymentMethod);
+            
+            const formData = new FormData(this);
+            const orderType = formData.get('order_type');
+            const vendorId = formData.get('vendor_id');
+            
+            console.log('Order details:', {
+                orderType: orderType,
+                vendorId: vendorId
+            });
+            
+            // Validate required fields based on order type
+            if (orderType === 'delivery') {
+                if (!formData.get('delivery_location') || !formData.get('contact_number')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: 'Please fill in all required delivery details'
+                    });
+                    return;
+                }
+            } else if (orderType === 'dine_in' && !formData.get('table_number')) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: 'Please enter your table number'
+                });
+                return;
+            }
+            
+            if (paymentMethod === 'khalti') {
+                // Get the total amount from the vendor's card
+                const card = this.closest('.card');
+                if (!card) {
+                    console.error('Could not find parent card element');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Could not determine order amount'
+                    });
+                    return;
+                }
+
+                // Find the total element using the class selector
+                const totalElement = card.querySelector('.cart-total');
+                if (!totalElement) {
+                    console.error('Could not find total element');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Could not determine order amount'
+                    });
+                    return;
+                }
+
+                const totalText = totalElement.textContent.trim();
+                console.log('Total text:', totalText);
+                
+                // First remove "Rs. " prefix
+                let cleanAmount = totalText.replace('Rs. ', '');
+                // Then remove any commas
+                cleanAmount = cleanAmount.replace(/,/g, '');
+                console.log('Cleaned amount:', cleanAmount);
+                
+                // Parse as float
+                const amountInRupees = parseFloat(cleanAmount);
+                console.log('Amount in Rupees:', amountInRupees);
+                
+                if (isNaN(amountInRupees) || amountInRupees <= 0) {
+                    console.error('Invalid amount:', {
+                        totalText,
+                        cleanAmount,
+                        amountInRupees
+                    });
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Invalid order amount'
+                    });
+                    return;
+                }
+
+                // Convert Rupees to Paisa (1 Rupee = 100 Paisa)
+                const amountInPaisa = Math.round(amountInRupees * 100);
+                console.log('Amount in Paisa:', amountInPaisa);
+
+                // Ensure minimum amount requirement (100 paisa = 1 rupee)
+                if (amountInRupees < 1) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Minimum order amount for Khalti payment is Rs. 1'
+                    });
+                    return;
+                }
+                
+                // Convert FormData to object
+                const formDataObj = {};
+                formData.forEach((value, key) => {
+                    formDataObj[key] = value;
+                });
+                
+                // Initiate Khalti payment with amount in paisa
+                initiateKhaltiPayment(amountInPaisa, formDataObj.vendor_id, formDataObj.order_type, formDataObj);
+            } else {
+                // Handle cash payment
+                this.submit();
+            }
+        });
+    });
 });
+
+function initiateKhaltiPayment(amount, vendorId, orderType, formData) {
+    // First verify session is active
+    fetch('../auth/check_session.php')
+    .then(response => response.json())
+    .then(data => {
+        // If session valid, proceed with payment
+        const orderId = 'ORDER-' + vendorId + '-' + Date.now();
+        
+        // Show loading indicator
+        Swal.fire({
+            title: 'Initiating Payment',
+            text: 'Please wait...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        // Set payment flow flag in session first
+        fetch('../payment/set_payment_flow.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ start_flow: true })
+        })
+        .then(response => response.json())
+        .then(flowData => {
+            if (!flowData.success) {
+                throw new Error('Failed to initialize payment flow');
+            }
+            
+            // Now make request to khalti_handler.php
+            return fetch('../payment/khalti_handler.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: amount,
+                    purchase_order_id: orderId,
+                    purchase_order_name: 'Food Order',
+                    customer_info: {
+                        name: '<?php echo $_SESSION["username"]; ?>',
+                        email: '<?php echo $_SESSION["email"] ?? ""; ?>',
+                        phone: formData.contact_number || '9800000001'
+                    },
+                    order_details: {
+                        vendor_id: vendorId,
+                        order_type: orderType,
+                        form_data: formData
+                    }
+                })
+            });
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Payment URL received:', data.payment_url);
+                // Store payment info in localStorage for recovery
+                localStorage.setItem('khalti_payment_pending', JSON.stringify({
+                    amount: amount,
+                    vendor_id: vendorId,
+                    order_type: orderType,
+                    timestamp: new Date().getTime()
+                }));
+
+                // Redirect to Khalti payment page
+                window.location.href = data.payment_url;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Failed',
+                    text: data.message || 'Failed to initiate payment'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to initiate payment. Please try again.'
+            });
+        });
+    })
+    .catch(error => {
+        console.error('Session check failed:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Session Error',
+            text: 'Your session may have expired. Please refresh and try again.'
+        });
+    });
+}
 </script>
 
 <?php

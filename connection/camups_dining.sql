@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 28, 2025 at 11:49 AM
+-- Generation Time: May 10, 2025 at 02:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -60,6 +60,16 @@ CREATE TABLE `cart_items` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `cart_items`
+--
+
+INSERT INTO `cart_items` (`id`, `user_id`, `menu_item_id`, `quantity`, `special_instructions`, `created_at`, `updated_at`) VALUES
+(39, 3, 4, 1, NULL, '2025-05-10 11:59:00', '2025-05-10 11:59:00'),
+(40, 3, 2, 1, NULL, '2025-05-10 11:59:03', '2025-05-10 11:59:03'),
+(41, 3, 1, 1, NULL, '2025-05-10 11:59:03', '2025-05-10 11:59:03'),
+(42, 3, 3, 1, NULL, '2025-05-10 11:59:04', '2025-05-10 11:59:04');
 
 -- --------------------------------------------------------
 
@@ -237,8 +247,8 @@ CREATE TABLE `inventory_alerts` (
 --
 
 INSERT INTO `inventory_alerts` (`id`, `vendor_id`, `ingredient_id`, `alert_type`, `alert_message`, `is_resolved`, `resolved_at`, `resolved_by`, `created_at`) VALUES
-(49, 1, 25, 'expired', 'Milk (40.00 L) has expired on 2025-04-17', 0, NULL, NULL, '2025-04-28 02:12:55'),
-(50, 1, 23, 'expired', 'Onions (20.00 kg) has expired on 2025-04-23', 0, NULL, NULL, '2025-04-28 02:12:55');
+(51, 1, 25, 'expired', 'Milk (40.00 L) has expired on 2025-04-17', 0, NULL, NULL, '2025-04-29 02:07:11'),
+(52, 1, 23, 'expired', 'Onions (20.00 kg) has expired on 2025-04-23', 0, NULL, NULL, '2025-04-29 02:07:11');
 
 -- --------------------------------------------------------
 
@@ -410,19 +420,18 @@ CREATE TABLE `orders` (
   `payment_notes` text DEFAULT NULL,
   `payment_updated_at` timestamp NULL DEFAULT NULL,
   `order_type` enum('dine_in','pickup','delivery') NOT NULL DEFAULT 'pickup',
-  `preferred_delivery_time` datetime DEFAULT NULL
+  `preferred_delivery_time` datetime DEFAULT NULL,
+  `assigned_worker_id` int(11) DEFAULT NULL,
+  `assignment_time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `orders`
 --
 
-INSERT INTO `orders` (`id`, `receipt_number`, `user_id`, `customer_id`, `vendor_id`, `credit_account_id`, `order_date`, `total_amount`, `cash_received`, `payment_method`, `notes`, `preparation_time`, `pickup_time`, `completed_at`, `cancelled_reason`, `payment_status`, `amount_tendered`, `change_amount`, `payment_received_at`, `payment_notes`, `payment_updated_at`, `order_type`, `preferred_delivery_time`) VALUES
-(1, 'ORD202504174389', 3, 1, 1, NULL, '2025-04-17 11:21:34', 20.00, 30.00, 'cash', NULL, NULL, NULL, '2025-04-28 14:39:22', NULL, 'paid', NULL, NULL, NULL, '', '2025-04-17 14:10:18', 'pickup', NULL),
-(2, 'ORD202504173071', 3, 1, 1, NULL, '2025-04-17 12:53:25', 20.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL),
-(3, 'ORD202504175399', 3, 1, 1, NULL, '2025-04-17 13:03:06', 20.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL),
-(4, 'ORD202504184826', 3, 1, 1, NULL, '2025-04-18 00:49:13', 20.00, NULL, 'cash', NULL, NULL, NULL, '2025-04-28 14:33:03', NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL),
-(5, 'ORD202504282683', 3, 1, 1, NULL, '2025-04-28 09:44:58', 80.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL);
+INSERT INTO `orders` (`id`, `receipt_number`, `user_id`, `customer_id`, `vendor_id`, `credit_account_id`, `order_date`, `total_amount`, `cash_received`, `payment_method`, `notes`, `preparation_time`, `pickup_time`, `completed_at`, `cancelled_reason`, `payment_status`, `amount_tendered`, `change_amount`, `payment_received_at`, `payment_notes`, `payment_updated_at`, `order_type`, `preferred_delivery_time`, `assigned_worker_id`, `assignment_time`) VALUES
+(22, 'ORD202504297649', 3, 1, 1, NULL, '2025-04-29 14:16:41', 130.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL),
+(23, 'ORD202504296052', 3, 1, 1, NULL, '2025-04-29 14:17:41', 90.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -431,19 +440,22 @@ INSERT INTO `orders` (`id`, `receipt_number`, `user_id`, `customer_id`, `vendor_
 --
 
 CREATE TABLE `order_assignments` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) NOT NULL,
   `order_id` int(11) NOT NULL,
   `worker_id` int(11) NOT NULL,
   `assigned_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `status` enum('assigned','picked_up','delivered') NOT NULL DEFAULT 'assigned',
   `picked_up_at` timestamp NULL DEFAULT NULL,
-  `delivered_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `order_id` (`order_id`),
-  KEY `worker_id` (`worker_id`),
-  CONSTRAINT `order_assignments_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `order_assignments_ibfk_2` FOREIGN KEY (`worker_id`) REFERENCES `workers` (`id`) ON DELETE CASCADE
+  `delivered_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_assignments`
+--
+
+INSERT INTO `order_assignments` (`id`, `order_id`, `worker_id`, `assigned_at`, `status`, `picked_up_at`, `delivered_at`) VALUES
+(10, 22, 1, '2025-04-29 14:20:03', 'assigned', NULL, NULL),
+(11, 23, 1, '2025-04-29 14:29:58', 'assigned', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -464,6 +476,21 @@ CREATE TABLE `order_delivery_details` (
   `delivery_instructions` text DEFAULT NULL,
   `contact_number` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_delivery_details`
+--
+
+INSERT INTO `order_delivery_details` (`id`, `order_id`, `order_type`, `table_number`, `seat_number`, `delivery_location`, `building_name`, `floor_number`, `room_number`, `delivery_instructions`, `contact_number`) VALUES
+(7, 15, 'delivery', '', NULL, 'BCA Office', 'BUILDING 1', '2', '25', 'shgd', '98256986588'),
+(8, 16, 'pickup', '', NULL, '', '', '', '', '', ''),
+(9, 17, 'pickup', '', NULL, '', '', '', '', '', ''),
+(10, 18, 'pickup', '', NULL, '', '', '', '', '', ''),
+(11, 19, 'dine_in', '15', NULL, '', '', '', '', '', ''),
+(12, 20, 'dine_in', '9', NULL, 'Nulla laboris minus ', 'Xandra Lindsay', '80', '144', 'Beatae dicta blandit', '+1 (517) 786-9762'),
+(13, 21, 'dine_in', '15', NULL, '', '', '', '', '', ''),
+(14, 22, 'delivery', '', NULL, 'BCA Office', 'BUILDING 1', '2', '25', 'fast delivery ', '9822222222'),
+(15, 23, 'pickup', '', NULL, '', '', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -503,12 +530,11 @@ CREATE TABLE `order_items` (
 --
 
 INSERT INTO `order_items` (`id`, `order_id`, `menu_item_id`, `quantity`, `unit_price`, `subtotal`, `special_instructions`, `created_at`) VALUES
-(1, 1, 4, 1, 20.00, 20.00, NULL, '2025-04-17 11:21:34'),
-(2, 2, 4, 1, 20.00, 20.00, NULL, '2025-04-17 12:53:25'),
-(3, 3, 4, 1, 20.00, 20.00, NULL, '2025-04-17 13:03:06'),
-(4, 4, 4, 1, 20.00, 20.00, NULL, '2025-04-18 00:49:13'),
-(5, 5, 4, 1, 20.00, 20.00, NULL, '2025-04-28 09:44:58'),
-(6, 5, 2, 1, 60.00, 60.00, NULL, '2025-04-28 09:44:58');
+(34, 22, 4, 1, 20.00, 20.00, NULL, '2025-04-29 14:16:41'),
+(35, 22, 2, 1, 60.00, 60.00, NULL, '2025-04-29 14:16:41'),
+(36, 22, 1, 1, 50.00, 50.00, NULL, '2025-04-29 14:16:41'),
+(37, 23, 1, 1, 50.00, 50.00, NULL, '2025-04-29 14:17:42'),
+(38, 23, 3, 1, 40.00, 40.00, NULL, '2025-04-29 14:17:42');
 
 -- --------------------------------------------------------
 
@@ -526,13 +552,6 @@ CREATE TABLE `order_notifications` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `delivery_details_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `order_notifications`
---
-
-INSERT INTO `order_notifications` (`id`, `order_id`, `user_id`, `message`, `type`, `is_read`, `created_at`, `delivery_details_id`) VALUES
-(1, 1, 3, 'Your payment for order #1 has been received.', 'order_placed', 0, '2025-04-17 14:10:18', NULL);
 
 -- --------------------------------------------------------
 
@@ -570,19 +589,13 @@ CREATE TABLE `order_tracking` (
 --
 
 INSERT INTO `order_tracking` (`id`, `order_id`, `status`, `updated_at`, `status_changed_at`, `notes`, `updated_by`) VALUES
-(1, 1, 'accepted', '2025-04-24 04:48:13', '2025-04-17 11:21:34', NULL, 3),
-(2, 2, 'pending', '2025-04-24 04:49:51', '2025-04-17 12:53:25', NULL, 3),
-(3, 3, 'pending', '2025-04-17 13:03:06', '2025-04-17 13:03:06', NULL, 3),
-(4, 4, 'pending', '2025-04-18 00:49:13', '2025-04-18 00:49:13', NULL, 3),
-(5, 4, 'accepted', '2025-04-27 12:54:56', '2025-04-27 12:54:56', NULL, 2),
-(7, 3, 'cancelled', '2025-04-27 13:02:00', '2025-04-27 13:02:00', NULL, 2),
-(8, 4, 'in_progress', '2025-04-27 13:23:05', '2025-04-27 13:23:05', '', 1),
-(9, 4, 'ready', '2025-04-28 08:47:34', '2025-04-28 08:47:34', '', 1),
-(10, 4, 'completed', '2025-04-28 08:48:03', '2025-04-28 08:48:03', '', 1),
-(11, 1, 'in_progress', '2025-04-28 08:54:11', '2025-04-28 08:54:11', '', 1),
-(12, 1, 'ready', '2025-04-28 08:54:17', '2025-04-28 08:54:17', '', 1),
-(13, 1, 'completed', '2025-04-28 08:54:22', '2025-04-28 08:54:22', '', 1),
-(14, 5, 'pending', '2025-04-28 09:44:58', '2025-04-28 09:44:58', NULL, 3);
+(126, 22, 'pending', '2025-04-29 14:16:41', '2025-04-29 14:16:41', NULL, 3),
+(127, 23, 'pending', '2025-04-29 14:17:42', '2025-04-29 14:17:42', NULL, 3),
+(128, 22, 'accepted', '2025-04-29 14:18:50', '2025-04-29 14:18:50', NULL, 2),
+(129, 23, 'accepted', '2025-04-29 14:19:30', '2025-04-29 14:19:30', NULL, 2),
+(130, 22, 'in_progress', '2025-04-29 14:19:44', '2025-04-29 14:19:44', NULL, 2),
+(131, 23, 'in_progress', '2025-04-29 14:19:46', '2025-04-29 14:19:46', NULL, 2),
+(132, 23, 'in_progress', '2025-04-29 14:29:58', '2025-04-29 14:29:58', 'Order assigned to worker: waiter', 2);
 
 -- --------------------------------------------------------
 
@@ -600,13 +613,6 @@ CREATE TABLE `payment_history` (
   `created_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `payment_history`
---
-
-INSERT INTO `payment_history` (`id`, `order_id`, `previous_status`, `new_status`, `amount_received`, `notes`, `created_by`, `created_at`) VALUES
-(3, 1, 'pending', 'paid', 30.00, '', 2, '2025-04-17 14:10:18');
 
 -- --------------------------------------------------------
 
@@ -914,7 +920,8 @@ INSERT INTO `users` (`id`, `username`, `email`, `contact_number`, `role`, `appro
 (1, 'adminmain', 'adminmain@campus.com', '9800000000', 'admin', 'approved', '$2y$10$/r1BJQWWcHCa4vbA14ZcEOJwIVTVxK8ZyvXL2wbbdxT7DCas1Eyc2', NULL, '2025-04-14 12:50:29'),
 (2, 'vendor', 'vendor@gmail.com', '9825346958', 'vendor', 'approved', '$2y$10$3mWTGhPx2LhBBjdqa5lDue6O5uIsNQwJ8sbn9hjFy8YwrZ6yX/52q', NULL, '2025-04-14 15:57:33'),
 (3, 'student', 'student@gmail.com', '9825346908', 'student', 'approved', '$2y$10$5Vk3zLE5eTOF0mglmna6GO8I/CSAgo98w6HqZ4w2q.YWodc6wfdDO', NULL, '2025-04-15 04:08:17'),
-(4, 'staff', 'staff@gmail.com', '98256986588', 'staff', 'approved', '$2y$10$NwsLL6Wuo5TlwEYbGruoyu4Z9eEi2jfwhYVXwlOBqvbtMSm39zxpO', NULL, '2025-04-28 02:15:19');
+(4, 'staff', 'staff@gmail.com', '98256986588', 'staff', 'approved', '$2y$10$NwsLL6Wuo5TlwEYbGruoyu4Z9eEi2jfwhYVXwlOBqvbtMSm39zxpO', NULL, '2025-04-28 02:15:19'),
+(5, 'waiter', 'waiter@gmail.com', '9825698655', 'worker', 'approved', '$2y$10$jATDHdrEnz0OzsMg9fR7tuKiUP8fEOW9RfW7LqkRqFZnNJ1erNNAC', NULL, '2025-04-28 15:53:20');
 
 -- --------------------------------------------------------
 
@@ -1019,6 +1026,13 @@ CREATE TABLE `workers` (
   `position` enum('kitchen_staff','waiter') NOT NULL,
   `approval_status` enum('pending','approved','rejected') DEFAULT 'pending'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `workers`
+--
+
+INSERT INTO `workers` (`id`, `user_id`, `vendor_id`, `position`, `approval_status`) VALUES
+(1, 5, 1, 'waiter', 'approved');
 
 --
 -- Indexes for dumped tables
@@ -1150,7 +1164,16 @@ ALTER TABLE `orders`
   ADD UNIQUE KEY `receipt_number` (`receipt_number`),
   ADD KEY `fk_orders_user_id` (`user_id`),
   ADD KEY `fk_orders_vendor_id` (`vendor_id`),
-  ADD KEY `fk_orders_credit_account_id` (`credit_account_id`);
+  ADD KEY `fk_orders_credit_account_id` (`credit_account_id`),
+  ADD KEY `assigned_worker_id` (`assigned_worker_id`);
+
+--
+-- Indexes for table `order_assignments`
+--
+ALTER TABLE `order_assignments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `order_id` (`order_id`),
+  ADD KEY `worker_id` (`worker_id`);
 
 --
 -- Indexes for table `order_delivery_details`
@@ -1374,7 +1397,7 @@ ALTER TABLE `batch_sequences`
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -1416,7 +1439,7 @@ ALTER TABLE `inventory`
 -- AUTO_INCREMENT for table `inventory_alerts`
 --
 ALTER TABLE `inventory_alerts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `inventory_history`
@@ -1452,13 +1475,19 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `order_assignments`
+--
+ALTER TABLE `order_assignments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `order_delivery_details`
 --
 ALTER TABLE `order_delivery_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `order_inventory_deductions`
@@ -1470,13 +1499,13 @@ ALTER TABLE `order_inventory_deductions`
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT for table `order_notifications`
 --
 ALTER TABLE `order_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `order_ratings`
@@ -1488,13 +1517,13 @@ ALTER TABLE `order_ratings`
 -- AUTO_INCREMENT for table `order_tracking`
 --
 ALTER TABLE `order_tracking`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
 
 --
 -- AUTO_INCREMENT for table `payment_history`
 --
 ALTER TABLE `payment_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `prep_logs`
@@ -1578,7 +1607,7 @@ ALTER TABLE `unit_conversions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `user_subscriptions`
@@ -1608,7 +1637,7 @@ ALTER TABLE `vendor_ingredients`
 -- AUTO_INCREMENT for table `workers`
 --
 ALTER TABLE `workers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
@@ -1715,7 +1744,15 @@ ALTER TABLE `notifications`
 ALTER TABLE `orders`
   ADD CONSTRAINT `fk_orders_credit_account_id` FOREIGN KEY (`credit_account_id`) REFERENCES `credit_accounts` (`id`),
   ADD CONSTRAINT `fk_orders_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `fk_orders_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`);
+  ADD CONSTRAINT `fk_orders_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `vendors` (`id`),
+  ADD CONSTRAINT `orders_ibfk_1` FOREIGN KEY (`assigned_worker_id`) REFERENCES `workers` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `order_assignments`
+--
+ALTER TABLE `order_assignments`
+  ADD CONSTRAINT `order_assignments_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `order_assignments_ibfk_2` FOREIGN KEY (`worker_id`) REFERENCES `workers` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `order_delivery_details`

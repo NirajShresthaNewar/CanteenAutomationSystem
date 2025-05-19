@@ -591,3 +591,43 @@ Stack trace:
     "order_id": "28"
 }
 --------------------------------------------------------------------------------
+[2025-05-19 17:12:43] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=5aee4a315aba589d0b3a6aaf1ec714e0b1ec01caaaf9be10732be0d6e390c7a9",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 8000,
+        "purchase_order_id": "ORDER-1-1747667561989",
+        "purchase_order_name": "Food Order",
+        "customer_info": {
+            "name": "student",
+            "email": "student@gmail.com",
+            "phone": "9800000001"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"LF4bx7cbUDpUQQKT87pKR6\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=LF4bx7cbUDpUQQKT87pKR6\",\"expires_at\":\"2025-05-19T21:27:43.557813+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 398\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Mon, 19 May 2025 15:12:43 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!CAb75XSor3Rr0Iedi8GHrcsPaIwS0ZAYjORNEueekUI+Gn6QNKX9eMlrGuLMzkTbyRupMKP5cV02dg==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-05-19 17:15:49] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=748ed76f6de98cff287b55eda59dba810ddc3966be0114a63540dcc3c740770f",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 8000,
+        "purchase_order_id": "ORDER-1-1747667748321",
+        "purchase_order_name": "Food Order",
+        "customer_info": {
+            "name": "student",
+            "email": "student@gmail.com",
+            "phone": "9800000001"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"be2HuW4PQcasYv2GhmXTQe\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=be2HuW4PQcasYv2GhmXTQe\",\"expires_at\":\"2025-05-19T21:30:49.618320+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 398\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Mon, 19 May 2025 15:15:49 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!N8y2+yYK3GiRpEidi8GHrcsPaIwS0Vzd8ElRzq8VFGo5lqMbOQXiDpzEPRgT71\/rL6lC66Svnq1DqA==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------

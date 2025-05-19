@@ -483,10 +483,10 @@ ob_start();
                                             <small class="text-muted"><?php echo date('h:i A', strtotime($order['order_date'])); ?></small>
                                         </td>
                                         <td>
-                                            <span class="badge badge-info">
+                                            <span class="badge <?php echo getOrderTypeBadgeClass($order['order_type']); ?>">
                                                 <?php echo ucfirst(str_replace('_', ' ', $order['order_type'])); ?>
-                                                    </span>
-                                                </td>
+                                            </span>
+                                        </td>
                                         <td>
                                             <?php if ($order['order_type'] === 'delivery'): ?>
                                                 <small>
@@ -795,21 +795,35 @@ function getStatusBadgeClass($status) {
     };
 }
 
+// Helper function for order type badge classes
+function getOrderTypeBadgeClass($type) {
+    return match($type) {
+        'dine_in' => 'bg-info',
+        'takeaway' => 'bg-warning',
+        'delivery' => 'bg-primary',
+        default => 'bg-secondary'
+    };
+}
+
 // Helper function for payment badge classes
 function getPaymentBadgeClass($payment_method) {
     return match($payment_method) {
         'cash' => 'bg-success',
         'card' => 'bg-info',
-        'online' => 'bg-warning',
+        'khalti' => 'bg-purple',
+        'esewa' => 'bg-warning',
+        'online' => 'bg-primary',
         default => 'bg-secondary'
     };
-    }
-    
+}
+
 // Helper function to get payment method name
 function getPaymentMethodName($payment_method) {
     return match($payment_method) {
         'cash' => 'Cash',
         'card' => 'Card',
+        'khalti' => 'Khalti',
+        'esewa' => 'eSewa',
         'online' => 'Online',
         default => 'Unknown'
     };

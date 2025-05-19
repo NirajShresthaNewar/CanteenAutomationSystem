@@ -71,11 +71,8 @@ echo '
 <!-- User Profile Section -->
 
             <div class="user-info">
-            <div class="user-avatar">
-
-           <!-- <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar"> -->
-
-            <img src="' . (isset($user_details['profile_pic']) && $user_details['profile_pic'] ? '../uploads/profile/' . $user_details['profile_pic'] : '../assets/img/default-profile.png') . '" class="profile-image" alt="User Image">
+                <div class="user-avatar">
+                    <img src="' . (isset($user_details['profile_pic']) && $user_details['profile_pic'] ? '../uploads/profile/' . $user_details['profile_pic'] : '../assets/img/default-profile.png') . '" class="sidebar-profile-img" alt="User Image">
                     <span class="status-indicator online"></span>
                 </div>
                 <div class="user-details">

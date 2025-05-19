@@ -151,20 +151,24 @@ function getStatusBadgeClass($status) {
 }
 
 function getPaymentBadgeClass($payment_method) {
-    switch ($payment_method) {
-        case 'credit': return 'bg-success';
-        case 'esewa': return 'bg-info';
-        default: return 'bg-warning';
-    }
+    return match($payment_method) {
+        'credit' => 'bg-success',
+        'esewa' => 'bg-info',
+        'khalti' => 'bg-purple',
+        'cash' => 'bg-warning',
+        default => 'bg-secondary'
+    };
 }
 
 function getPaymentMethodName($payment_method) {
-    switch ($payment_method) {
-        case 'credit': return 'Credit Account';
-        case 'esewa': return 'Online Payment (eSewa)';
-        default: return 'Cash on Delivery';
-        }
-    }
+    return match($payment_method) {
+        'credit' => 'Credit Account',
+        'esewa' => 'eSewa',
+        'khalti' => 'Khalti',
+        'cash' => 'Cash',
+        default => 'Unknown'
+    };
+}
 
 // Return the data
 $_SESSION['orders'] = $orders;

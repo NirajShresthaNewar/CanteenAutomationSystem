@@ -52,10 +52,29 @@ try {
             border: 3px solid #adb5bd;
             margin: 0 auto;
             padding: 3px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: block;
+            position: relative;
+        }
+        
+        .text-center .profile-user-img {
+            margin: 0 auto 15px;
         }
         
         .nav-pills .nav-link:not(.active):hover {
             color: #007bff;
+        }
+
+        /* Override any conflicting styles */
+        .profile-user-img.img-circle {
+            border-radius: 50% !important;
+        }
+
+        .profile-user-img.img-fluid {
+            max-width: 120px;
+            max-height: 120px;
         }
     </style>
     ';

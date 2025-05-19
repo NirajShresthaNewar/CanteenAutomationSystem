@@ -28,6 +28,8 @@ $additionalScripts = '';
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
     <!-- Add SweetAlert2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Add Sidebar CSS -->
+    <link rel="stylesheet" href="../assets/css/sidebar.css">
     
     <!-- Additional page-specific styles -->
     <?php if (!empty($additionalStyles)) echo $additionalStyles; ?>
@@ -49,59 +51,74 @@ $additionalScripts = '';
 
     <!-- Add this right after the CSS links and before closing </head> tag -->
     <style>
-        /* AdminLTE Sidebar Fixes */
+        body {
+            overflow-x: hidden;
+        }
         .main-sidebar {
             width: 250px;
-            transition: width .3s ease-in-out;
         }
-
-        .nav-sidebar .nav-treeview {
-            display: none;
-        }
-
-        .nav-sidebar .menu-open > .nav-treeview {
-            display: block;
-        }
-
-        /* Fix for collapsed state */
-        .sidebar-collapse .main-sidebar .nav-sidebar .nav-treeview {
-            display: none !important;
-        }
-
-        .sidebar-collapse .main-sidebar:hover .nav-sidebar .menu-open > .nav-treeview {
-            display: block !important;
-        }
-
-        /* Content margins */
         .content-wrapper {
             margin-left: 250px;
-            transition: margin-left .3s ease-in-out;
         }
-
+        .sidebar-collapse .main-sidebar {
+            margin-left: -250px;
+        }
         .sidebar-collapse .content-wrapper {
-            margin-left: 4.6rem;
+            margin-left: 0;
         }
-
-        /* Transitions */
-        .nav-sidebar .nav-link p,
-        .nav-sidebar .nav-treeview,
-        .nav-sidebar .nav-item i {
-            transition: margin-left .3s linear, opacity .3s ease, visibility .3s ease;
-        }
-
-        /* Mobile Responsive */
         @media (max-width: 991.98px) {
             .main-sidebar {
                 margin-left: -250px;
             }
-
-            .sidebar-open .main-sidebar {
-                margin-left: 0;
-            }
-
             .content-wrapper {
                 margin-left: 0;
             }
+            .sidebar-open .main-sidebar {
+                margin-left: 0;
+            }
+        }
+        .nav-sidebar .nav-link p {
+            margin-left: 10px;
+        }
+        .nav-sidebar > .nav-item .nav-icon {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Badge styles */
+        .badge {
+            padding: 0.4em 0.8em;
+            font-size: 85%;
+            font-weight: 500;
+            border-radius: 0.25rem;
+        }
+        .bg-purple {
+            background-color: #6f42c1;
+            color: #fff;
+        }
+        .bg-success {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .bg-info {
+            background-color: #17a2b8;
+            color: #fff;
+        }
+        .bg-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+        .bg-danger {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .bg-primary {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .bg-secondary {
+            background-color: #6c757d;
+            color: #fff;
         }
     </style>
 </head>

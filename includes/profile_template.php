@@ -13,6 +13,37 @@ function displayProfile($userData, $roleSpecificData = [], $readOnly = []) {
     ob_start();
 ?>
 
+<style>
+/* Profile page image styles */
+.profile-user-img {
+    width: 120px !important;
+    height: 120px !important;
+    object-fit: cover !important;
+    border: 3px solid #adb5bd !important;
+    margin: 0 auto !important;
+    padding: 3px !important;
+    border-radius: 50% !important;
+    background-color: #fff !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+    display: block !important;
+    position: relative !important;
+}
+
+.text-center .profile-user-img {
+    margin: 0 auto 15px !important;
+}
+
+/* Override any conflicting styles */
+.profile-user-img.img-circle,
+.profile-user-img.img-fluid {
+    width: 120px !important;
+    height: 120px !important;
+    max-width: 120px !important;
+    max-height: 120px !important;
+    border-radius: 50% !important;
+}
+</style>
+
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
@@ -58,7 +89,8 @@ function displayProfile($userData, $roleSpecificData = [], $readOnly = []) {
                         <div class="text-center">
                             <img class="profile-user-img img-fluid img-circle"
                                 src="<?php echo $profileImage; ?>"
-                                alt="User profile picture">
+                                alt="User profile picture"
+                                style="width: 120px !important; height: 120px !important; object-fit: cover !important; border: 3px solid #adb5bd !important; margin: 0 auto !important; padding: 3px !important; border-radius: 50% !important; background-color: #fff !important; box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; display: block !important;">
                         </div>
 
                         <h3 class="profile-username text-center"><?php echo htmlspecialchars($userData['username']); ?></h3>

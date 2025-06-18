@@ -183,30 +183,33 @@ echo '
     </ul>
 </li>
 
+
+<!-- Subscription Portal -->
+<li class="nav-item">
+<a href="../student/subscription_portal.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_portal.php' ? 'active' : '') . '">
+<i class="nav-icon fas fa-ticket-alt"></i>
+<p>Subscription Portal</p>
+</a>
+</li>
 <!-- Favorites -->
+<!--
 <li class="nav-item">
     <a href="../student/favorites.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'favorites.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-heart"></i>
         <p>Favorites</p>
     </a>
 </li>
-
-<!-- Subscription Portal -->
-<li class="nav-item">
-    <a href="../student/subscription_portal.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_portal.php' ? 'active' : '') . '">
-        <i class="nav-icon fas fa-ticket-alt"></i>
-        <p>Subscription Portal</p>
-    </a>
-</li>
+-->
 
 <!-- Payments -->
+<!--
 <li class="nav-item">
     <a href="../student/payments.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'payments.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-money-bill-wave"></i>
         <p>Payment Methods</p>
     </a>
 </li>
-
+-->
 <!-- Profile -->
 <li class="nav-item">
     <a href="../student/profile.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : '') . '">

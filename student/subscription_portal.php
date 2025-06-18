@@ -147,7 +147,14 @@ ob_start();
                     $stmt = $conn->prepare("SELECT * FROM subscription_plans ORDER BY price ASC");
                     $stmt->execute();
                     while ($plan = $stmt->fetch(PDO::FETCH_ASSOC)):
-                        $features = json_decode($plan['features'], true);
+                        // Initialize features as an empty array if null or invalid JSON
+                        $features = [];
+                        if (!empty($plan['features'])) {
+                            $decoded = json_decode($plan['features'], true);
+                            if (is_array($decoded)) {
+                                $features = $decoded;
+                            }
+                        }
                     ?>
                         <div class="col-md-4">
                             <div class="card">
@@ -159,9 +166,13 @@ ob_start();
                                     <p class="text-muted text-center"><?php echo $plan['duration_days']; ?> days</p>
                                     <p><?php echo htmlspecialchars($plan['description']); ?></p>
                                     <ul class="list-unstyled">
-                                        <?php foreach ($features as $feature): ?>
-                                            <li><i class="fas fa-check text-success"></i> <?php echo htmlspecialchars($feature); ?></li>
-                                        <?php endforeach; ?>
+                                        <?php if (!empty($features)): ?>
+                                            <?php foreach ($features as $feature): ?>
+                                                <li><i class="fas fa-check text-success"></i> <?php echo htmlspecialchars($feature); ?></li>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <li><i class="fas fa-info-circle text-info"></i> Basic plan features</li>
+                                        <?php endif; ?>
                                     </ul>
                                     <button type="button" class="btn btn-primary btn-block" data-toggle="modal" data-target="#purchaseModal<?php echo $plan['id']; ?>">
                                         Purchase Plan

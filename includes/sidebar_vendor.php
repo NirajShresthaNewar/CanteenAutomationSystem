@@ -373,12 +373,13 @@ echo '</p>
         <p>Store Profile</p>
     </a>
 </li>
-
+<!--
 <li class="nav-item">
     <a href="../vendor/settings.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-cog"></i>
         <p>Settings</p>
     </a>
+    -->
 </li>
 
 <li class="nav-item">

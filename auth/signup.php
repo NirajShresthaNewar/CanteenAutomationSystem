@@ -1,12 +1,4 @@
-<!-- Remove these fields -->
-<!-- <div class="form-group">
-    <label for="location">Location</label>
-    <input type="text" class="form-control" name="location">
-</div>
-<div class="form-group">
-    <label for="address">Address</label>
-    <input type="text" class="form-control" name="address">
-</div> -->
+
 
 <!-- Add this school selection dropdown -->
 <div class="form-group">

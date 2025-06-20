@@ -336,25 +336,37 @@ echo '</p>
 </li>
 
 <!-- Subscription Management -->
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['subscription_plans.php', 'subscription_transactions.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['subscription_plans.php', 'subscription_transactions.php']) ? 'active' : '') . '">
-        <i class="nav-icon fas fa-ticket-alt"></i>
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-utensils"></i>
         <p>
-            Subscription
+            Subscription Plans
             <i class="fas fa-angle-left right"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../vendor/subscription_plans.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_plans.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-calendar-check"></i>
-                <p>Subscription Plans</p>
+                <i class="far fa-circle nav-icon"></i>
+                <p>Manage Plans</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="../vendor/subscription_transactions.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_transactions.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-receipt"></i>
-                <p>Transactions</p>
+            <a href="../vendor/meal_slots.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'meal_slots.php' ? 'active' : '') . '">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Meal Time Slots</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/meal_combos.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'meal_combos.php' ? 'active' : '') . '">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Meal Combos</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/subscription_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_orders.php' ? 'active' : '') . '">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Subscription Orders</p>
             </a>
         </li>
     </ul>

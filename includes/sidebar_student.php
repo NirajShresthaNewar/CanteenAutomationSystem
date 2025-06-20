@@ -94,6 +94,14 @@ echo '
     </a>
 </li>
 
+<!-- Meal Subscription -->
+<li class="nav-item">
+    <a href="../student/meal_subscription.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'meal_subscription.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-utensils"></i>
+        <p>Meal Subscription</p>
+    </a>
+</li>
+
 <!-- Order Food -->
 <li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['vendors.php', 'menu.php', 'cart.php']) ? 'menu-open' : '') . '">
     <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['vendors.php', 'menu.php', 'cart.php']) ? 'active' : '') . '">

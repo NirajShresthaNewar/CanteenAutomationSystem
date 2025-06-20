@@ -113,7 +113,14 @@ ob_start();
                 $current_subscription = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($current_subscription):
-                    $features = json_decode($current_subscription['features'], true);
+                    // Initialize features as an empty array if null or invalid JSON
+                    $features = [];
+                    if (!empty($current_subscription['features'])) {
+                        $decoded = json_decode($current_subscription['features'], true);
+                        if (is_array($decoded)) {
+                            $features = $decoded;
+                        }
+                    }
                 ?>
                     <div class="row">
                         <div class="col-md-6">
@@ -124,9 +131,13 @@ ob_start();
                         <div class="col-md-6">
                             <h5>Features:</h5>
                             <ul>
-                                <?php foreach ($features as $feature): ?>
-                                    <li><i class="fas fa-check text-success"></i> <?php echo htmlspecialchars($feature); ?></li>
-                                <?php endforeach; ?>
+                                <?php if (!empty($features)): ?>
+                                    <?php foreach ($features as $feature): ?>
+                                        <li><i class="fas fa-check text-success"></i> <?php echo htmlspecialchars($feature); ?></li>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <li><i class="fas fa-info-circle text-info"></i> Basic subscription features</li>
+                                <?php endif; ?>
                             </ul>
                         </div>
                     </div>

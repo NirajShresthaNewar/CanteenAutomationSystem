@@ -228,10 +228,10 @@ ob_start();
                                         <i class="fas fa-eye"></i> View Details
                                     </a>
                                     <?php if ($order['status'] === 'completed'): ?>
-                                        <a href="reorder.php?order_id=<?php echo $order['id']; ?>" 
+                                       <!-- <a href="reorder.php?order_id=<?php echo $order['id']; ?>" 
                                            class="btn btn-success btn-sm">
                                             <i class="fas fa-redo"></i> Reorder
-                                        </a>
+                                        </a> -->
                                     <?php endif; ?>
                                 </div>
                             </div>

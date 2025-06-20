@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 10, 2025 at 02:02 PM
+-- Generation Time: Jun 20, 2025 at 07:31 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,30 @@ SET time_zone = "+00:00";
 --
 -- Database: `camups_dining`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `auth_tokens`
+--
+
+CREATE TABLE `auth_tokens` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `token` varchar(255) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `auth_tokens`
+--
+
+INSERT INTO `auth_tokens` (`id`, `user_id`, `token`, `expires_at`, `created_at`) VALUES
+(1, 3, '648e1eab884bdbf9ce6f96271700f94b4a64d8d3f68178d7842386f7feeeb7c4', '2025-06-12 14:47:53', '2025-05-13 12:47:53'),
+(2, 3, 'f8fbef7aedd889054aeffc7dbacca7dc6799ab46df9c2f8aad051570c44027ad', '2025-06-12 15:07:32', '2025-05-13 13:07:32'),
+(3, 3, '0a9a8d116dc743ace6fa286f260b157a357b46dedba0673a4334bfeae5d326af', '2025-06-12 15:14:32', '2025-05-13 13:14:32'),
+(4, 3, 'ace28dbb968b37c060809ce850aed9449324ac77c469c463848fd1f70a191b44', '2025-06-12 15:46:57', '2025-05-13 13:46:57');
 
 -- --------------------------------------------------------
 
@@ -66,10 +90,9 @@ CREATE TABLE `cart_items` (
 --
 
 INSERT INTO `cart_items` (`id`, `user_id`, `menu_item_id`, `quantity`, `special_instructions`, `created_at`, `updated_at`) VALUES
-(39, 3, 4, 1, NULL, '2025-05-10 11:59:00', '2025-05-10 11:59:00'),
-(40, 3, 2, 1, NULL, '2025-05-10 11:59:03', '2025-05-10 11:59:03'),
-(41, 3, 1, 1, NULL, '2025-05-10 11:59:03', '2025-05-10 11:59:03'),
-(42, 3, 3, 1, NULL, '2025-05-10 11:59:04', '2025-05-10 11:59:04');
+(47, 3, 2, 3, NULL, '2025-05-19 15:12:27', '2025-06-18 04:48:33'),
+(48, 3, 4, 2, NULL, '2025-05-19 15:12:28', '2025-06-18 04:48:29'),
+(49, 3, 1, 1, NULL, '2025-06-18 04:48:32', '2025-06-18 04:48:32');
 
 -- --------------------------------------------------------
 
@@ -101,8 +124,7 @@ INSERT INTO `categories` (`id`, `name`, `description`, `created_by`, `updated_by
 (7, 'Seafood', NULL, NULL, NULL, '2025-04-15 12:09:39', NULL),
 (8, 'Condiments', NULL, NULL, NULL, '2025-04-15 12:09:39', NULL),
 (9, 'Beverages', NULL, NULL, NULL, '2025-04-15 12:09:39', NULL),
-(10, 'Others', NULL, NULL, NULL, '2025-04-15 12:09:39', NULL),
-(21, 'smoke', 'smokes', 1, NULL, '2025-04-15 12:14:27', NULL);
+(10, 'Others', NULL, NULL, NULL, '2025-04-15 12:09:39', NULL);
 
 -- --------------------------------------------------------
 
@@ -247,8 +269,8 @@ CREATE TABLE `inventory_alerts` (
 --
 
 INSERT INTO `inventory_alerts` (`id`, `vendor_id`, `ingredient_id`, `alert_type`, `alert_message`, `is_resolved`, `resolved_at`, `resolved_by`, `created_at`) VALUES
-(51, 1, 25, 'expired', 'Milk (40.00 L) has expired on 2025-04-17', 0, NULL, NULL, '2025-04-29 02:07:11'),
-(52, 1, 23, 'expired', 'Onions (20.00 kg) has expired on 2025-04-23', 0, NULL, NULL, '2025-04-29 02:07:11');
+(63, 1, 25, 'expired', 'Milk (40.00 L) has expired on 2025-04-17', 0, NULL, NULL, '2025-06-20 16:44:22'),
+(64, 1, 23, 'expired', 'Onions (20.00 kg) has expired on 2025-04-23', 0, NULL, NULL, '2025-06-20 16:44:22');
 
 -- --------------------------------------------------------
 
@@ -407,7 +429,7 @@ CREATE TABLE `orders` (
   `order_date` timestamp NOT NULL DEFAULT current_timestamp(),
   `total_amount` decimal(10,2) NOT NULL,
   `cash_received` decimal(10,2) DEFAULT NULL,
-  `payment_method` enum('cash','esewa','credit') DEFAULT 'cash',
+  `payment_method` enum('cash','esewa','credit','khalti') DEFAULT 'cash',
   `notes` text DEFAULT NULL,
   `preparation_time` int(11) DEFAULT NULL COMMENT 'Estimated preparation time in minutes',
   `pickup_time` datetime DEFAULT NULL COMMENT 'When order should be ready for pickup',
@@ -431,7 +453,12 @@ CREATE TABLE `orders` (
 
 INSERT INTO `orders` (`id`, `receipt_number`, `user_id`, `customer_id`, `vendor_id`, `credit_account_id`, `order_date`, `total_amount`, `cash_received`, `payment_method`, `notes`, `preparation_time`, `pickup_time`, `completed_at`, `cancelled_reason`, `payment_status`, `amount_tendered`, `change_amount`, `payment_received_at`, `payment_notes`, `payment_updated_at`, `order_type`, `preferred_delivery_time`, `assigned_worker_id`, `assignment_time`) VALUES
 (22, 'ORD202504297649', 3, 1, 1, NULL, '2025-04-29 14:16:41', 130.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL),
-(23, 'ORD202504296052', 3, 1, 1, NULL, '2025-04-29 14:17:41', 90.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL);
+(23, 'ORD202504296052', 3, 1, 1, NULL, '2025-04-29 14:17:41', 90.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL),
+(24, 'ORD202505101804', 3, 1, 1, NULL, '2025-05-10 12:09:00', 170.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL),
+(25, 'ORD202505102532', 3, 1, 1, NULL, '2025-05-10 12:16:30', 60.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL),
+(26, 'ORD202505103731', 3, 1, 1, NULL, '2025-05-10 12:30:50', 20.00, NULL, 'cash', NULL, NULL, NULL, NULL, NULL, 'pending', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL),
+(27, 'ORD-20250510-681f65d4cb8a4', 3, NULL, 1, NULL, '2025-05-10 14:42:28', 60.00, NULL, 'khalti', NULL, NULL, NULL, NULL, NULL, 'paid', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL),
+(28, 'ORD-20250510-681f66d1b520a', 3, NULL, 1, NULL, '2025-05-10 14:46:41', 60.00, NULL, 'khalti', NULL, NULL, NULL, NULL, NULL, 'paid', NULL, NULL, NULL, NULL, NULL, 'pickup', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -490,7 +517,10 @@ INSERT INTO `order_delivery_details` (`id`, `order_id`, `order_type`, `table_num
 (12, 20, 'dine_in', '9', NULL, 'Nulla laboris minus ', 'Xandra Lindsay', '80', '144', 'Beatae dicta blandit', '+1 (517) 786-9762'),
 (13, 21, 'dine_in', '15', NULL, '', '', '', '', '', ''),
 (14, 22, 'delivery', '', NULL, 'BCA Office', 'BUILDING 1', '2', '25', 'fast delivery ', '9822222222'),
-(15, 23, 'pickup', '', NULL, '', '', '', '', '', '');
+(15, 23, 'pickup', '', NULL, '', '', '', '', '', ''),
+(16, 24, 'pickup', '', NULL, '', '', '', '', '', ''),
+(17, 25, 'pickup', '', NULL, '', '', '', '', '', ''),
+(18, 26, 'pickup', '', NULL, '', '', '', '', '', '');
 
 -- --------------------------------------------------------
 
@@ -534,7 +564,15 @@ INSERT INTO `order_items` (`id`, `order_id`, `menu_item_id`, `quantity`, `unit_p
 (35, 22, 2, 1, 60.00, 60.00, NULL, '2025-04-29 14:16:41'),
 (36, 22, 1, 1, 50.00, 50.00, NULL, '2025-04-29 14:16:41'),
 (37, 23, 1, 1, 50.00, 50.00, NULL, '2025-04-29 14:17:42'),
-(38, 23, 3, 1, 40.00, 40.00, NULL, '2025-04-29 14:17:42');
+(38, 23, 3, 1, 40.00, 40.00, NULL, '2025-04-29 14:17:42'),
+(39, 24, 4, 1, 20.00, 20.00, NULL, '2025-05-10 12:09:00'),
+(40, 24, 2, 1, 60.00, 60.00, NULL, '2025-05-10 12:09:00'),
+(41, 24, 1, 1, 50.00, 50.00, NULL, '2025-05-10 12:09:00'),
+(42, 24, 3, 1, 40.00, 40.00, NULL, '2025-05-10 12:09:00'),
+(43, 25, 2, 1, 60.00, 60.00, NULL, '2025-05-10 12:16:30'),
+(44, 26, 4, 1, 20.00, 20.00, NULL, '2025-05-10 12:30:50'),
+(45, 27, 2, 1, 60.00, 60.00, NULL, '2025-05-10 14:42:28'),
+(46, 28, 2, 1, 60.00, 60.00, NULL, '2025-05-10 14:46:41');
 
 -- --------------------------------------------------------
 
@@ -552,6 +590,13 @@ CREATE TABLE `order_notifications` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `delivery_details_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `order_notifications`
+--
+
+INSERT INTO `order_notifications` (`id`, `order_id`, `user_id`, `message`, `type`, `is_read`, `created_at`, `delivery_details_id`) VALUES
+(4, 26, 3, 'Your order #ORD202505103731 from vendor is ready!', 'order_ready', 0, '2025-05-19 15:20:54', NULL);
 
 -- --------------------------------------------------------
 
@@ -595,7 +640,18 @@ INSERT INTO `order_tracking` (`id`, `order_id`, `status`, `updated_at`, `status_
 (129, 23, 'accepted', '2025-04-29 14:19:30', '2025-04-29 14:19:30', NULL, 2),
 (130, 22, 'in_progress', '2025-04-29 14:19:44', '2025-04-29 14:19:44', NULL, 2),
 (131, 23, 'in_progress', '2025-04-29 14:19:46', '2025-04-29 14:19:46', NULL, 2),
-(132, 23, 'in_progress', '2025-04-29 14:29:58', '2025-04-29 14:29:58', 'Order assigned to worker: waiter', 2);
+(132, 23, 'in_progress', '2025-04-29 14:29:58', '2025-04-29 14:29:58', 'Order assigned to worker: waiter', 2),
+(133, 24, 'pending', '2025-05-10 12:09:00', '2025-05-10 12:09:00', NULL, 3),
+(134, 25, 'pending', '2025-05-10 12:16:30', '2025-05-10 12:16:30', NULL, 3),
+(135, 26, 'pending', '2025-05-10 12:30:50', '2025-05-10 12:30:50', NULL, 3),
+(136, 27, 'pending', '2025-05-10 14:42:28', '2025-05-10 14:42:28', 'Order placed via Khalti payment', 3),
+(137, 28, 'pending', '2025-05-10 14:46:41', '2025-05-10 14:46:41', 'Order placed via Khalti payment', 3),
+(138, 26, 'accepted', '2025-05-19 15:20:43', '2025-05-19 15:20:43', NULL, 2),
+(139, 26, 'in_progress', '2025-05-19 15:20:48', '2025-05-19 15:20:48', NULL, 2),
+(140, 26, 'ready', '2025-05-19 15:20:54', '2025-05-19 15:20:54', NULL, 2),
+(141, 28, 'accepted', '2025-05-19 15:21:59', '2025-05-19 15:21:59', NULL, 2),
+(142, 27, 'accepted', '2025-06-18 16:50:21', '2025-06-18 16:50:21', NULL, 2),
+(143, 26, 'completed', '2025-06-18 16:50:25', '2025-06-18 16:50:25', NULL, 2);
 
 -- --------------------------------------------------------
 
@@ -613,6 +669,14 @@ CREATE TABLE `payment_history` (
   `created_by` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `payment_history`
+--
+
+INSERT INTO `payment_history` (`id`, `order_id`, `previous_status`, `new_status`, `amount_received`, `notes`, `created_by`, `created_at`) VALUES
+(9, 27, 'pending', 'paid', 60.00, 'Payment completed via Khalti. Transaction ID: tV6SkxQrV4qeSMm9U4MRCf', 3, '2025-05-10 14:42:28'),
+(10, 28, 'pending', 'paid', 60.00, 'Payment completed via Khalti. Transaction ID: egjhbkGxoNCLMVthYCHt7K', 3, '2025-05-10 14:46:41');
 
 -- --------------------------------------------------------
 
@@ -838,8 +902,9 @@ CREATE TABLE `subscription_plans` (
   `name` varchar(100) NOT NULL,
   `description` text DEFAULT NULL,
   `price` decimal(10,2) NOT NULL,
+  `discount_percentage` decimal(5,2) NOT NULL DEFAULT 0.00,
   `duration_days` int(11) NOT NULL,
-  `features` text DEFAULT NULL,
+  `features` text DEFAULT NULL COMMENT 'Simple comma-separated list of features',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -848,10 +913,10 @@ CREATE TABLE `subscription_plans` (
 -- Dumping data for table `subscription_plans`
 --
 
-INSERT INTO `subscription_plans` (`id`, `vendor_id`, `name`, `description`, `price`, `duration_days`, `features`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Basic Monthly', 'Essential canteen access plan', 299.99, 30, 'Basic meal access\nStandard menu options\nWeekday service', '2025-04-15 12:18:05', '2025-04-15 12:18:05'),
-(2, 1, 'Premium Quarterly', 'Enhanced dining experience with added benefits', 799.99, 90, 'Premium meal selections\nWeekend access\nSpecial event invitations\nPriority ordering', '2025-04-15 12:18:05', '2025-04-15 12:18:05'),
-(3, 1, 'Ultimate Annual', 'Complete dining solution for the entire year', 2999.99, 365, 'All premium features\nUnlimited meal selections\n24/7 access\nExclusive tastings\nGuest privileges\nSpecial discounts', '2025-04-15 12:18:05', '2025-04-15 12:18:05');
+INSERT INTO `subscription_plans` (`id`, `vendor_id`, `name`, `description`, `price`, `discount_percentage`, `duration_days`, `features`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Basic Monthly', 'Basic monthly subscription with 10% discount on all orders', 299.99, 10.00, 30, '10% discount on all orders,No delivery charges,Priority ordering', '2025-04-15 12:18:05', '2025-04-15 12:18:05'),
+(2, 1, 'Premium Quarterly', 'Quarterly subscription with 15% discount on all orders', 799.99, 15.00, 90, '15% discount on all orders,No delivery charges,Priority ordering,Special event invitations', '2025-04-15 12:18:05', '2025-04-15 12:18:05'),
+(3, 1, 'Ultimate Annual', 'Annual subscription with 20% discount on all orders', 2999.99, 20.00, 365, '20% discount on all orders,No delivery charges,Priority ordering,Special event invitations,Exclusive tastings', '2025-04-15 12:18:05', '2025-04-15 12:18:05');
 
 -- --------------------------------------------------------
 
@@ -868,6 +933,13 @@ CREATE TABLE `subscription_transactions` (
   `status` enum('pending','completed','failed') NOT NULL DEFAULT 'pending',
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `subscription_transactions`
+--
+
+INSERT INTO `subscription_transactions` (`id`, `user_id`, `plan_id`, `amount`, `payment_method`, `status`, `created_at`) VALUES
+(1, 3, 1, 299.99, 'cash', 'pending', '2025-06-20 22:24:22');
 
 -- --------------------------------------------------------
 
@@ -917,9 +989,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `contact_number`, `role`, `approval_status`, `password`, `profile_pic`, `created_at`) VALUES
-(1, 'adminmain', 'adminmain@campus.com', '9800000000', 'admin', 'approved', '$2y$10$/r1BJQWWcHCa4vbA14ZcEOJwIVTVxK8ZyvXL2wbbdxT7DCas1Eyc2', NULL, '2025-04-14 12:50:29'),
+(1, 'adminmain', 'adminmain@campus.com', '9800000000', 'admin', 'approved', '$2y$10$/r1BJQWWcHCa4vbA14ZcEOJwIVTVxK8ZyvXL2wbbdxT7DCas1Eyc2', 'admin_1_682b49544ec7a.jpg', '2025-04-14 12:50:29'),
 (2, 'vendor', 'vendor@gmail.com', '9825346958', 'vendor', 'approved', '$2y$10$3mWTGhPx2LhBBjdqa5lDue6O5uIsNQwJ8sbn9hjFy8YwrZ6yX/52q', NULL, '2025-04-14 15:57:33'),
-(3, 'student', 'student@gmail.com', '9825346908', 'student', 'approved', '$2y$10$5Vk3zLE5eTOF0mglmna6GO8I/CSAgo98w6HqZ4w2q.YWodc6wfdDO', NULL, '2025-04-15 04:08:17'),
+(3, 'student', 'student@gmail.com', '9825346908', 'student', 'approved', '$2y$10$5Vk3zLE5eTOF0mglmna6GO8I/CSAgo98w6HqZ4w2q.YWodc6wfdDO', '3_682b408aec71e.jpg', '2025-04-15 04:08:17'),
 (4, 'staff', 'staff@gmail.com', '98256986588', 'staff', 'approved', '$2y$10$NwsLL6Wuo5TlwEYbGruoyu4Z9eEi2jfwhYVXwlOBqvbtMSm39zxpO', NULL, '2025-04-28 02:15:19'),
 (5, 'waiter', 'waiter@gmail.com', '9825698655', 'worker', 'approved', '$2y$10$jATDHdrEnz0OzsMg9fR7tuKiUP8fEOW9RfW7LqkRqFZnNJ1erNNAC', NULL, '2025-04-28 15:53:20');
 
@@ -939,6 +1011,13 @@ CREATE TABLE `user_subscriptions` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_subscriptions`
+--
+
+INSERT INTO `user_subscriptions` (`id`, `user_id`, `plan_id`, `start_date`, `end_date`, `status`, `created_at`, `updated_at`) VALUES
+(1, 3, 1, '2025-06-20 22:24:22', '2025-07-20 22:24:22', 'active', '2025-06-20 22:24:22', '2025-06-20 22:24:22');
 
 -- --------------------------------------------------------
 
@@ -1037,6 +1116,13 @@ INSERT INTO `workers` (`id`, `user_id`, `vendor_id`, `position`, `approval_statu
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `auth_tokens`
+--
+ALTER TABLE `auth_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `batch_sequences`
@@ -1327,7 +1413,9 @@ ALTER TABLE `subscription_plans`
 ALTER TABLE `subscription_transactions`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_subscription_transactions_user_idx` (`user_id`),
-  ADD KEY `fk_subscription_transactions_plan_idx` (`plan_id`);
+  ADD KEY `fk_subscription_transactions_plan_idx` (`plan_id`),
+  ADD KEY `idx_user_plan` (`user_id`,`plan_id`),
+  ADD KEY `idx_status_date` (`status`,`created_at`);
 
 --
 -- Indexes for table `unit_conversions`
@@ -1350,7 +1438,9 @@ ALTER TABLE `users`
 ALTER TABLE `user_subscriptions`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_user_subscriptions_user_idx` (`user_id`),
-  ADD KEY `fk_user_subscriptions_plan_idx` (`plan_id`);
+  ADD KEY `fk_user_subscriptions_plan_idx` (`plan_id`),
+  ADD KEY `idx_user_status` (`user_id`,`status`),
+  ADD KEY `idx_dates` (`start_date`,`end_date`);
 
 --
 -- Indexes for table `vendors`
@@ -1388,6 +1478,12 @@ ALTER TABLE `workers`
 --
 
 --
+-- AUTO_INCREMENT for table `auth_tokens`
+--
+ALTER TABLE `auth_tokens`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `batch_sequences`
 --
 ALTER TABLE `batch_sequences`
@@ -1397,7 +1493,7 @@ ALTER TABLE `batch_sequences`
 -- AUTO_INCREMENT for table `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT for table `categories`
@@ -1439,7 +1535,7 @@ ALTER TABLE `inventory`
 -- AUTO_INCREMENT for table `inventory_alerts`
 --
 ALTER TABLE `inventory_alerts`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT for table `inventory_history`
@@ -1475,7 +1571,7 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `order_assignments`
@@ -1487,7 +1583,7 @@ ALTER TABLE `order_assignments`
 -- AUTO_INCREMENT for table `order_delivery_details`
 --
 ALTER TABLE `order_delivery_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `order_inventory_deductions`
@@ -1499,13 +1595,13 @@ ALTER TABLE `order_inventory_deductions`
 -- AUTO_INCREMENT for table `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=47;
 
 --
 -- AUTO_INCREMENT for table `order_notifications`
 --
 ALTER TABLE `order_notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `order_ratings`
@@ -1517,13 +1613,13 @@ ALTER TABLE `order_ratings`
 -- AUTO_INCREMENT for table `order_tracking`
 --
 ALTER TABLE `order_tracking`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=133;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=144;
 
 --
 -- AUTO_INCREMENT for table `payment_history`
 --
 ALTER TABLE `payment_history`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `prep_logs`
@@ -1595,7 +1691,7 @@ ALTER TABLE `subscription_plans`
 -- AUTO_INCREMENT for table `subscription_transactions`
 --
 ALTER TABLE `subscription_transactions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `unit_conversions`
@@ -1613,7 +1709,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_subscriptions`
 --
 ALTER TABLE `user_subscriptions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `vendors`
@@ -1642,6 +1738,12 @@ ALTER TABLE `workers`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `auth_tokens`
+--
+ALTER TABLE `auth_tokens`
+  ADD CONSTRAINT `auth_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `batch_sequences`

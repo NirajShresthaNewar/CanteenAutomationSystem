@@ -2,8 +2,8 @@
 session_start();
 require_once '../connection/db_connection.php';
 
-// Check if user is logged in and is a student
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+// Check if user is logged in and is a staff member
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
     header('Location: ../index.php');
     exit();
 }
@@ -13,14 +13,13 @@ try {
     $stmt = $conn->prepare("
         SELECT o.*, v.id as vendor_id, u.username as vendor_name,
                COALESCE(ot.status, 'pending') as status,
-               odd.order_type, odd.delivery_location, odd.building_name,
-               odd.floor_number, odd.room_number, odd.contact_number,
-               odd.table_number, odd.delivery_instructions,
+               odd.order_type, odd.delivery_location,
+               odd.contact_number, odd.table_number, 
+               odd.delivery_instructions,
                CASE 
-                    WHEN o.payment_method = 'credit' THEN 'Credit Account'
-                    WHEN o.payment_method = 'esewa' THEN 'Online Payment (eSewa)'
                     WHEN o.payment_method = 'khalti' THEN 'Khalti Payment'
-                    ELSE 'Cash on Delivery'
+                    WHEN o.payment_method = 'cash' THEN 'Cash Payment'
+                    ELSE o.payment_method
                END as payment_method_name,
                CASE
                     WHEN COALESCE(ot.status, 'pending') = 'pending' THEN 'bg-warning'
@@ -42,7 +41,7 @@ try {
                 GROUP BY order_id
             ) ot2 ON ot1.order_id = ot2.order_id AND ot1.status_changed_at = ot2.max_date
         ) ot ON o.id = ot.order_id
-        WHERE o.user_id = ? 
+        WHERE o.user_id = ?
         AND COALESCE(ot.status, 'pending') IN ('pending', 'accepted', 'in_progress', 'ready')
         ORDER BY o.order_date DESC
     ");
@@ -136,7 +135,7 @@ ob_start();
                                     </div>
                                     <div class="col-md-6">
                                         <p><strong>Payment Method:</strong> <?php echo $order['payment_method_name']; ?></p>
-                                        <p><strong>Total Amount:</strong> ₹<?php echo number_format($order['total_amount'], 2); ?></p>
+                                        <p><strong>Total Amount:</strong> Rs. <?php echo number_format($order['total_amount'], 2); ?></p>
                                     </div>
                                 </div>
 
@@ -153,15 +152,6 @@ ob_start();
                                             </p>
                                             <?php if ($order['order_type'] === 'delivery'): ?>
                                                 <p><strong>Delivery Location:</strong> <?php echo htmlspecialchars($order['delivery_location']); ?></p>
-                                                <?php if ($order['building_name']): ?>
-                                                    <p><strong>Building:</strong> <?php echo htmlspecialchars($order['building_name']); ?></p>
-                                                <?php endif; ?>
-                                                <?php if ($order['floor_number']): ?>
-                                                    <p><strong>Floor:</strong> <?php echo htmlspecialchars($order['floor_number']); ?></p>
-                                                <?php endif; ?>
-                                                <?php if ($order['room_number']): ?>
-                                                    <p><strong>Room:</strong> <?php echo htmlspecialchars($order['room_number']); ?></p>
-                                                <?php endif; ?>
                                                 <p><strong>Contact:</strong> <?php echo htmlspecialchars($order['contact_number']); ?></p>
                                                 <?php if ($order['delivery_instructions']): ?>
                                                     <p><strong>Instructions:</strong> <?php echo htmlspecialchars($order['delivery_instructions']); ?></p>
@@ -200,25 +190,18 @@ ob_start();
                                                 <tr>
                                                     <td><?php echo htmlspecialchars($item['name']); ?></td>
                                                     <td><?php echo $item['quantity']; ?></td>
-                                                    <td>₹<?php echo number_format($item['unit_price'], 2); ?></td>
-                                                    <td>₹<?php echo number_format($item['subtotal'], 2); ?></td>
+                                                    <td>Rs. <?php echo number_format($item['unit_price'], 2); ?></td>
+                                                    <td>Rs. <?php echo number_format($item['subtotal'], 2); ?></td>
                                                 </tr>
                                             <?php endforeach; ?>
                                         </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <th colspan="3" class="text-right">Total:</th>
+                                                <th>Rs. <?php echo number_format($order['total_amount'], 2); ?></th>
+                                            </tr>
+                                        </tfoot>
                                     </table>
-                                </div>
-
-                                <div class="mt-3">
-                                    <a href="order_details.php?receipt=<?php echo urlencode($order['receipt_number']); ?>" 
-                                       class="btn btn-info btn-sm">
-                                        <i class="fas fa-eye"></i> View Details
-                                    </a>
-                                    <?php if ($order['status'] === 'ready'): ?>
-                                        <button type="button" class="btn btn-success btn-sm" 
-                                                onclick="markAsReceived('<?php echo $order['id']; ?>')">
-                                            <i class="fas fa-check"></i> Mark as Received
-                                        </button>
-                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -228,14 +211,6 @@ ob_start();
         <?php endif; ?>
     </div>
 </div>
-
-<script>
-function markAsReceived(orderId) {
-    if (confirm('Are you sure you want to mark this order as received?')) {
-        window.location.href = 'mark_order_received.php?order_id=' + orderId;
-    }
-}
-</script>
 
 <?php
 $content = ob_get_clean();

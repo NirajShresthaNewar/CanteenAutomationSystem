@@ -1,4 +1,55 @@
 <?php
+// Get database connection if not already included
+require_once dirname(__FILE__) . '/../connection/db_connection.php';
+
+// Get cart and active order counts
+$cart_count = 0;
+$active_orders_count = 0;
+
+if (isset($_SESSION['user_id'])) {
+    // Check cart items count
+    try {
+        $stmt = $conn->prepare("
+            SELECT COUNT(*) as count
+            FROM cart_items
+            WHERE user_id = ?
+        ");
+        $stmt->execute([$_SESSION['user_id']]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $cart_count = $result['count'];
+    } catch (PDOException $e) {
+        // Table doesn't exist or other error
+        $cart_count = 0;
+    }
+    
+    // Check active orders count
+    try {
+        $stmt = $conn->prepare("
+            SELECT COUNT(*) as count
+            FROM orders o
+            LEFT JOIN (
+                SELECT order_id, status
+                FROM order_tracking
+                WHERE id IN (
+                    SELECT MAX(id)
+                    FROM order_tracking
+                    GROUP BY order_id
+                )
+            ) ot ON o.id = ot.order_id
+            WHERE o.customer_id = (
+                SELECT id FROM staff_students WHERE user_id = ?
+            )
+            AND COALESCE(ot.status, 'pending') IN ('pending', 'accepted', 'in_progress', 'ready')
+        ");
+        $stmt->execute([$_SESSION['user_id']]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $active_orders_count = $result['count'];
+    } catch (PDOException $e) {
+        // Query failed or other error
+        $active_orders_count = 0;
+    }
+}
+
 // Staff Sidebar
 echo '
 
@@ -25,45 +76,53 @@ echo '
     </a>
 </li>
 
-<!-- Dining Options -->
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['vendors.php', 'menu_options.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['vendors.php', 'menu_options.php']) ? 'active' : '') . '">
+<!-- Order Food -->
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['vendors.php', 'menu.php', 'cart.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['vendors.php', 'menu.php', 'cart.php']) ? 'active' : '') . '">
         <i class="nav-icon fas fa-utensils"></i>
         <p>
-            Dining Options
+            Order Food
             <i class="fas fa-angle-left right"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
-        <li class="nav-item">
+      <!--  <li class="nav-item">
             <a href="../staff/vendors.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'vendors.php' ? 'active' : '') . '">
                 <i class="nav-icon fas fa-store-alt"></i>
                 <p>Browse Vendors</p>
             </a>
+        </li> -->
+        <li class="nav-item">
+            <a href="../staff/menu.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-clipboard-list"></i>
+                <p>Menu</p>
+            </a>
         </li>
         <li class="nav-item">
-            <a href="../staff/menu_options.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu_options.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-clipboard-list"></i>
-                <p>Menu Options</p>
+            <a href="../staff/cart.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'cart.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-shopping-basket"></i>
+                <p>Cart</p>
+                ' . ($cart_count > 0 ? '<span class="badge badge-success right">' . $cart_count . '</span>' : '') . '
             </a>
         </li>
     </ul>
 </li>
 
-<!-- Orders -->
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['place_order.php', 'order_history.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['place_order.php', 'order_history.php']) ? 'active' : '') . '">
-        <i class="nav-icon fas fa-shopping-cart"></i>
+<!-- My Orders -->
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['active_orders.php', 'order_history.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['active_orders.php', 'order_history.php']) ? 'active' : '') . '">
+        <i class="nav-icon fas fa-shopping-bag"></i>
         <p>
-            Orders
+            My Orders
             <i class="fas fa-angle-left right"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
-            <a href="../staff/place_order.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'place_order.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-cart-plus"></i>
-                <p>Place Order</p>
+            <a href="../staff/active_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'active_orders.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-spinner"></i>
+                <p>Active Orders</p>
+                ' . ($active_orders_count > 0 ? '<span class="badge badge-info right">' . $active_orders_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">

@@ -236,21 +236,33 @@ function getStatusBadgeClass($status) {
 }
 
 function getPaymentMethodBadgeClass($method) {
-    return match($method) {
-        'credit' => 'bg-info',
-        'esewa' => 'bg-success',
-        'cash' => 'bg-warning',
-        default => 'bg-secondary'
-    };
+    switch ($method) {
+        case 'cash':
+            return 'badge-success';
+        case 'credit':
+            return 'badge-info';
+        case 'khalti':
+            return 'badge-primary';
+        case 'esewa':
+            return 'badge-warning';
+        default:
+            return 'badge-secondary';
+    }
 }
 
 function getPaymentMethodLabel($method) {
-    return match($method) {
-        'credit' => 'Credit Account',
-        'esewa' => 'eSewa',
-        'cash' => 'Cash',
-        default => 'Unknown'
-    };
+    switch ($method) {
+        case 'cash':
+            return 'Cash Payment';
+        case 'credit':
+            return 'Credit Account';
+        case 'khalti':
+            return 'Khalti Payment';
+        case 'esewa':
+            return 'eSewa Payment';
+        default:
+            return 'Unknown';
+    }
 }
 
 function getPaymentStatusBadgeClass($status) {

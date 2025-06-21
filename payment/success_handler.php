@@ -36,7 +36,8 @@ logDebug("=== Starting Khalti Success Handler ===", [
 // Function to redirect with error
 function redirectWithError($message) {
     $_SESSION['payment_error'] = $message;
-    header('Location: ../student/cart.php');
+    $redirect_path = $_SESSION['role'] === 'staff' ? '../staff/cart.php' : '../student/cart.php';
+    header('Location: ' . $redirect_path);
     exit;
 }
 
@@ -60,7 +61,8 @@ if (!isset($_GET['token']) || !isset($_SESSION['khalti_order'])) {
         'session' => $_SESSION
     ]);
     $_SESSION['error'] = "Invalid payment verification";
-    header('Location: ../student/cart.php');
+    $redirect_path = $_SESSION['role'] === 'staff' ? '../staff/cart.php' : '../student/cart.php';
+    header('Location: ' . $redirect_path);
     exit();
 }
 
@@ -226,14 +228,20 @@ try {
         // Commit transaction
         $conn->commit();
 
-        // Clear payment session data
+        // Clear payment session data and any error messages
         unset($_SESSION['khalti_order']);
+        unset($_SESSION['error']);
+        unset($_SESSION['payment_error']);
 
         // Set success message
         $_SESSION['success'] = "Payment successful! Your order has been placed.";
         
-        // Redirect to order confirmation
-        header('Location: ../student/order_confirmation.php?order_id=' . $order_id);
+        // Redirect after successful payment
+        if ($_SESSION['role'] === 'staff') {
+            header('Location: ../staff/active_orders.php');
+        } else {
+            header('Location: ../student/active_orders.php');
+        }
         exit();
 
     } catch (PDOException $e) {
@@ -262,7 +270,8 @@ try {
 
     // Redirect with error
     $_SESSION['error'] = "Payment processing failed: " . $e->getMessage();
-    header('Location: ../student/cart.php');
+    $redirect_path = $_SESSION['role'] === 'staff' ? '../staff/cart.php' : '../student/cart.php';
+    header('Location: ' . $redirect_path);
     exit();
 }
 ?> 

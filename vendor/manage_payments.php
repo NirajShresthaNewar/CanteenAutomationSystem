@@ -63,7 +63,22 @@ try {
             o.payment_method, o.cash_received, o.payment_notes,
             o.payment_received_at, o.payment_updated_at,
             u.username, ot.status, ot.status_changed_at
-        ORDER BY o.order_date DESC
+        ORDER BY 
+            CASE o.payment_status
+                WHEN 'pending' THEN 1
+                WHEN 'paid' THEN 2
+                ELSE 3
+            END,
+            CASE COALESCE(ot.status, 'pending')
+                WHEN 'pending' THEN 1
+                WHEN 'accepted' THEN 2
+                WHEN 'in_progress' THEN 3
+                WHEN 'ready' THEN 4
+                WHEN 'completed' THEN 5
+                WHEN 'cancelled' THEN 6
+                ELSE 7
+            END,
+            o.order_date DESC
     ");
     $stmt->execute([$vendor['id']]);
     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);

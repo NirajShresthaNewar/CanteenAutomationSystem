@@ -120,14 +120,55 @@ $counts = [
     'cancelled' => getOrderCountByStatus($conn, $vendor_id, 'cancelled')
 ];
 
-// Build the base query
+// Initialize variables
+$params = [$vendor_id];
+$status_condition = "";
+$date_condition = "";
+
+// Add status filter if provided
+if (isset($_GET['status']) && $_GET['status'] !== 'all') {
+    $status_condition = "AND COALESCE(ot.status, 'pending') = ?";
+    $params[] = $_GET['status'];
+}
+
+// Add date filter if provided
+if (!empty($_GET['date'])) {
+    $date_condition = "AND DATE(o.order_date) = ?";
+    $params[] = $_GET['date'];
+}
+
+// Build the search condition
+$search_condition = "";
+if (!empty($_GET['search'])) {
+    $search = $_GET['search'];
+    // If search looks like an order ID (starts with #ORD-), remove the # for matching
+    if (strpos($search, '#ORD-') === 0) {
+        $search = substr($search, 1);
+    }
+    $search = "%$search%";
+    $search_condition = "AND (
+        o.id LIKE ? OR 
+        o.receipt_number LIKE ? OR
+        u.username LIKE ? OR 
+        u.email LIKE ? OR 
+        EXISTS (
+            SELECT 1 FROM order_items oi2 
+            JOIN menu_items mi2 ON oi2.menu_item_id = mi2.item_id 
+            WHERE oi2.order_id = o.id 
+            AND CONCAT(oi2.quantity, 'x ', mi2.name) LIKE ?
+        )
+    )";
+    $params = array_merge($params, [$search, $search, $search, $search, $search]);
+}
+
+// Build the complete query with proper sorting
 $sql = "
     SELECT o.*, v.id as vendor_id, u.username as customer_name, u.email as customer_email,
         COALESCE(ot.status, 'pending') as current_status,
-           oa.worker_id, w.user_id as worker_user_id, wu.username as worker_name,
-           odd.order_type, odd.delivery_location, odd.building_name,
-           odd.floor_number, odd.room_number, odd.contact_number,
-           odd.table_number,
+        oa.worker_id, w.user_id as worker_user_id, wu.username as worker_name,
+        odd.order_type, odd.delivery_location, odd.building_name,
+        odd.floor_number, odd.room_number, odd.contact_number,
+        odd.table_number,
         GROUP_CONCAT(DISTINCT CONCAT(oi.quantity, 'x ', mi.name) SEPARATOR ', ') as items
     FROM orders o
     JOIN vendors v ON o.vendor_id = v.id
@@ -136,61 +177,36 @@ $sql = "
     LEFT JOIN order_items oi ON o.id = oi.order_id
     LEFT JOIN menu_items mi ON oi.menu_item_id = mi.item_id
     LEFT JOIN (
-        SELECT ot1.*
-        FROM order_tracking ot1
-        INNER JOIN (
-            SELECT order_id, MAX(status_changed_at) as max_date
-            FROM order_tracking
-            GROUP BY order_id
-        ) ot2 ON ot1.order_id = ot2.order_id AND ot1.status_changed_at = ot2.max_date
-    ) ot ON o.id = ot.order_id
-    LEFT JOIN (
-        SELECT order_id, worker_id
-        FROM order_assignments
+        SELECT order_id, status
+        FROM order_tracking
         WHERE id IN (
             SELECT MAX(id)
-            FROM order_assignments
+            FROM order_tracking
             GROUP BY order_id
         )
-    ) oa ON o.id = oa.order_id
+    ) ot ON o.id = ot.order_id
+    LEFT JOIN order_assignments oa ON o.id = oa.order_id
     LEFT JOIN workers w ON oa.worker_id = w.id
     LEFT JOIN users wu ON w.user_id = wu.id
-    WHERE o.vendor_id = :vendor_id";
-
-$params = [':vendor_id' => $vendor_id];
-
-// Add status filter if provided
-if ($status !== null) {
-    $sql .= " AND COALESCE(ot.status, 'pending') = :status";
-    $params[':status'] = $status;
-}
-
-// Add date range filter if provided
-if (!empty($date_range)) {
-    $dates = explode(' - ', $date_range);
-    if (count($dates) == 2) {
-        $sql .= " AND DATE(o.order_date) BETWEEN :start_date AND :end_date";
-        $params[':start_date'] = trim($dates[0]);
-        $params[':end_date'] = trim($dates[1]);
-    }
-}
-
-// Add search filter if provided
-if (!empty($search)) {
-    $sql .= " AND (
-        o.receipt_number LIKE :search 
-        OR u.username LIKE :search 
-        OR u.email LIKE :search
-        OR mi.name LIKE :search
-    )";
-    $params[':search'] = "%$search%";
-}
-
-// Add group by clause
-$sql .= " GROUP BY o.id";
-
-// Add order by clause
-$sql .= " ORDER BY o.order_date DESC";
+    WHERE v.id = ? $status_condition $date_condition $search_condition
+    GROUP BY o.id, v.id, u.username, u.email, ot.status, oa.worker_id, w.user_id, wu.username,
+        odd.order_type, odd.delivery_location, odd.building_name, odd.floor_number, 
+        odd.room_number, odd.contact_number, odd.table_number
+    ORDER BY 
+        CASE 
+            WHEN COALESCE(ot.status, 'pending') IN ('completed', 'cancelled') THEN 2
+            ELSE 1
+        END,
+        CASE COALESCE(ot.status, 'pending')
+            WHEN 'pending' THEN 1
+            WHEN 'accepted' THEN 2
+            WHEN 'in_progress' THEN 3
+            WHEN 'ready' THEN 4
+            WHEN 'completed' THEN 5
+            WHEN 'cancelled' THEN 6
+            ELSE 7
+        END,
+        o.order_date DESC";
 
 // Prepare and execute the query
 $stmt = $conn->prepare($sql);
@@ -685,13 +701,200 @@ ob_start();
     </div>
 </div>
 
+<!-- View Order Modal -->
+<div class="modal fade" id="viewOrderModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Order Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Order ID:</th>
+                                <td id="view-order-id"></td>
+                            </tr>
+                            <tr>
+                                <th>Customer:</th>
+                                <td id="view-customer"></td>
+                            </tr>
+                            <tr>
+                                <th>Date:</th>
+                                <td id="view-date"></td>
+                            </tr>
+                            <tr>
+                                <th>Status:</th>
+                                <td id="view-status"></td>
+                            </tr>
+                            <tr>
+                                <th>Payment Method:</th>
+                                <td id="view-payment"></td>
+                            </tr>
+                            <tr>
+                                <th>Total Amount:</th>
+                                <td id="view-total"></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Delivery Information</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Order Type:</th>
+                                <td id="view-order-type"></td>
+                            </tr>
+                            <tr>
+                                <th>Location:</th>
+                                <td id="view-location"></td>
+                            </tr>
+                            <tr>
+                                <th>Building:</th>
+                                <td id="view-building"></td>
+                            </tr>
+                            <tr>
+                                <th>Floor/Room:</th>
+                                <td id="view-floor-room"></td>
+                            </tr>
+                            <tr>
+                                <th>Contact:</th>
+                                <td id="view-contact"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <h6>Order Items</h6>
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th class="text-end">Price</th>
+                                    <th class="text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="view-order-items">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+// Helper functions for badge classes
+function getStatusBadgeClass(status) {
+    switch (status) {
+        case 'pending':
+            return 'bg-warning text-dark';
+        case 'accepted':
+            return 'bg-info text-white';
+        case 'in_progress':
+            return 'bg-primary text-white';
+        case 'ready':
+            return 'bg-success text-white';
+        case 'completed':
+            return 'bg-secondary text-white';
+        case 'cancelled':
+            return 'bg-danger text-white';
+        default:
+            return 'bg-secondary text-white';
+    }
+}
+
+function getPaymentBadgeClass(payment_method) {
+    switch (payment_method) {
+        case 'cash':
+            return 'bg-success text-white';
+        case 'khalti':
+            return 'bg-purple text-white';
+        case 'credit':
+            return 'bg-info text-white';
+        case 'esewa':
+            return 'bg-primary text-white';
+        default:
+            return 'bg-secondary text-white';
+    }
+}
+
+function getPaymentMethodName(payment_method) {
+    switch (payment_method) {
+        case 'cash':
+            return 'Cash';
+        case 'khalti':
+            return 'Khalti';
+        case 'credit':
+            return 'Credit';
+        case 'esewa':
+            return 'eSewa';
+        default:
+            return payment_method;
+    }
+}
+
 let currentForm = null;
 let currentAction = '';
+let prepTimeModal = null;
+let cancelModal = null;
+let assignWorkerModal = null;
+let viewOrderModal = null;
+
+// Initialize modals when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modals
+    prepTimeModal = new bootstrap.Modal(document.getElementById('prepTimeDialog'));
+    cancelModal = new bootstrap.Modal(document.getElementById('cancelDialog'));
+    assignWorkerModal = new bootstrap.Modal(document.getElementById('assignWorkerModal'));
+    viewOrderModal = new bootstrap.Modal(document.getElementById('viewOrderModal'));
+
+    // Add event listeners for close buttons
+    document.querySelectorAll('[data-bs-dismiss="modal"]').forEach(button => {
+        button.addEventListener('click', function() {
+            const modalId = this.closest('.modal').id;
+            if (modalId === 'prepTimeDialog') {
+                prepTimeModal.hide();
+            } else if (modalId === 'cancelDialog') {
+                cancelModal.hide();
+            } else if (modalId === 'assignWorkerModal') {
+                assignWorkerModal.hide();
+            } else if (modalId === 'viewOrderModal') {
+                viewOrderModal.hide();
+            }
+        });
+    });
+
+    // Add event listener for Cancel button in prep time modal
+    document.querySelector('#prepTimeDialog .btn-secondary').addEventListener('click', function() {
+        prepTimeModal.hide();
+    });
+
+    // Add event listener for Close button in cancel/reject modal
+    document.querySelector('#cancelDialog .btn-secondary').addEventListener('click', function() {
+        cancelModal.hide();
+    });
+
+    // Add view order button event listeners
+    document.querySelectorAll('.view-order').forEach(button => {
+        button.addEventListener('click', function() {
+            const orderId = this.dataset.orderId;
+            viewOrder(orderId);
+        });
+    });
+});
 
 function showPrepTimeDialog(form) {
     currentForm = form;
-    const prepTimeModal = new bootstrap.Modal(document.getElementById('prepTimeDialog'));
+    document.getElementById('prep_time').value = ''; // Clear previous value
     prepTimeModal.show();
 }
 
@@ -703,6 +906,7 @@ function submitPrepTime() {
         input.name = 'prep_time';
         input.value = prepTime;
         currentForm.appendChild(input);
+        prepTimeModal.hide();
         currentForm.submit();
     }
 }
@@ -713,7 +917,6 @@ function showCancelDialog(form, action) {
     document.getElementById('cancelDialogTitle').textContent = 
         action === 'reject' ? 'Enter Rejection Reason' : 'Enter Cancellation Reason';
     document.getElementById('cancel_reason').value = '';
-    const cancelModal = new bootstrap.Modal(document.getElementById('cancelDialog'));
     cancelModal.show();
 }
 
@@ -725,6 +928,7 @@ function submitCancelReason() {
         input.name = 'notes';
         input.value = reason;
         currentForm.appendChild(input);
+        cancelModal.hide();
         currentForm.submit();
     }
 }
@@ -755,8 +959,7 @@ function handleAssignWorker(orderId) {
                 });
 
                 // Show modal
-                const assignModal = new bootstrap.Modal(document.getElementById('assignWorkerModal'));
-                assignModal.show();
+                assignWorkerModal.show();
             } else {
                 alert(data.message || 'Failed to load worker data');
             }
@@ -764,6 +967,60 @@ function handleAssignWorker(orderId) {
         .catch(error => {
             console.error('Error:', error);
             alert('Failed to load worker data');
+        });
+}
+
+function viewOrder(orderId) {
+    // Show loading state
+    document.querySelector('.loading-overlay').style.display = 'flex';
+
+    // Fetch order details
+    fetch(`get_order_details.php?order_id=${orderId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update modal with order details
+                document.getElementById('view-order-id').textContent = data.order.receipt_number;
+                document.getElementById('view-customer').textContent = `${data.order.customer_name} (${data.order.customer_email})`;
+                document.getElementById('view-date').textContent = data.order.order_date;
+                document.getElementById('view-status').innerHTML = `<span class="badge ${getStatusBadgeClass(data.order.current_status)}">${data.order.current_status}</span>`;
+                document.getElementById('view-payment').innerHTML = `<span class="badge ${getPaymentBadgeClass(data.order.payment_method)}">${getPaymentMethodName(data.order.payment_method)}</span>`;
+                document.getElementById('view-total').textContent = `₹${parseFloat(data.order.total_amount).toFixed(2)}`;
+                
+                // Update delivery information
+                document.getElementById('view-order-type').textContent = data.order.order_type || '-';
+                document.getElementById('view-location').textContent = data.order.delivery_location || '-';
+                document.getElementById('view-building').textContent = data.order.building_name || '-';
+                document.getElementById('view-floor-room').textContent = 
+                    `${data.order.floor_number || '-'}/${data.order.room_number || '-'}`;
+                document.getElementById('view-contact').textContent = data.order.contact_number || '-';
+
+                // Update order items
+                const itemsContainer = document.getElementById('view-order-items');
+                itemsContainer.innerHTML = '';
+                data.items.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td class="text-end">₹${parseFloat(item.unit_price).toFixed(2)}</td>
+                        <td class="text-end">₹${(item.quantity * item.unit_price).toFixed(2)}</td>
+                    `;
+                    itemsContainer.appendChild(row);
+                });
+
+                // Show the modal
+                viewOrderModal.show();
+            } else {
+                alert(data.message || 'Failed to load order details');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to load order details');
+        })
+        .finally(() => {
+            document.querySelector('.loading-overlay').style.display = 'none';
         });
 }
 
@@ -779,6 +1036,87 @@ function confirmReady(orderId) {
     console.log('Submitting ready status for order:', orderId);
     return confirm('Are you sure this order is ready?');
 }
+
+// Function to apply filters
+function applyFilters() {
+    const status = document.querySelector('#status-filter').value;
+    const search = document.querySelector('#search-input').value.trim();
+    const date = document.querySelector('#date-filter').value;
+    
+    // Build query string
+    let queryParams = new URLSearchParams(window.location.search);
+    
+    // Update or remove status parameter
+    if (status && status !== 'all') {
+        queryParams.set('status', status);
+    } else {
+        queryParams.delete('status');
+    }
+    
+    // Update or remove search parameter
+    if (search) {
+        // If user didn't include #, but it looks like an order number, add it
+        if (!search.startsWith('#') && /^ORD-\d{8}-[a-f0-9]+$/i.test(search)) {
+            queryParams.set('search', '#' + search);
+        } else {
+            queryParams.set('search', search);
+        }
+    } else {
+        queryParams.delete('search');
+    }
+    
+    // Update or remove date parameter
+    if (date) {
+        queryParams.set('date', date);
+    } else {
+        queryParams.delete('date');
+    }
+    
+    // Redirect with new query string
+    window.location.href = window.location.pathname + '?' + queryParams.toString();
+}
+
+// Function to reset filters
+function resetFilters() {
+    document.querySelector('#status-filter').value = 'all';
+    document.querySelector('#search-input').value = '';
+    document.querySelector('#date-filter').value = '';
+    window.location.href = window.location.pathname;
+}
+
+// Add event listeners when document is ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Apply filters button
+    document.querySelector('#apply-filters').addEventListener('click', applyFilters);
+    
+    // Reset filters button
+    document.querySelector('#reset-filters').addEventListener('click', resetFilters);
+    
+    // Enter key in search input
+    document.querySelector('#search-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applyFilters();
+        }
+    });
+    
+    // Initialize date picker if using one
+    const datePicker = document.querySelector('#date-filter');
+    if (datePicker) {
+        datePicker.addEventListener('change', applyFilters);
+    }
+    
+    // Set initial values from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('status')) {
+        document.querySelector('#status-filter').value = urlParams.get('status');
+    }
+    if (urlParams.has('search')) {
+        document.querySelector('#search-input').value = urlParams.get('search');
+    }
+    if (urlParams.has('date')) {
+        document.querySelector('#date-filter').value = urlParams.get('date');
+    }
+});
 </script>
 
 <?php

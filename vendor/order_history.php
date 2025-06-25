@@ -8,6 +8,36 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'vendor') {
     exit();
 }
 
+// Helper function for payment method badges
+function getPaymentMethodBadge($method) {
+    $badge_class = '';
+    $label = '';
+    
+    switch(strtolower($method)) {
+        case 'cash':
+            $badge_class = 'badge-success';
+            $label = 'Cash';
+            break;
+        case 'khalti':
+            $badge_class = 'badge-info';
+            $label = 'Khalti Payment';
+            break;
+        case 'esewa':
+            $badge_class = 'badge-primary';
+            $label = 'eSewa';
+            break;
+        case 'credit':
+            $badge_class = 'badge-warning';
+            $label = 'Credit';
+            break;
+        default:
+            $badge_class = 'badge-secondary';
+            $label = ucfirst($method);
+    }
+    
+    return "<span class='badge {$badge_class}'>{$label}</span>";
+}
+
 // Get vendor ID
 $stmt = $conn->prepare("SELECT id FROM vendors WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
@@ -29,7 +59,7 @@ $payment_method = isset($_GET['payment_method']) ? $_GET['payment_method'] : '';
 $sql = "SELECT o.id, o.receipt_number, o.total_amount, o.payment_method, o.order_date,
        u.username as customer_name, u.email as customer_email,
        COALESCE(ot.status, 'pending') as current_status,
-       o.payment_status, o.cash_received, o.amount_tendered, o.change_amount
+       o.payment_status, o.payment_method, o.cash_received, o.amount_tendered, o.change_amount
 FROM orders o
 LEFT JOIN users u ON o.user_id = u.id
 LEFT JOIN (
@@ -264,19 +294,15 @@ ob_start();
                                                 </td>
                                                 <td>₹<?php echo number_format($order['total_amount'], 2); ?></td>
                                                 <td>
-                                                    <?php if ($order['payment_method'] == 'cash'): ?>
-                                                        <span class="badge badge-success">Cash</span>
-                                                        <?php if ($order['payment_status'] == 'paid'): ?>
-                                                            <br>
-                                                            <small class="text-muted">
-                                                                Tendered: ₹<?php echo number_format($order['amount_tendered'], 2); ?><br>
-                                                                Change: ₹<?php echo number_format($order['change_amount'], 2); ?>
-                                                            </small>
-                                                        <?php endif; ?>
-                                                    <?php elseif ($order['payment_method'] == 'esewa'): ?>
-                                                        <span class="badge badge-info">eSewa</span>
-                                                    <?php elseif ($order['payment_method'] == 'credit'): ?>
-                                                        <span class="badge badge-warning">Credit</span>
+                                                    <?php 
+                                                    echo getPaymentMethodBadge($order['payment_method']);
+                                                    if ($order['payment_method'] == 'cash' && $order['payment_status'] == 'paid'): 
+                                                    ?>
+                                                        <br>
+                                                        <small class="text-muted">
+                                                            Tendered: ₹<?php echo number_format($order['amount_tendered'], 2); ?><br>
+                                                            Change: ₹<?php echo number_format($order['change_amount'], 2); ?>
+                                                        </small>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td>
@@ -306,7 +332,7 @@ ob_start();
                                                 </td>
                                                 <td><?php echo date('M d, Y h:i A', strtotime($order['order_date'])); ?></td>
                                                 <td>
-                                                    <button type="button" class="btn btn-sm btn-info view-order" data-toggle="modal" data-target="#viewOrderModal" data-id="<?php echo $order['id']; ?>">
+                                                    <button type="button" class="btn btn-sm btn-info view-order" data-order-id="<?php echo $order['id']; ?>">
                                                         <i class="fas fa-eye"></i> View
                                                     </button>
                                                 </td>
@@ -350,18 +376,44 @@ ob_start();
     </div>
 </div>
 
-<!-- View Order Modal -->
-<div class="modal fade" id="viewOrderModal" tabindex="-1" role="dialog" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" role="dialog" aria-labelledby="orderDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="viewOrderModalLabel">Order Details</h5>
+                <h5 class="modal-title" id="orderDetailsModalLabel">Order Details</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <div id="orderDetails"></div>
+                <!-- Order Information -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Order Information</h6>
+                        <div id="orderInfoDetail"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-muted">Payment Information</h6>
+                        <div id="paymentInfoDetail"></div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h6 class="text-muted">Order Items</h6>
+                        <div id="orderItemsDetail"></div>
+                    </div>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="row">
+                    <div class="col-12">
+                        <h6 class="text-muted">Order Timeline</h6>
+                        <div id="orderTimelineDetail"></div>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -369,6 +421,217 @@ ob_start();
         </div>
     </div>
 </div>
+
+<style>
+/* Timeline styling */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 24px;
+    height: 100%;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+    margin-left: 40px;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -32px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #3498db;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #3498db;
+}
+
+.timeline-item.status-pending::before { background: #ffc107; box-shadow: 0 0 0 2px #ffc107; }
+.timeline-item.status-accepted::before { background: #17a2b8; box-shadow: 0 0 0 2px #17a2b8; }
+.timeline-item.status-in_progress::before { background: #007bff; box-shadow: 0 0 0 2px #007bff; }
+.timeline-item.status-ready::before { background: #28a745; box-shadow: 0 0 0 2px #28a745; }
+.timeline-item.status-completed::before { background: #28a745; box-shadow: 0 0 0 2px #28a745; }
+.timeline-item.status-cancelled::before { background: #dc3545; box-shadow: 0 0 0 2px #dc3545; }
+
+.timeline-item .time {
+    display: block;
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+}
+
+.timeline-item .status {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.timeline-item .notes {
+    color: #666;
+    font-size: 0.9rem;
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    // View Order Details
+    $(document).on('click', '.view-order', function() {
+        const orderId = $(this).data('order-id');
+        
+        // Show loading state
+        $('#orderInfoDetail').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading...</div>');
+        $('#orderDetailsModal').modal('show');
+        
+        // Fetch order details
+        $.ajax({
+            url: 'get_order_details.php',
+            method: 'GET',
+            data: { order_id: orderId },
+            success: function(response) {
+                try {
+                    const result = JSON.parse(response);
+                    
+                    if (!result.success) {
+                        throw new Error(result.message || 'Failed to load order details');
+                    }
+                    
+                    const order = result.order;
+                    
+                    // Update Order Information
+                    const orderInfo = `
+                        <p><strong>Order ID:</strong> ${order.receipt_number}</p>
+                        <p><strong>Customer:</strong> ${order.customer_name} (${order.customer_email})</p>
+                        <p><strong>Order Date:</strong> ${new Date(order.order_date).toLocaleString()}</p>
+                        <p><strong>Status:</strong> <span class="badge ${getStatusBadgeClass(order.current_status)}">${order.current_status}</span></p>
+                    `;
+                    $('#orderInfoDetail').html(orderInfo);
+                    
+                    // Update Payment Information
+                    const paymentInfo = `
+                        <p><strong>Payment Method:</strong> <span class="badge badge-info">${order.payment_method}</span></p>
+                        <p><strong>Payment Status:</strong> <span class="badge ${order.payment_status === 'paid' ? 'badge-success' : 'badge-warning'}">${order.payment_status}</span></p>
+                        <p><strong>Total Amount:</strong> ₹${parseFloat(order.total_amount).toFixed(2)}</p>
+                    `;
+                    $('#paymentInfoDetail').html(paymentInfo);
+                    
+                    // Update Order Items
+                    const itemsTable = `
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${result.items.map(item => `
+                                    <tr>
+                                        <td>${item.name}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>₹${parseFloat(item.unit_price).toFixed(2)}</td>
+                                        <td>₹${(item.quantity * item.unit_price).toFixed(2)}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    $('#orderItemsDetail').html(itemsTable);
+                    
+                    // Update Timeline
+                    const timelineHtml = `
+                        <div class="timeline">
+                            ${result.timeline.map(event => `
+                                <div class="timeline-item status-${event.status.toLowerCase().replace(' ', '_')}">
+                                    <span class="time">
+                                        <i class="fas fa-clock"></i> 
+                                        ${new Date(event.created_at).toLocaleString()}
+                                    </span>
+                                    <div class="status">
+                                        <span class="badge ${getStatusBadgeClass(event.status)}">
+                                            ${event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                        </span>
+                                    </div>
+                                    ${event.notes ? `<div class="notes">${event.notes}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                    $('#orderTimelineDetail').html(timelineHtml);
+                } catch (error) {
+                    console.error('Error:', error);
+                    $('#orderInfoDetail').html(`
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i> 
+                            Error loading order details: ${error.message}
+                        </div>
+                    `);
+                    $('#paymentInfoDetail, #orderItemsDetail, #orderTimelineDetail').html('');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', error);
+                $('#orderInfoDetail').html(`
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle"></i> 
+                        Failed to load order details. Please try again.
+                    </div>
+                `);
+                $('#paymentInfoDetail, #orderItemsDetail, #orderTimelineDetail').html('');
+            }
+        });
+    });
+
+    // Ensure proper modal cleanup
+    $('#orderDetailsModal').on('hidden.bs.modal', function () {
+        $('#orderInfoDetail, #paymentInfoDetail, #orderItemsDetail, #orderTimelineDetail').html('');
+    });
+});
+
+// Helper functions for badges
+function getStatusBadgeClass(status) {
+    switch (status.toLowerCase()) {
+        case 'pending': return 'badge-warning';
+        case 'accepted': return 'badge-info';
+        case 'in_progress': return 'badge-primary';
+        case 'ready': return 'badge-success';
+        case 'completed': return 'badge-success';
+        case 'cancelled': return 'badge-secondary';
+        default: return 'badge-secondary';
+    }
+}
+
+function getPaymentMethodLabel(method) {
+    switch (method) {
+        case 'cash': return 'Cash Payment';
+        case 'credit': return 'Credit Account';
+        case 'khalti': return 'Khalti Payment';
+        case 'esewa': return 'eSewa Payment';
+        default: return 'Unknown';
+    }
+}
+
+function getPaymentStatusBadgeClass(status) {
+    switch (status) {
+        case 'paid': return 'bg-success';
+        case 'pending': return 'bg-warning';
+        case 'failed': return 'bg-danger';
+        default: return 'bg-secondary';
+    }
+}
+</script>
 
 <?php
 $content = ob_get_clean();

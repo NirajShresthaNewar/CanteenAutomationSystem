@@ -2,42 +2,75 @@
 // Get database connection if not already included
 require_once dirname(__FILE__) . '/../connection/db_connection.php';
 
-// Get worker ID from session
-$worker_id = 0;
-$assigned_orders_count = 0;
+// Get worker details
+$worker = null;
+$worker_position = null;
+try {
+    $stmt = $conn->prepare("
+        SELECT w.*, u.username 
+        FROM workers w
+        JOIN users u ON w.user_id = u.id 
+        WHERE w.user_id = ?
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $worker = $stmt->fetch(PDO::FETCH_ASSOC);
+    $worker_position = $worker['position'] ?? null;
+} catch (PDOException $e) {
+    error_log("Error fetching worker details: " . $e->getMessage());
+}
 
-if (isset($_SESSION['user_id'])) {
-    // Get worker ID
+// Get assigned orders count
+$assigned_orders_count = 0;
+if ($worker) {
     try {
-        $stmt = $conn->prepare("SELECT id FROM workers WHERE user_id = ?");
-        $stmt->execute([$_SESSION['user_id']]);
-        $worker = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($worker) {
-            $worker_id = $worker['id'];
-            
-            // Get assigned orders count
-            try {
-                $stmt = $conn->prepare("
-                    SELECT COUNT(*) as count
-                    FROM orders
-                    WHERE assigned_worker_id = ?
-                    AND status IN ('accepted', 'in_progress', 'ready')
-                ");
-                $stmt->execute([$worker_id]);
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                $assigned_orders_count = $result['count'];
-            } catch (PDOException $e) {
-                // Column assigned_worker_id might not exist or other error
-                $assigned_orders_count = 0;
-            }
-        }
+        $stmt = $conn->prepare("
+            SELECT COUNT(*) as count
+            FROM order_assignments oa
+            WHERE oa.worker_id = ?
+            AND oa.status != 'delivered'
+        ");
+        $stmt->execute([$worker['id']]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $assigned_orders_count = $result['count'];
     } catch (PDOException $e) {
-        // Table doesn't exist or other error
-        $worker_id = 0;
+        error_log("Error fetching assigned orders count: " . $e->getMessage());
+        $assigned_orders_count = 0;
     }
 }
 
-// Worker Sidebar
+// Get pending kitchen orders count if worker is kitchen staff
+$pending_kitchen_orders = 0;
+if ($worker && $worker_position === 'Kitchen_staff') {
+    try {
+        $stmt = $conn->prepare("
+            SELECT COUNT(*) as count
+            FROM orders o
+            LEFT JOIN (
+                SELECT ot1.*
+                FROM order_tracking ot1
+                INNER JOIN (
+                    SELECT order_id, MAX(status_changed_at) as max_date
+                    FROM order_tracking
+                    GROUP BY order_id
+                ) ot2 ON ot1.order_id = ot2.order_id AND ot1.status_changed_at = ot2.max_date
+            ) latest_tracking ON o.id = latest_tracking.order_id
+            WHERE COALESCE(latest_tracking.status, 'pending') IN ('pending', 'accepted', 'in_progress')
+            AND o.vendor_id IN (
+                SELECT vendor_id 
+                FROM worker_vendor_assignments 
+                WHERE worker_id = ?
+            )
+        ");
+        $stmt->execute([$worker['id']]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $pending_kitchen_orders = $result['count'];
+    } catch (PDOException $e) {
+        error_log("Error fetching pending kitchen orders: " . $e->getMessage());
+        $pending_kitchen_orders = 0;
+    }
+}
+
+// Start sidebar HTML
 echo '
 <!-- Dashboard -->
 <li class="nav-item">
@@ -45,55 +78,32 @@ echo '
         <i class="nav-icon fas fa-tachometer-alt"></i>
         <p>Dashboard</p>
     </a>
-</li>
+</li>';
 
-<!-- Orders -->
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['assigned_orders.php', 'order_history.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['assigned_orders.php', 'order_history.php']) ? 'active' : '') . '">
-        <i class="nav-icon fas fa-clipboard-list"></i>
+// Show kitchen orders section only for kitchen staff
+if ($worker_position === 'Kitchen_staff') {
+    echo '
+    <!-- Kitchen Orders -->
+    <li class="nav-item">
+        <a href="../worker/kitchen_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'kitchen_orders.php' ? 'active' : '') . '">
+            <i class="nav-icon fas fa-utensils"></i>
+            <p>
+                Kitchen Orders
+                ' . ($pending_kitchen_orders > 0 ? '<span class="badge badge-warning right">' . $pending_kitchen_orders . '</span>' : '') . '
+            </p>
+        </a>
+    </li>';
+}
+
+echo '
+<!-- Assigned Orders -->
+<li class="nav-item">
+    <a href="../worker/assigned_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'assigned_orders.php' ? 'active' : '') . '">
+        <i class="nav-icon fas fa-tasks"></i>
         <p>
-            Orders
-            <i class="fas fa-angle-left right"></i>
+            Assigned Orders
+            ' . ($assigned_orders_count > 0 ? '<span class="badge badge-info right">' . $assigned_orders_count . '</span>' : '') . '
         </p>
-    </a>
-    <ul class="nav nav-treeview">
-        <li class="nav-item">
-            <a href="../worker/assigned_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'assigned_orders.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-tasks"></i>
-                <p>Assigned Orders</p>
-                ' . ($assigned_orders_count > 0 ? '<span class="badge badge-info right">' . $assigned_orders_count . '</span>' : '') . '
-            </a>
-        </li>
-        <li class="nav-item">
-            <a href="../worker/order_history.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'order_history.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-history"></i>
-                <p>Order History</p>
-            </a>
-        </li>
-    </ul>
-</li>
-
-<!-- Schedule -->
-<li class="nav-item">
-    <a href="../worker/schedule.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'schedule.php' ? 'active' : '') . '">
-        <i class="nav-icon fas fa-calendar-alt"></i>
-        <p>My Schedule</p>
-    </a>
-</li>
-
-<!-- Performance -->
-<li class="nav-item">
-    <a href="../worker/performance.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'performance.php' ? 'active' : '') . '">
-        <i class="nav-icon fas fa-chart-bar"></i>
-        <p>My Performance</p>
-    </a>
-</li>
-
-<!-- Time Tracking -->
-<li class="nav-item">
-    <a href="../worker/timesheet.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'timesheet.php' ? 'active' : '') . '">
-        <i class="nav-icon fas fa-clock"></i>
-        <p>Time Tracking</p>
     </a>
 </li>
 

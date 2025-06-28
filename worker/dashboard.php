@@ -27,22 +27,34 @@ $active_tables = 0;
 $recent_deliveries = [];
 
 try {
-    // Get pending orders count
+    // Get pending orders count (orders that are ready for pickup/delivery)
     $stmt = $conn->prepare("
         SELECT COUNT(*) as count
         FROM orders o
+        LEFT JOIN order_tracking ot ON o.id = ot.order_id
         WHERE o.assigned_worker_id = ?
-        AND o.status = 'ready'
+        AND ot.id = (
+            SELECT MAX(id)
+            FROM order_tracking
+            WHERE order_id = o.id
+        )
+        AND ot.status = 'ready'
     ");
     $stmt->execute([$worker['id']]);
     $pending_orders = $stmt->fetchColumn();
 
-    // Get orders in delivery
+    // Get active deliveries count (orders that are being delivered)
     $stmt = $conn->prepare("
         SELECT COUNT(*) as count
         FROM orders o
+        LEFT JOIN order_tracking ot ON o.id = ot.order_id
         WHERE o.assigned_worker_id = ?
-        AND o.status = 'in_delivery'
+        AND ot.id = (
+            SELECT MAX(id)
+            FROM order_tracking
+            WHERE order_id = o.id
+        )
+        AND ot.status = 'in_progress'
     ");
     $stmt->execute([$worker['id']]);
     $active_deliveries = $stmt->fetchColumn();
@@ -51,9 +63,15 @@ try {
     $stmt = $conn->prepare("
         SELECT COUNT(*) as count
         FROM orders o
+        LEFT JOIN order_tracking ot ON o.id = ot.order_id
         WHERE o.assigned_worker_id = ?
-        AND o.status = 'completed'
-        AND DATE(o.updated_at) = CURRENT_DATE
+        AND ot.id = (
+            SELECT MAX(id)
+            FROM order_tracking
+            WHERE order_id = o.id
+        )
+        AND ot.status = 'completed'
+        AND DATE(ot.status_changed_at) = CURRENT_DATE
     ");
     $stmt->execute([$worker['id']]);
     $completed_today = $stmt->fetchColumn();
@@ -63,8 +81,14 @@ try {
         SELECT COUNT(DISTINCT odd.table_number) as count
         FROM orders o
         JOIN order_delivery_details odd ON o.id = odd.order_id
+        LEFT JOIN order_tracking ot ON o.id = ot.order_id
         WHERE o.assigned_worker_id = ?
-        AND o.status IN ('ready', 'in_delivery')
+        AND ot.id = (
+            SELECT MAX(id)
+            FROM order_tracking
+            WHERE order_id = o.id
+        )
+        AND ot.status IN ('ready', 'in_progress')
         AND odd.order_type = 'dine_in'
     ");
     $stmt->execute([$worker['id']]);
@@ -76,17 +100,24 @@ try {
             o.id,
             o.receipt_number,
             o.order_date,
-            o.updated_at as delivered_at,
-            v.name as vendor_name,
+            ot.status_changed_at as delivered_at,
+            u.username as vendor_name,
             odd.order_type,
             odd.delivery_location,
             odd.table_number
         FROM orders o
         JOIN vendors v ON o.vendor_id = v.id
+        JOIN users u ON v.user_id = u.id
         LEFT JOIN order_delivery_details odd ON o.id = odd.order_id
+        LEFT JOIN order_tracking ot ON o.id = ot.order_id
         WHERE o.assigned_worker_id = ?
-        AND o.status = 'completed'
-        ORDER BY o.updated_at DESC
+        AND ot.id = (
+            SELECT MAX(id)
+            FROM order_tracking
+            WHERE order_id = o.id
+        )
+        AND ot.status = 'completed'
+        ORDER BY ot.status_changed_at DESC
         LIMIT 5
     ");
     $stmt->execute([$worker['id']]);
@@ -257,39 +288,45 @@ ob_start();
                 </div>
             </div>
 
-            <!-- Performance Stats -->
+            <!-- Today's Performance -->
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Today's Performance</h3>
                     </div>
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h4 class="mb-0">Completed Orders</h4>
-                                <small class="text-muted">Total orders delivered today</small>
-                            </div>
-                            <div>
-                                <h3 class="text-success mb-0"><?php echo $completed_today; ?></h3>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                            <p class="text-success text-xl">
+                                <i class="fas fa-check-circle"></i>
+                            </p>
+                            <p class="d-flex flex-column text-right">
+                                <span class="font-weight-bold">
+                                    <?php echo $completed_today; ?>
+                                </span>
+                                <span>Completed Orders</span>
+                            </p>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div>
-                                <h4 class="mb-0">Pending Orders</h4>
-                                <small class="text-muted">Orders waiting for pickup</small>
-                            </div>
-                            <div>
-                                <h3 class="text-warning mb-0"><?php echo $pending_orders; ?></h3>
-                            </div>
+                        <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
+                            <p class="text-warning text-xl">
+                                <i class="fas fa-clock"></i>
+                            </p>
+                            <p class="d-flex flex-column text-right">
+                                <span class="font-weight-bold">
+                                    <?php echo $pending_orders; ?>
+                                </span>
+                                <span>Pending Orders</span>
+                            </p>
                         </div>
                         <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4 class="mb-0">Active Tables</h4>
-                                <small class="text-muted">Tables currently being served</small>
-                            </div>
-                            <div>
-                                <h3 class="text-danger mb-0"><?php echo $active_tables; ?></h3>
-                            </div>
+                            <p class="text-danger text-xl">
+                                <i class="fas fa-utensils"></i>
+                            </p>
+                            <p class="d-flex flex-column text-right">
+                                <span class="font-weight-bold">
+                                    <?php echo $active_tables; ?>
+                                </span>
+                                <span>Active Tables</span>
+                            </p>
                         </div>
                     </div>
                 </div>

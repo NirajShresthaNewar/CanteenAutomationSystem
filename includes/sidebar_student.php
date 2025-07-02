@@ -112,12 +112,12 @@ echo '
         </p>
     </a>
     <ul class="nav nav-treeview">
-        <li class="nav-item">
+      <!--  <li class="nav-item">
             <a href="../student/vendors.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'vendors.php' ? 'active' : '') . '">
                 <i class="nav-icon fas fa-store-alt"></i>
                 <p>Browse Vendors</p>
             </a>
-        </li>
+        </li> -->
         <li class="nav-item">
             <a href="../student/menu.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu.php' ? 'active' : '') . '">
                 <i class="nav-icon fas fa-clipboard-list"></i>

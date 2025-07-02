@@ -13,7 +13,9 @@ $stmt = $conn->prepare("
     SELECT 
         ci.*, mi.name as item_name, mi.price,
         v.id as vendor_id, u.username as vendor_name,
-        ss.id as staff_id
+        ss.id as staff_id,
+        ca.credit_limit, ca.current_balance,
+        ca.status as credit_status
     FROM cart_items ci
     JOIN menu_items mi ON ci.menu_item_id = mi.item_id
     JOIN vendors v ON mi.vendor_id = v.id
@@ -22,6 +24,11 @@ $stmt = $conn->prepare("
         ss.school_id = v.school_id AND 
         ss.user_id = ? AND 
         ss.role = 'staff'
+    )
+    LEFT JOIN credit_accounts ca ON (
+        ca.user_id = ci.user_id AND 
+        ca.vendor_id = v.id AND 
+        ca.status = 'active'
     )
     WHERE ci.user_id = ?
     ORDER BY v.id, mi.name
@@ -37,7 +44,10 @@ foreach ($cart_items as $item) {
             'name' => $item['vendor_name'],
             'items' => [],
             'total' => 0,
-            'staff_id' => $item['staff_id']
+            'staff_id' => $item['staff_id'],
+            'credit_limit' => $item['credit_limit'],
+            'current_balance' => $item['current_balance'],
+            'credit_status' => $item['credit_status']
         ];
     }
     $vendors[$item['vendor_id']]['items'][] = $item;
@@ -161,6 +171,12 @@ ob_start();
                                         <label for="payment_method">Payment Method</label>
                                         <select name="payment_method" class="form-control" required>
                                             <option value="">Select Payment Method</option>
+                                            <?php if ($vendor['credit_status'] === 'active' && 
+                                                     ($vendor['credit_limit'] - $vendor['current_balance']) >= $vendor['total']): ?>
+                                                <option value="credit">Credit (Available: Rs. <?php 
+                                                    echo number_format($vendor['credit_limit'] - $vendor['current_balance'], 2); 
+                                                ?>)</option>
+                                            <?php endif; ?>
                                             <option value="khalti">Khalti</option>
                                             <option value="cash">Cash</option>
                                         </select>

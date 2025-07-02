@@ -34,6 +34,39 @@ $additionalScripts = '';
     <!-- Additional page-specific styles -->
     <?php if (!empty($additionalStyles)) echo $additionalStyles; ?>
 
+    <style>
+        /* Kitchen Orders specific styles */
+        .order-card {
+            transition: all 0.3s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .badge {
+            font-size: 0.9em;
+            padding: 0.5em 0.8em;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .btn-group-sm > .btn, .btn-sm {
+            padding: 0.25rem 0.5rem;
+            margin: 0.1rem;
+        }
+        .order-time {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        .order-items {
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        .modal-lg {
+            max-width: 800px;
+        }
+    </style>
+
     <!-- Core Scripts - Load jQuery first -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Add SweetAlert2 JS -->

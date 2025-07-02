@@ -540,16 +540,8 @@ function initiateKhaltiPayment(amount, vendorId, orderType, formData) {
         });
     });
 }
-</script>
 
-<?php
-// Get the buffered content
-$content = ob_get_clean();
-
-// Add page-specific scripts
-$additionalScripts = '
-<script>
-    $(document).ready(function() {
+$(document).ready(function() {
         // Update quantity
         $(".quantity-btn").click(function() {
             const input = $(this).closest(".input-group").find(".quantity-input");
@@ -623,7 +615,14 @@ $additionalScripts = '
             });
         });
     });
-</script>';
+
+</script>
+
+<?php
+// Get the buffered content
+$content = ob_get_clean();
+
+
 
 // Include the layout template
 require_once '../includes/layout.php';

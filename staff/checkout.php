@@ -45,6 +45,27 @@ try {
     $total_amount = $cart_data['total_amount'];
     $staff_id = $cart_data['staff_id'];
 
+    // Before creating the order, check credit availability if using credit payment
+    if ($payment_method === 'credit') {
+        // Verify credit account exists and has sufficient balance
+        $stmt = $conn->prepare("
+            SELECT credit_limit, current_balance, status
+            FROM credit_accounts
+            WHERE user_id = ? AND vendor_id = ? AND status = 'active'
+        ");
+        $stmt->execute([$_SESSION['user_id'], $vendor_id]);
+        $credit_account = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$credit_account) {
+            throw new Exception("No active credit account found.");
+        }
+
+        $available_credit = $credit_account['credit_limit'] - $credit_account['current_balance'];
+        if ($available_credit < $total_amount) {
+            throw new Exception("Insufficient credit balance. Available: Rs. " . number_format($available_credit, 2));
+        }
+    }
+
     // Start transaction
     $conn->beginTransaction();
 
@@ -151,13 +172,28 @@ try {
     // Commit transaction
     $conn->commit();
 
-    // Clear cart data for this vendor
+    // After successful order creation and payment processing
+    
+    // Clear cart items from database
+    $stmt = $conn->prepare("
+        DELETE FROM cart_items 
+        WHERE user_id = ? AND menu_item_id IN (
+            SELECT item_id FROM menu_items WHERE vendor_id = ?
+        )
+    ");
+    $stmt->execute([$_SESSION['user_id'], $vendor_id]);
+
+    // Clear cart data for this vendor from session
     unset($_SESSION['cart_data'][$vendor_id]);
 
     // Redirect based on payment method
     switch ($payment_method) {
         case 'khalti':
             header("Location: khalti_payment.php?order_id=" . $order_id);
+            break;
+        case 'credit':
+            $_SESSION['success'] = "Order placed successfully using credit account.";
+            header("Location: active_orders.php");
             break;
         case 'cash':
             header("Location: cash_payment.php?order_id=" . $order_id);

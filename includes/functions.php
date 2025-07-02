@@ -102,4 +102,23 @@ function getServerIP() {
     }
 
     return array_values(array_unique($ip_addresses));
+}
+
+function getStatusBadgeClass($status) {
+    switch (strtolower($status)) {
+        case 'pending':
+            return 'warning';
+        case 'accepted':
+            return 'info';
+        case 'in_progress':
+            return 'primary';
+        case 'ready':
+            return 'success';
+        case 'completed':
+            return 'secondary';
+        case 'cancelled':
+            return 'danger';
+        default:
+            return 'secondary';
+    }
 } 

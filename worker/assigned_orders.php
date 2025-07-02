@@ -64,7 +64,8 @@ try {
         JOIN vendors v ON o.vendor_id = v.id
         JOIN users vu ON v.user_id = vu.id
         LEFT JOIN order_delivery_details odd ON o.id = odd.order_id
-        WHERE latest_assignment.status != 'delivered'
+        WHERE latest_assignment.status != 'delivered' 
+        AND COALESCE(latest_tracking.status, 'pending') NOT IN ('completed', 'cancelled')
         ORDER BY latest_assignment.assigned_at DESC, latest_assignment.id DESC
     ");
     $stmt->execute([$worker['id'], $worker['id']]);

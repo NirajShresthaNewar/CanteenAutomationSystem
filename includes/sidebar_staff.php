@@ -158,6 +158,31 @@ echo '
     </a>
 </li>
 
+<!-- Credit Management -->
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-credit-card"></i>
+        <p>
+            Credit Management
+            <i class="fas fa-angle-left right"></i>
+        </p>
+    </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="../staff/request_credit.php" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Request Credit</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../staff/view_credit_requests.php" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>My Credit Requests</p>
+            </a>
+        </li>
+    </ul>
+</li>
+
 <!-- Logout -->
 <li class="nav-item">
     <a href="../auth/logout.php" class="nav-link">

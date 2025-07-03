@@ -306,9 +306,9 @@ ob_start();
                     <div class="menu-item-content">
                         <h3 class="menu-item-title"><?php echo htmlspecialchars($item['name']); ?></h3>
                         <p class="menu-item-description"><?php echo htmlspecialchars($item['description']); ?></p>
-                        <?php if ($item['is_vegetarian']): ?>
-                            <span class="dietary-badge">Vegetarian</span>
-                        <?php endif; ?>
+                            <?php if ($item['is_vegetarian']): ?>
+                                <span class="dietary-badge">Vegetarian</span>
+                            <?php endif; ?>
                         <div class="menu-item-price">Rs. <?php echo number_format($item['price'], 2); ?></div>
                         <button class="add-to-cart-btn" onclick="addToCart(<?php echo $item['item_id']; ?>, <?php echo $selected_vendor_id; ?>, '<?php echo addslashes($item['name']); ?>')">
                             Add to Cart

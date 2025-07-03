@@ -1,187 +1,130 @@
 <?php
 session_start();
 require_once '../connection/db_connection.php';
+require_once '../includes/functions.php';
 
 // Check if user is logged in and is a vendor
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'vendor') {
-    header('Location: ../index.php');
+    header('Location: ../auth/login.php');
     exit();
 }
 
-// Get vendor ID
-$stmt = $conn->prepare("SELECT id FROM vendors WHERE user_id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$vendor = $stmt->fetch(PDO::FETCH_ASSOC);
-$vendor_id = $vendor['id'];
+$vendor_id = get_vendor_id($conn, $_SESSION['user_id']);
 
-// Handle form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) {
-        try {
-            $conn->beginTransaction();
-            
-            if ($_POST['action'] === 'add_credit') {
-                // Add new credit account
-                $user_id = $_POST['user_id'];
-                $credit_limit = $_POST['credit_limit'];
-                
-                // Check if account already exists
-                $stmt = $conn->prepare("SELECT id FROM credit_accounts WHERE user_id = ? AND vendor_id = ?");
-                $stmt->execute([$user_id, $vendor_id]);
-                
-                if ($stmt->fetch()) {
-                    $_SESSION['error'] = "Credit account already exists for this student";
-                } else {
-                    // Create new credit account
-                    $stmt = $conn->prepare("
-                        INSERT INTO credit_accounts 
-                        (user_id, vendor_id, credit_limit, current_balance, status, created_at) 
-                        VALUES (?, ?, ?, 0.00, 'active', NOW())
-                    ");
-                    $stmt->execute([$user_id, $vendor_id, $credit_limit]);
-                    
-                    // Add notification for student
-                    $stmt = $conn->prepare("
-                        INSERT INTO notifications (user_id, message, status, created_at)
-                        VALUES (?, ?, 'unread', NOW())
-                    ");
-                    $message = "You have been approved for credit with a limit of ₹" . number_format($credit_limit, 2);
-                    $stmt->execute([$user_id, $message]);
-                    
-                    $_SESSION['success'] = "Credit account created successfully";
-                }
-            } elseif ($_POST['action'] === 'update_credit') {
-                // Update credit account
-                $account_id = $_POST['account_id'];
-                $credit_limit = $_POST['credit_limit'];
-                $status = $_POST['status'];
-                
-                // First check if account belongs to this vendor
-                $stmt = $conn->prepare("SELECT user_id FROM credit_accounts WHERE id = ? AND vendor_id = ?");
-                $stmt->execute([$account_id, $vendor_id]);
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($result) {
-                    // Update account
-                    $stmt = $conn->prepare("
-                        UPDATE credit_accounts 
-                        SET credit_limit = ?, status = ?
-                        WHERE id = ?
-                    ");
-                    $stmt->execute([$credit_limit, $status, $account_id]);
-                    
-                    // Add notification for student
-                    $stmt = $conn->prepare("
-                        INSERT INTO notifications (user_id, message, status, created_at)
-                        VALUES (?, ?, 'unread', NOW())
-                    ");
-                    $message = "Your credit account has been updated. New limit: ₹" . number_format($credit_limit, 2) . ". Status: " . ucfirst($status);
-                    $stmt->execute([$result['user_id'], $message]);
-                    
-                    $_SESSION['success'] = "Credit account updated successfully";
-                } else {
-                    $_SESSION['error'] = "Invalid credit account";
-                }
-            } elseif ($_POST['action'] === 'block_account') {
-                // Block credit account
-                $account_id = $_POST['account_id'];
-                
-                // First check if account belongs to this vendor
-                $stmt = $conn->prepare("SELECT user_id FROM credit_accounts WHERE id = ? AND vendor_id = ?");
-                $stmt->execute([$account_id, $vendor_id]);
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($result) {
-                    // Block account
-                    $stmt = $conn->prepare("
-                        UPDATE credit_accounts 
-                        SET status = 'blocked'
-                        WHERE id = ?
-                    ");
-                    $stmt->execute([$account_id]);
-                    
-                    // Add notification for student
-                    $stmt = $conn->prepare("
-                        INSERT INTO notifications (user_id, message, status, created_at)
-                        VALUES (?, ?, 'unread', NOW())
-                    ");
-                    $message = "Your credit account has been blocked. Please contact the vendor for more information.";
-                    $stmt->execute([$result['user_id'], $message]);
-                    
-                    $_SESSION['success'] = "Credit account blocked successfully";
-                } else {
-                    $_SESSION['error'] = "Invalid credit account";
-                }
-            } elseif ($_POST['action'] === 'activate_account') {
-                // Activate credit account
-                $account_id = $_POST['account_id'];
-                
-                // First check if account belongs to this vendor
-                $stmt = $conn->prepare("SELECT user_id FROM credit_accounts WHERE id = ? AND vendor_id = ?");
-                $stmt->execute([$account_id, $vendor_id]);
-                $result = $stmt->fetch(PDO::FETCH_ASSOC);
-                
-                if ($result) {
-                    // Activate account
-                    $stmt = $conn->prepare("
-                        UPDATE credit_accounts 
-                        SET status = 'active'
-                        WHERE id = ?
-                    ");
-                    $stmt->execute([$account_id]);
-                    
-                    // Add notification for student
-                    $stmt = $conn->prepare("
-                        INSERT INTO notifications (user_id, message, status, created_at)
-                        VALUES (?, ?, 'unread', NOW())
-                    ");
-                    $message = "Your credit account has been activated.";
-                    $stmt->execute([$result['user_id'], $message]);
-                    
-                    $_SESSION['success'] = "Credit account activated successfully";
-                } else {
-                    $_SESSION['error'] = "Invalid credit account";
-                }
-            }
-            
-            $conn->commit();
-        } catch (Exception $e) {
-            $conn->rollBack();
-            $_SESSION['error'] = "Error: " . $e->getMessage();
-        }
-    }
-}
-
-// Fetch all credit accounts for this vendor
+// Get all credit accounts with user details
 $stmt = $conn->prepare("
-    SELECT 
-        ca.*,
-        u.username as vendor_name
+    SELECT ca.*, u.username, u.email, u.contact_number, u.role as user_type
     FROM credit_accounts ca
-    JOIN vendors v ON ca.vendor_id = v.id
-    JOIN users u ON v.user_id = u.id
+    JOIN users u ON ca.user_id = u.id
     WHERE ca.vendor_id = ?
     ORDER BY ca.created_at DESC
 ");
 $stmt->execute([$vendor_id]);
 $credit_accounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Get students who don't have credit accounts yet
+// Get eligible users (both students and staff without credit accounts)
 $stmt = $conn->prepare("
-    SELECT u.id, u.username, u.email, u.contact_number 
+    SELECT u.id, u.username, u.email, u.role
     FROM users u
-    JOIN staff_students ss ON u.id = ss.user_id
-    WHERE ss.school_id = (SELECT school_id FROM vendors WHERE id = ?)
-    AND ss.role = 'student'
-    AND ss.approval_status = 'approved'
-    AND u.id NOT IN (
-        SELECT user_id FROM credit_accounts WHERE vendor_id = ?
-    )
+    LEFT JOIN credit_accounts ca ON u.id = ca.user_id AND ca.vendor_id = ?
+    WHERE (u.role = 'student' OR u.role = 'staff')
+    AND ca.id IS NULL
+    ORDER BY u.username
 ");
-$stmt->execute([$vendor_id, $vendor_id]);
-$eligible_students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt->execute([$vendor_id]);
+$eligible_users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$page_title = 'Credit Accounts Management';
+// Handle form submissions
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['action'])) {
+        try {
+            switch ($_POST['action']) {
+                case 'update_credit':
+                    // Update credit account
+                    $stmt = $conn->prepare("
+                        UPDATE credit_accounts 
+                        SET credit_limit = ?, 
+                            status = ?,
+                            updated_at = NOW()
+                        WHERE id = ? AND vendor_id = ?
+                    ");
+                    $stmt->execute([
+                        $_POST['credit_limit'],
+                        $_POST['status'],
+                        $_POST['account_id'],
+                        $vendor_id
+                    ]);
+                    
+                    header("Location: credit_accounts.php?success=Account updated successfully");
+                    exit();
+                    break;
+
+                case 'block_account':
+                    // Block credit account
+                    $stmt = $conn->prepare("
+                        UPDATE credit_accounts 
+                        SET status = 'blocked', 
+                            updated_at = NOW()
+                        WHERE id = ? AND vendor_id = ?
+                    ");
+                    $stmt->execute([$_POST['account_id'], $vendor_id]);
+                    
+                    header("Location: credit_accounts.php?success=Account blocked successfully");
+                    exit();
+                    break;
+
+                case 'activate_account':
+                    // Activate credit account
+                    $stmt = $conn->prepare("
+                        UPDATE credit_accounts 
+                        SET status = 'active', 
+                            updated_at = NOW()
+                        WHERE id = ? AND vendor_id = ?
+                    ");
+                    $stmt->execute([$_POST['account_id'], $vendor_id]);
+                    
+                    header("Location: credit_accounts.php?success=Account activated successfully");
+                    exit();
+                    break;
+
+                case 'delete_account':
+                    // Check if account has zero balance
+                    $stmt = $conn->prepare("
+                        SELECT current_balance 
+                        FROM credit_accounts 
+                        WHERE id = ? AND vendor_id = ?
+                    ");
+                    $stmt->execute([$_POST['account_id'], $vendor_id]);
+                    $account = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                    if (!$account) {
+                        throw new Exception("Account not found");
+                    }
+
+                    if ($account['current_balance'] != 0) {
+                        throw new Exception("Cannot delete account with non-zero balance");
+                    }
+
+                    // Delete the account
+                    $stmt = $conn->prepare("
+                        DELETE FROM credit_accounts 
+                        WHERE id = ? AND vendor_id = ? 
+                        AND current_balance = 0
+                    ");
+                    $stmt->execute([$_POST['account_id'], $vendor_id]);
+                    
+                    header("Location: credit_accounts.php?success=Account deleted successfully");
+                    exit();
+                    break;
+            }
+        } catch (Exception $e) {
+            header("Location: credit_accounts.php?error=" . urlencode($e->getMessage()));
+            exit();
+        }
+    }
+}
+
+// Start output buffering
 ob_start();
 ?>
 
@@ -226,13 +169,6 @@ ob_start();
                 ?>
             </div>
         <?php endif; ?>
-        
-        <!-- Add New Credit Account Button -->
-        <div class="mb-3">
-            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCreditModal">
-                <i class="fas fa-plus"></i> Add New Credit Account
-            </button>
-        </div>
         
         <!-- Credit Accounts Overview -->
         <div class="row">
@@ -315,9 +251,11 @@ ob_start();
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Student</th>
+                            <th>User Details</th>
+                            <th>Type</th>
                             <th>Credit Limit</th>
-                            <th>Current Balance</th>
+                            <th>Current Balance (Owed)</th>
+                            <th>Available Credit</th>
                             <th>Status</th>
                             <th>Created</th>
                             <th>Actions</th>
@@ -335,10 +273,16 @@ ob_start();
                                     <td>
                                         <strong><?php echo htmlspecialchars($account['username']); ?></strong><br>
                                         <small><?php echo htmlspecialchars($account['email']); ?></small><br>
-                                        <small><?php echo htmlspecialchars($account['contact_number']); ?></small>
+                                        <small><?php echo htmlspecialchars($account['contact_number'] ?? 'N/A'); ?></small>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            <?php echo ucfirst($account['user_type']); ?>
+                                        </span>
                                     </td>
                                     <td>₹<?php echo number_format($account['credit_limit'], 2); ?></td>
                                     <td>₹<?php echo number_format($account['current_balance'], 2); ?></td>
+                                    <td>₹<?php echo number_format($account['credit_limit'] - $account['current_balance'], 2); ?></td>
                                     <td>
                                         <?php if ($account['status'] === 'active'): ?>
                                             <span class="badge badge-success">Active</span>
@@ -361,6 +305,14 @@ ob_start();
                                                     <i class="fas fa-check"></i> Activate
                                                 </button>
                                             <?php endif; ?>
+                                            <button type="button" class="btn btn-danger btn-sm delete-account" 
+                                                    data-toggle="modal" 
+                                                    data-target="#deleteAccountModal" 
+                                                    data-account-id="<?php echo $account['id']; ?>"
+                                                    <?php echo $account['current_balance'] != 0 ? 'disabled' : ''; ?>
+                                                    title="<?php echo $account['current_balance'] != 0 ? 'Cannot delete account with balance' : 'Delete account'; ?>">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
                                             <a href="credit_transactions.php?user_id=<?php echo $account['user_id']; ?>" class="btn btn-primary btn-sm">
                                                 <i class="fas fa-list"></i> Transactions
                                             </a>
@@ -372,45 +324,6 @@ ob_start();
                     </tbody>
                 </table>
             </div>
-        </div>
-    </div>
-</div>
-
-<!-- Add Credit Account Modal -->
-<div class="modal fade" id="addCreditModal" tabindex="-1" role="dialog" aria-labelledby="addCreditModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <form method="POST">
-                <input type="hidden" name="action" value="add_credit">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addCreditModalLabel">Add New Credit Account</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="user_id">Select Student</label>
-                        <select class="form-control" id="user_id" name="user_id" required>
-                            <option value="">Select Student</option>
-                            <?php foreach ($eligible_students as $student): ?>
-                                <option value="<?php echo $student['id']; ?>">
-                                    <?php echo htmlspecialchars($student['username'] . ' (' . $student['email'] . ')'); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="credit_limit">Credit Limit (₹)</label>
-                        <input type="number" class="form-control" id="credit_limit" name="credit_limit" min="100" step="100" value="1000" required>
-                        <small class="form-text text-muted">Set the maximum amount the student can borrow</small>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Account</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -430,8 +343,8 @@ ob_start();
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Student</label>
-                        <p id="edit_student_name" class="form-control-static"></p>
+                        <label>User</label>
+                        <p id="edit_user_name" class="form-control-static"></p>
                     </div>
                     <div class="form-group">
                         <label for="edit_credit_limit">Credit Limit (₹)</label>
@@ -472,7 +385,7 @@ ob_start();
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to block this credit account? The student will not be able to make purchases on credit until the account is reactivated.</p>
+                    <p>Are you sure you want to block this credit account? The user will not be able to make purchases on credit until the account is reactivated.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -497,7 +410,7 @@ ob_start();
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to activate this credit account? The student will be able to make purchases on credit.</p>
+                    <p>Are you sure you want to activate this credit account? The user will be able to make purchases on credit.</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -508,10 +421,32 @@ ob_start();
     </div>
 </div>
 
-<?php
-$content = ob_get_clean();
+<!-- Add Delete Account Modal -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" role="dialog" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="POST">
+                <input type="hidden" name="action" value="delete_account">
+                <input type="hidden" name="account_id" id="delete_account_id">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteAccountModalLabel">Delete Credit Account</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this credit account? This action cannot be undone.</p>
+                    <p class="text-danger">Note: You can only delete accounts with zero balance.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-$additionalScripts = '
 <script>
 $(document).ready(function() {
     // Search functionality
@@ -526,7 +461,7 @@ $(document).ready(function() {
     $(".edit-account").click(function() {
         var account = $(this).data("account");
         $("#edit_account_id").val(account.id);
-        $("#edit_student_name").text(account.username + " (" + account.email + ")");
+        $("#edit_user_name").text(account.username + " (" + account.user_type + " - " + account.email + ")");
         $("#edit_credit_limit").val(account.credit_limit);
         $("#edit_current_balance").text("₹" + parseFloat(account.current_balance).toFixed(2));
         $("#edit_status").val(account.status);
@@ -534,18 +469,22 @@ $(document).ready(function() {
     
     // Block account modal
     $(".block-account").click(function() {
-        var accountId = $(this).data("account-id");
-        $("#block_account_id").val(accountId);
+        $("#block_account_id").val($(this).data("account-id"));
     });
     
     // Activate account modal
     $(".activate-account").click(function() {
-        var accountId = $(this).data("account-id");
-        $("#activate_account_id").val(accountId);
+        $("#activate_account_id").val($(this).data("account-id"));
+    });
+
+    // Delete account modal
+    $(".delete-account").click(function() {
+        $("#delete_account_id").val($(this).data("account-id"));
     });
 });
 </script>
-';
 
-require_once '../includes/layout.php';
+<?php
+$content = ob_get_clean();
+include '../includes/layout.php';
 ?> 

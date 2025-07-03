@@ -169,6 +169,10 @@ $sql = "
         odd.order_type, odd.delivery_location, odd.building_name,
         odd.floor_number, odd.room_number, odd.contact_number,
         odd.table_number,
+        CASE 
+            WHEN o.payment_method = 'credit' OR ct.transaction_type = 'purchase' THEN 'credit'
+            ELSE o.payment_method 
+        END as payment_method,
         GROUP_CONCAT(DISTINCT CONCAT(oi.quantity, 'x ', mi.name) SEPARATOR ', ') as items
     FROM orders o
     JOIN vendors v ON o.vendor_id = v.id
@@ -176,6 +180,7 @@ $sql = "
     LEFT JOIN order_delivery_details odd ON o.id = odd.order_id
     LEFT JOIN order_items oi ON o.id = oi.order_id
     LEFT JOIN menu_items mi ON oi.menu_item_id = mi.item_id
+    LEFT JOIN credit_transactions ct ON o.id = ct.order_id
     LEFT JOIN (
         SELECT order_id, status
         FROM order_tracking
@@ -534,21 +539,12 @@ ob_start();
                                                     <i class="fas fa-eye"></i>
                                                 </button>
                                                 <?php if ($order['current_status'] === 'pending'): ?>
-                                                    <form action="update_order_status.php" method="POST" class="d-inline">
-                                                        <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
-                                                        <input type="hidden" name="status" value="accepted">
-                                                        <button type="button" class="btn btn-success btn-sm" onclick="showPrepTimeDialog(this.form)">
-                                                            <i class="fas fa-check"></i> Accept
-                                                        </button>
-                                                    </form>
-                                                    
-                                                    <form action="update_order_status.php" method="POST" class="d-inline">
-                                                        <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
-                                                        <input type="hidden" name="status" value="rejected">
-                                                        <button type="button" class="btn btn-danger btn-sm" onclick="showCancelDialog(this.form, 'reject')">
-                                                            <i class="fas fa-times"></i> Reject
-                                                        </button>
-                                                    </form>
+                                                    <button type="button" class="btn btn-success" onclick="acceptOrder('<?php echo $order['id']; ?>')">
+                                                        <i class="fas fa-check"></i> Accept
+                                                    </button>
+                                                    <button type="button" class="btn btn-danger" onclick="rejectOrder('<?php echo $order['id']; ?>')">
+                                                        <i class="fas fa-times"></i> Reject
+                                                    </button>
                                                 <?php elseif ($order['current_status'] === 'accepted'): ?>
                                                     <button type="button" class="btn btn-info btn-sm" onclick="handleAssignWorker(<?php echo $order['id']; ?>)">
                                                         <i class="fas fa-user-plus"></i> Assign Worker
@@ -812,33 +808,41 @@ function getStatusBadgeClass(status) {
     }
 }
 
-function getPaymentBadgeClass(payment_method) {
-    switch (payment_method) {
+function getPaymentBadgeClass($payment_method) {
+    switch($payment_method) {
         case 'cash':
-            return 'bg-success text-white';
+            return 'bg-success';
+        case 'card':
+            return 'bg-info';
         case 'khalti':
-            return 'bg-purple text-white';
-        case 'credit':
-            return 'bg-info text-white';
+            return 'bg-purple';
         case 'esewa':
-            return 'bg-primary text-white';
+            return 'bg-warning';
+        case 'online':
+            return 'bg-primary';
+        case 'credit':
+            return 'bg-danger';
         default:
-            return 'bg-secondary text-white';
+            return 'bg-secondary';
     }
 }
 
-function getPaymentMethodName(payment_method) {
-    switch (payment_method) {
+function getPaymentMethodName($payment_method) {
+    switch($payment_method) {
         case 'cash':
             return 'Cash';
+        case 'card':
+            return 'Card';
         case 'khalti':
             return 'Khalti';
-        case 'credit':
-            return 'Credit';
         case 'esewa':
             return 'eSewa';
+        case 'online':
+            return 'Online';
+        case 'credit':
+            return 'Credit';
         default:
-            return payment_method;
+            return 'Unknown';
     }
 }
 
@@ -1117,6 +1121,69 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelector('#date-filter').value = urlParams.get('date');
     }
 });
+
+// View order details
+function viewOrder(orderId) {
+    window.location.href = 'view_order.php?id=' + orderId;
+}
+
+// Accept order
+function acceptOrder(orderId) {
+    if (confirm('Are you sure you want to accept this order?')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'update_order_status.php';
+        
+        const orderIdInput = document.createElement('input');
+        orderIdInput.type = 'hidden';
+        orderIdInput.name = 'order_id';
+        orderIdInput.value = orderId;
+        
+        const statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status';
+        statusInput.value = 'accepted';
+        
+        form.appendChild(orderIdInput);
+        form.appendChild(statusInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Reject order
+function rejectOrder(orderId) {
+    if (confirm('Are you sure you want to reject this order? This action cannot be undone.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = 'update_order_status.php';
+        
+        const orderIdInput = document.createElement('input');
+        orderIdInput.type = 'hidden';
+        orderIdInput.name = 'order_id';
+        orderIdInput.value = orderId;
+        
+        const statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status';
+        statusInput.value = 'rejected';
+        
+        form.appendChild(orderIdInput);
+        form.appendChild(statusInput);
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// Update the action buttons HTML
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers to all view buttons
+    document.querySelectorAll('.view-order').forEach(button => {
+        button.onclick = function() {
+            viewOrder(this.dataset.orderId);
+        }
+    });
+});
 </script>
 
 <?php
@@ -1145,26 +1212,42 @@ function getOrderTypeBadgeClass($type) {
 
 // Helper function for payment badge classes
 function getPaymentBadgeClass($payment_method) {
-    return match($payment_method) {
-        'cash' => 'bg-success',
-        'card' => 'bg-info',
-        'khalti' => 'bg-purple',
-        'esewa' => 'bg-warning',
-        'online' => 'bg-primary',
-        default => 'bg-secondary'
-    };
+    switch($payment_method) {
+        case 'cash':
+            return 'bg-success';
+        case 'card':
+            return 'bg-info';
+        case 'khalti':
+            return 'bg-purple';
+        case 'esewa':
+            return 'bg-warning';
+        case 'online':
+            return 'bg-primary';
+        case 'credit':
+            return 'bg-danger';
+        default:
+            return 'bg-secondary';
+    }
 }
 
 // Helper function to get payment method name
 function getPaymentMethodName($payment_method) {
-    return match($payment_method) {
-        'cash' => 'Cash',
-        'card' => 'Card',
-        'khalti' => 'Khalti',
-        'esewa' => 'eSewa',
-        'online' => 'Online',
-        default => 'Unknown'
-    };
+    switch($payment_method) {
+        case 'cash':
+            return 'Cash';
+        case 'card':
+            return 'Card';
+        case 'khalti':
+            return 'Khalti';
+        case 'esewa':
+            return 'eSewa';
+        case 'online':
+            return 'Online';
+        case 'credit':
+            return 'Credit';
+        default:
+            return 'Unknown';
+    }
 }
 
 $content = ob_get_clean();

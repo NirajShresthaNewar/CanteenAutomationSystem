@@ -20,49 +20,84 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['record_payment'])) {
         $conn->beginTransaction();
         
         $user_id = $_POST['user_id'];
-        $amount = $_POST['amount'];
+        $amount = floatval($_POST['amount']);
         $payment_method = $_POST['payment_method'];
         
-        // Verify this user has a credit account with this vendor
-        $stmt = $conn->prepare("SELECT id, current_balance FROM credit_accounts WHERE user_id = ? AND vendor_id = ?");
+        // Get current balance
+        $stmt = $conn->prepare("SELECT current_balance FROM credit_accounts WHERE user_id = ? AND vendor_id = ?");
         $stmt->execute([$user_id, $vendor_id]);
         $account = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if (!$account) {
-            throw new Exception("No credit account found for this user");
+            throw new Exception("Credit account not found.");
         }
+        
+        $current_balance = floatval($account['current_balance']);
+
+        // Validate payment amount
+        if ($amount <= 0) {
+            throw new Exception("Payment amount must be greater than 0.");
+        }
+        
+        if ($amount > $current_balance) {
+            $_SESSION['payment_error'] = [
+                'message' => "Payment amount (₹{$amount}) cannot exceed current balance (₹{$current_balance})",
+                'user_id' => $user_id,
+                'amount' => $amount
+            ];
+            header("Location: credit_transactions.php?user_id={$user_id}");
+            exit();
+        }
+
+        // Update credit account balance
+        $stmt = $conn->prepare("
+            UPDATE credit_accounts 
+            SET current_balance = current_balance - ?, 
+                updated_at = NOW() 
+            WHERE user_id = ? AND vendor_id = ?
+        ");
+        $stmt->execute([$amount, $user_id, $vendor_id]);
         
         // Record the transaction
         $stmt = $conn->prepare("
-            INSERT INTO credit_transactions (user_id, vendor_id, order_id, amount, transaction_type, payment_method, created_at) 
-            VALUES (?, ?, NULL, ?, 'repayment', ?, NOW())
+            INSERT INTO credit_transactions (
+                user_id, 
+                vendor_id, 
+                amount, 
+                transaction_type, 
+                payment_method, 
+                created_at
+            ) VALUES (?, ?, ?, 'repayment', ?, NOW())
         ");
         $stmt->execute([$user_id, $vendor_id, $amount, $payment_method]);
         
-        // Update the credit account balance
-        $new_balance = max(0, $account['current_balance'] - $amount);
-        $stmt = $conn->prepare("
-            UPDATE credit_accounts 
-            SET current_balance = ?
-            WHERE id = ?
-        ");
-        $stmt->execute([$new_balance, $account['id']]);
-        
-        // Add notification for student
-        $stmt = $conn->prepare("
-            INSERT INTO notifications (user_id, message, status, created_at)
-            VALUES (?, ?, 'unread', NOW())
-        ");
-        $message = "Payment received: ₹" . number_format($amount, 2) . " via " . ucfirst($payment_method) . ". New balance: ₹" . number_format($new_balance, 2);
-        $stmt->execute([$user_id, $message]);
-        
         $conn->commit();
-        $_SESSION['success'] = "Payment recorded successfully";
+        $_SESSION['success'] = "Payment of ₹{$amount} recorded successfully.";
+        header("Location: credit_transactions.php?user_id={$user_id}");
+        exit();
+        
     } catch (Exception $e) {
         $conn->rollBack();
-        $_SESSION['error'] = "Error: " . $e->getMessage();
+        $_SESSION['payment_error'] = [
+            'message' => $e->getMessage(),
+            'user_id' => $user_id ?? null,
+            'amount' => $amount ?? null
+        ];
+        header("Location: credit_transactions.php" . (isset($user_id) ? "?user_id={$user_id}" : ""));
+        exit();
     }
 }
+
+// Get all students with credit accounts for this vendor for dropdown
+$stmt = $conn->prepare("
+    SELECT u.id, u.username, u.email, ca.current_balance, ca.credit_limit, ca.status
+    FROM users u
+    JOIN credit_accounts ca ON u.id = ca.user_id
+    WHERE ca.vendor_id = ? AND ca.status = 'active'
+    ORDER BY u.username
+");
+$stmt->execute([$vendor_id]);
+$students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Filter by student if specified
 $user_filter = '';
@@ -87,11 +122,15 @@ if (isset($_GET['user_id']) && !empty($_GET['user_id'])) {
 $stmt = $conn->prepare("
     SELECT 
         ct.*,
-        u.username as vendor_name
+        u.username,
+        o.id as order_id,
+        ca.last_payment_date,
+        ca.payment_due_date
     FROM credit_transactions ct
-    JOIN vendors v ON ct.vendor_id = v.id
-    JOIN users u ON v.user_id = u.id
-    WHERE ct.vendor_id = ?
+    JOIN users u ON ct.user_id = u.id
+    LEFT JOIN orders o ON ct.order_id = o.id
+    LEFT JOIN credit_accounts ca ON ct.user_id = ca.user_id AND ct.vendor_id = ca.vendor_id
+    WHERE ct.vendor_id = ? " . $user_filter . "
     ORDER BY ct.created_at DESC
 ");
 $stmt->execute($params);
@@ -108,17 +147,6 @@ $stmt = $conn->prepare("
 ");
 $stmt->execute($params);
 $stats = $stmt->fetch(PDO::FETCH_ASSOC);
-
-// Get all students with credit accounts for this vendor for dropdown
-$stmt = $conn->prepare("
-    SELECT u.id, u.username, u.email, ca.current_balance
-    FROM users u
-    JOIN credit_accounts ca ON u.id = ca.user_id
-    WHERE ca.vendor_id = ? AND ca.status = 'active'
-    ORDER BY u.username
-");
-$stmt->execute([$vendor_id]);
-$students = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $page_title = 'Credit Transactions';
 ob_start();
@@ -145,28 +173,26 @@ ob_start();
 <!-- Main content -->
 <div class="content">
     <div class="container-fluid">
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="alert alert-success alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                <h5><i class="icon fas fa-check"></i> Success!</h5>
-                <?php 
-                    echo $_SESSION['success']; 
-                    unset($_SESSION['success']);
-                ?>
+        <?php if (isset($_SESSION['payment_error'])): ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error!</strong> <?php echo htmlspecialchars($_SESSION['payment_error']['message']); ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <?php unset($_SESSION['payment_error']); ?>
         <?php endif; ?>
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="alert alert-danger alert-dismissible">
-                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                <h5><i class="icon fas fa-ban"></i> Alert!</h5>
-                <?php 
-                    echo $_SESSION['error']; 
-                    unset($_SESSION['error']);
-                ?>
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <?php echo htmlspecialchars($_SESSION['success']); ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
+            <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
-        
+
         <!-- Student Details (if filtering by student) -->
         <?php if (isset($student)): ?>
             <div class="card">
@@ -221,7 +247,7 @@ ob_start();
                 </button>
             </div>
         <?php endif; ?>
-        
+
         <!-- Transactions Summary -->
         <div class="row">
             <div class="col-lg-4 col-6">
@@ -260,7 +286,7 @@ ob_start();
                 </div>
             </div>
         </div>
-        
+
         <!-- Filter Form -->
         <div class="card collapsed-card">
             <div class="card-header">
@@ -319,12 +345,14 @@ ob_start();
                             <th>Order/Reference</th>
                             <th>Amount</th>
                             <th>Payment Method</th>
+                            <th>Last Payment</th>
+                            <th>Due Date</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($transactions)): ?>
                             <tr>
-                                <td colspan="7" class="text-center">No transactions found</td>
+                                <td colspan="9" class="text-center">No transactions found</td>
                             </tr>
                         <?php else: ?>
                             <?php foreach ($transactions as $transaction): ?>
@@ -340,9 +368,9 @@ ob_start();
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <?php if ($transaction['receipt_number']): ?>
-                                            <a href="order_details.php?receipt=<?php echo $transaction['receipt_number']; ?>">
-                                                #<?php echo $transaction['receipt_number']; ?>
+                                        <?php if ($transaction['order_id']): ?>
+                                            <a href="view_order.php?id=<?php echo $transaction['order_id']; ?>">
+                                                #<?php echo $transaction['order_id']; ?>
                                             </a>
                                         <?php else: ?>
                                             -
@@ -358,6 +386,29 @@ ob_start();
                                             -
                                         <?php endif; ?>
                                     </td>
+                                    <td>
+                                        <?php 
+                                        if ($transaction['last_payment_date']) {
+                                            echo date('M d, Y', strtotime($transaction['last_payment_date']));
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td>
+                                        <?php 
+                                        if ($transaction['payment_due_date']) {
+                                            $due_date = strtotime($transaction['payment_due_date']);
+                                            $today = time();
+                                            echo date('M d, Y', $due_date);
+                                            if ($due_date < $today) {
+                                                echo ' <span class="badge badge-danger">Overdue</span>';
+                                            }
+                                        } else {
+                                            echo '-';
+                                        }
+                                        ?>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php endif; ?>
@@ -372,7 +423,7 @@ ob_start();
 <div class="modal fade" id="recordPaymentModal" tabindex="-1" role="dialog" aria-labelledby="recordPaymentModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
-            <form method="POST">
+            <form method="POST" id="paymentForm" onsubmit="return validatePayment();">
                 <input type="hidden" name="record_payment" value="1">
                 <div class="modal-header">
                     <h5 class="modal-title" id="recordPaymentModalLabel">Record Payment</h5>
@@ -386,18 +437,23 @@ ob_start();
                         <select class="form-control" id="payment_user_id" name="user_id" required>
                             <option value="">Select Student</option>
                             <?php foreach ($students as $s): ?>
-                                <?php if ($s['current_balance'] > 0): ?>
-                                    <option value="<?php echo $s['id']; ?>" <?php echo (isset($_GET['user_id']) && $_GET['user_id'] == $s['id']) ? 'selected' : ''; ?> data-balance="<?php echo $s['current_balance']; ?>">
-                                        <?php echo htmlspecialchars($s['username']); ?> (Balance: ₹<?php echo number_format($s['current_balance'], 2); ?>)
-                                    </option>
-                                <?php endif; ?>
+                                <option value="<?php echo $s['id']; ?>" 
+                                    <?php echo (isset($_GET['user_id']) && $_GET['user_id'] == $s['id']) ? 'selected' : ''; ?> 
+                                    data-balance="<?php echo $s['current_balance']; ?>"
+                                    <?php echo ($s['status'] !== 'active') ? 'disabled' : ''; ?>>
+                                    <?php echo htmlspecialchars($s['username']); ?> 
+                                    (Balance: ₹<?php echo number_format($s['current_balance'], 2); ?>)
+                                    <?php echo ($s['status'] !== 'active') ? ' - ' . ucfirst($s['status']) : ''; ?>
+                                </option>
                             <?php endforeach; ?>
                         </select>
+                        <div id="studentError" class="payment-error"></div>
                     </div>
                     <div class="form-group">
                         <label for="amount">Amount (₹)</label>
                         <input type="number" class="form-control" id="amount" name="amount" min="1" step="0.01" required>
                         <small class="form-text text-muted">Enter the amount paid by the student</small>
+                        <div id="amountError" class="payment-error"></div>
                     </div>
                     <div class="form-group">
                         <label for="payment_method">Payment Method</label>
@@ -420,33 +476,74 @@ ob_start();
 $content = ob_get_clean();
 
 $additionalScripts = '
+<style>
+.payment-error {
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 5px;
+    display: none;
+}
+
+.payment-error:not(:empty) {
+    display: block;
+}
+</style>
 <script>
 $(document).ready(function() {
-    // Search functionality
-    $("#transactionSearch").on("keyup", function() {
-        var value = $(this).val().toLowerCase();
-        $("#transactionsTable tbody tr").filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-        });
-    });
+    // Auto-open modal if there was a payment error
+    ' . (isset($_SESSION['payment_error']) ? '$("#recordPaymentModal").modal("show");' : '') . '
     
     // Update max amount when student is selected
     $("#payment_user_id").change(function() {
         var selectedOption = $(this).find("option:selected");
         var balance = selectedOption.data("balance");
-        if (balance) {
+        $("#studentError").text("");
+        $("#amountError").text("");
+        
+        if (balance && balance > 0) {
             $("#amount").attr("max", balance);
-            $("#amount").val(balance);
+            $("#amount").attr("placeholder", "Max: ₹" + balance.toFixed(2));
+            $("#amount").val("");
+            $("#amount").prop("disabled", false);
+        } else {
+            $("#amount").val("");
+            $("#amount").prop("disabled", true);
+            $("#amount").attr("placeholder", "No outstanding balance");
         }
     });
     
-    // Trigger change event if a student is pre-selected
-    if ($("#payment_user_id").val()) {
-        $("#payment_user_id").trigger("change");
-    }
+    // Clear error messages when amount changes
+    $("#amount").on("input", function() {
+        $("#amountError").text("");
+    });
 });
+
+function validatePayment() {
+    var selectedStudent = $("#payment_user_id").val();
+    var amount = parseFloat($("#amount").val());
+    var maxBalance = parseFloat($("#payment_user_id option:selected").data("balance"));
+    var isValid = true;
+    
+    // Clear previous error messages
+    $("#studentError").text("");
+    $("#amountError").text("");
+    
+    if (!selectedStudent) {
+        $("#studentError").text("Please select a student");
+        isValid = false;
+    }
+    
+    if (!amount || amount <= 0) {
+        $("#amountError").text("Please enter a valid amount greater than 0");
+        isValid = false;
+    } else if (amount > maxBalance) {
+        $("#amountError").text("Amount cannot exceed current balance of ₹" + maxBalance.toFixed(2));
+        isValid = false;
+    }
+    
+    return isValid;
+}
 </script>
 ';
-
 require_once '../includes/layout.php';
 ?> 

@@ -305,11 +305,34 @@ echo '</p>
 </li>
 
 <!-- Credit Management -->
-<li class="nav-item">
-    <a href="../vendor/manage_credit_requests.php" class="nav-link">
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['credit_settings.php', 'credit_accounts.php', 'credit_requests.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['credit_settings.php', 'credit_accounts.php', 'credit_requests.php']) ? 'active' : '') . '">
         <i class="nav-icon fas fa-credit-card"></i>
-        <p>Credit Requests</p>
+        <p>
+            Credit Management
+            <i class="fas fa-angle-left right"></i>
+        </p>
     </a>
+    <ul class="nav nav-treeview">
+        <li class="nav-item">
+            <a href="../vendor/credit_settings.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_settings.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-cog"></i>
+                <p>Credit Settings</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/credit_accounts.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_accounts.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-users"></i>
+                <p>Credit Accounts</p>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="../vendor/credit_requests.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_requests.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-user-clock"></i>
+                <p>Credit Requests</p>
+            </a>
+        </li>
+    </ul>
 </li>
 
 <!-- Subscription Management -->

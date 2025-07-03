@@ -121,4 +121,14 @@ function getStatusBadgeClass($status) {
         default:
             return 'secondary';
     }
+}
+
+/**
+ * Get vendor ID from user ID
+ */
+function get_vendor_id($conn, $user_id) {
+    $stmt = $conn->prepare("SELECT id FROM vendors WHERE user_id = ?");
+    $stmt->execute([$user_id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $result ? $result['id'] : null;
 } 

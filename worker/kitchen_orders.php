@@ -125,13 +125,13 @@ ob_start();
                         <h3 class="card-title">Pending & Active Orders</h3>
                     </div>
                     <div class="card-body">
-                        <?php if (empty($orders)): ?>
+        <?php if (empty($orders)): ?>
                             <div class="text-center py-5">
-                                <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
-                                <h5>No Pending Orders</h5>
-                                <p>There are no orders waiting to be prepared at the moment.</p>
-                            </div>
-                        <?php else: ?>
+                    <i class="fas fa-utensils fa-4x text-muted mb-3"></i>
+                    <h5>No Pending Orders</h5>
+                    <p>There are no orders waiting to be prepared at the moment.</p>
+            </div>
+        <?php else: ?>
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
@@ -146,29 +146,29 @@ ob_start();
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach ($orders as $order): ?>
+                <?php foreach ($orders as $order): ?>
                                             <tr>
                                                 <td><?php echo htmlspecialchars($order['receipt_number']); ?></td>
                                                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
                                                 <td>
                                                     <span class="badge badge-info">
-                                                        <?php echo ucfirst(str_replace('_', ' ', $order['order_type'])); ?>
-                                                    </span>
-                                                    <?php if ($order['order_type'] === 'dine_in'): ?>
+                                                <?php echo ucfirst(str_replace('_', ' ', $order['order_type'])); ?>
+                                            </span>
+                                        <?php if ($order['order_type'] === 'dine_in'): ?>
                                                         <br>
                                                         <small>Table: <?php echo htmlspecialchars($order['table_number']); ?></small>
-                                                    <?php endif; ?>
+                                        <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <?php
-                                                    $stmt = $conn->prepare("
+                                <?php
+                                $stmt = $conn->prepare("
                                                         SELECT oi.*, mi.name
-                                                        FROM order_items oi
-                                                        JOIN menu_items mi ON oi.menu_item_id = mi.item_id
-                                                        WHERE oi.order_id = ?
-                                                    ");
-                                                    $stmt->execute([$order['id']]);
-                                                    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                    FROM order_items oi
+                                    JOIN menu_items mi ON oi.menu_item_id = mi.item_id
+                                    WHERE oi.order_id = ?
+                                ");
+                                $stmt->execute([$order['id']]);
+                                $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     foreach ($items as $item) {
                                                         echo htmlspecialchars($item['quantity'] . 'x ' . $item['name']) . '<br>';
                                                     }
@@ -216,16 +216,16 @@ ob_start();
                                                         <i class="fas fa-eye"></i> Details
                                                     </button>
                                                 </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        <?php endif; ?>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -275,9 +275,9 @@ $(document).ready(function() {
                         showConfirmButton: false
                     }).then(() => {
                         // Reload the page to show updated status
-                        location.reload();
+                location.reload();
                     });
-                } else {
+            } else {
                     // Show error message
                     Swal.fire({
                         icon: 'error',

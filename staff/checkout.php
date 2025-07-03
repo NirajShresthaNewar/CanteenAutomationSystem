@@ -169,6 +169,39 @@ try {
         ];
     }
 
+    // If payment method is credit, record the transaction
+    if ($payment_method === 'credit') {
+        // Record credit transaction
+        $stmt = $conn->prepare("
+            INSERT INTO credit_transactions (
+                user_id, vendor_id, transaction_type,
+                amount, order_id, created_at
+            ) VALUES (
+                ?, ?, 'purchase',
+                ?, ?, CURRENT_TIMESTAMP
+            )
+        ");
+        $stmt->execute([
+            $_SESSION['user_id'],
+            $vendor_id,
+            $total_amount,
+            $order_id
+        ]);
+
+        // Update credit account balance
+        $stmt = $conn->prepare("
+            UPDATE credit_accounts 
+            SET current_balance = current_balance + ?,
+                last_payment_date = CURRENT_TIMESTAMP
+            WHERE user_id = ? AND vendor_id = ?
+        ");
+        $stmt->execute([
+            $total_amount,
+            $_SESSION['user_id'],
+            $vendor_id
+        ]);
+    }
+
     // Commit transaction
     $conn->commit();
 

@@ -167,8 +167,8 @@ echo '
 </li>
 
 <!-- Credit Accounts -->
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['credit_accounts.php', 'credit_transactions.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['credit_accounts.php', 'credit_transactions.php']) ? 'active' : '') . '">
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['request_credit.php', 'view_credit_requests.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['request_credit.php', 'view_credit_requests.php']) ? 'active' : '') . '">
         <i class="nav-icon fas fa-credit-card"></i>
         <p>
             Credit Accounts
@@ -177,20 +177,19 @@ echo '
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
-            <a href="../student/credit_accounts.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_accounts.php' ? 'active' : '') . '">
+            <a href="../student/view_credit_requests.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'view_credit_requests.php' ? 'active' : '') . '">
                 <i class="nav-icon fas fa-wallet"></i>
                 <p>My Credit Accounts</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="../student/credit_transactions.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'credit_transactions.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-exchange-alt"></i>
-                <p>Transactions</p>
+            <a href="../student/request_credit.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'request_credit.php' ? 'active' : '') . '">
+                <i class="nav-icon fas fa-plus-circle"></i>
+                <p>Request Credit</p>
             </a>
         </li>
     </ul>
 </li>
-
 
 <!-- Subscription Portal -->
 <li class="nav-item">

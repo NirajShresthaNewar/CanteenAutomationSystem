@@ -49,20 +49,20 @@ if (!$has_access) {
 }
 
 // Get menu items for the selected vendor
-$stmt = $conn->prepare("
-    SELECT 
-        mi.*,
-    mc.name as category_name,
-    mc.description as category_description,
-    mi.image_path
-    FROM menu_items mi
-    LEFT JOIN menu_categories mc ON mi.category_id = mc.category_id
-    WHERE mi.vendor_id = ?
-    AND mi.is_available = 1
-    ORDER BY mc.name, mi.name
-");
-$stmt->execute([$selected_vendor_id]);
-$menu_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $conn->prepare("
+        SELECT 
+            mi.*,
+        mc.name as category_name,
+        mc.description as category_description,
+        mi.image_path
+        FROM menu_items mi
+        LEFT JOIN menu_categories mc ON mi.category_id = mc.category_id
+        WHERE mi.vendor_id = ?
+        AND mi.is_available = 1
+        ORDER BY mc.name, mi.name
+    ");
+    $stmt->execute([$selected_vendor_id]);
+    $menu_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Function to get popular items based on current month's orders
 function getPopularItems($conn, $limit = 3) {
@@ -268,7 +268,7 @@ ob_start();
     <div class="menu-header">
         <h1>Menu</h1>
         <p>Explore our delicious offerings from various vendors. Each item is prepared with care and quality ingredients to ensure the best dining experience.</p>
-    </div>
+                    </div>
 
     <!-- Popular Items Section -->
     <?php if (!empty($popular_items)): ?>
@@ -306,15 +306,15 @@ ob_start();
     <!-- Vendor Selector -->
     <div class="vendor-selector">
         <select class="form-control" onchange="window.location.href='?vendor_id=' + this.value">
-            <?php foreach ($vendors as $vendor): ?>
+                                <?php foreach ($vendors as $vendor): ?>
                 <option value="<?php echo $vendor['id']; ?>" 
                         <?php echo $selected_vendor_id == $vendor['id'] ? 'selected' : ''; ?>>
                     <?php echo htmlspecialchars($vendor['vendor_name']); ?> 
                     (<?php echo htmlspecialchars($vendor['opening_hours']); ?>)
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
     <!-- Menu Grid -->
     <div class="menu-grid">
@@ -330,7 +330,7 @@ ob_start();
                         <img src="../assets/images/placeholder-food.jpg" 
                              class="menu-item-image" 
                              alt="No image available">
-                        <?php endif; ?>
+                                <?php endif; ?>
                                 
                     <div class="menu-item-content">
                         <h3 class="menu-item-title"><?php echo htmlspecialchars($item['name']); ?></h3>

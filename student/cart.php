@@ -37,6 +37,23 @@ foreach ($cart_items as $item) {
     $vendors[$item['vendor_id']]['total'] += $item['price'] * $item['quantity'];
 }
 
+// Get credit account information for each vendor
+foreach ($vendors as $vendor_id => &$vendor) {
+    $stmt = $conn->prepare("
+        SELECT ca.*, vcs.default_student_credit_limit
+        FROM credit_accounts ca
+        LEFT JOIN vendor_credit_settings vcs ON ca.vendor_id = vcs.vendor_id
+        WHERE ca.user_id = ? AND ca.vendor_id = ? AND ca.status = 'active'
+    ");
+    $stmt->execute([$_SESSION['user_id'], $vendor_id]);
+    $credit_account = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    $vendor['credit_account'] = $credit_account;
+    if ($credit_account) {
+        $vendor['available_credit'] = $credit_account['credit_limit'] - $credit_account['current_balance'];
+    }
+}
+
 // Handle AJAX requests for updating quantities
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
@@ -260,9 +277,27 @@ ob_start();
                                             <option value="">Select Payment Method</option>
                                             <option value="cash">Cash</option>
                                             <option value="khalti">Khalti</option>
+                                            <?php if (isset($vendor['credit_account']) && $vendor['credit_account']): ?>
+                                                <?php if ($vendor['available_credit'] >= $vendor['total']): ?>
+                                                    <option value="credit">Credit (Available: Rs. <?php echo number_format($vendor['available_credit'], 2); ?>)</option>
+                                                <?php else: ?>
+                                                    <option value="credit" disabled>Credit (Insufficient Balance)</option>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <option value="credit" disabled>Credit (No Account)</option>
+                                            <?php endif; ?>
                                         </select>
                                     </div>
                                 </div>
+
+                                <?php if (!isset($vendor['credit_account']) || !$vendor['credit_account']): ?>
+                                    <div class="col-12">
+                                        <div class="alert alert-info">
+                                            <i class="fas fa-info-circle"></i> Want to pay with credit? 
+                                            <a href="request_credit.php?vendor_id=<?php echo $vendor_id; ?>" class="alert-link">Request a credit account</a>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
                             </div>
 
                             <div class="row mt-3">
@@ -540,7 +575,6 @@ function initiateKhaltiPayment(amount, vendorId, orderType, formData) {
         });
     });
 }
-
 $(document).ready(function() {
         // Update quantity
         $(".quantity-btn").click(function() {
@@ -615,14 +649,17 @@ $(document).ready(function() {
             });
         });
     });
-
 </script>
 
 <?php
 // Get the buffered content
 $content = ob_get_clean();
 
-
+// Add page-specific scripts
+$additionalScripts = '
+<script>
+   
+</script>';
 
 // Include the layout template
 require_once '../includes/layout.php';

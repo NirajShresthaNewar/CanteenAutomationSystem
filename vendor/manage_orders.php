@@ -341,8 +341,8 @@ ob_start();
 </style>
 
 <!-- Loading Overlay -->
-<div class="loading-overlay">
-    <div class="spinner-border text-primary" role="status">
+<div class="loading-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+    <div class="spinner-border text-light" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
 </div>
@@ -975,8 +975,10 @@ function handleAssignWorker(orderId) {
 }
 
 function viewOrder(orderId) {
-    // Show loading state
-    document.querySelector('.loading-overlay').style.display = 'flex';
+    const loadingOverlay = document.querySelector('.loading-overlay');
+    if (loadingOverlay) {
+        loadingOverlay.style.display = 'flex';
+    }
 
     // Fetch order details
     fetch(`get_order_details.php?order_id=${orderId}`)
@@ -992,25 +994,30 @@ function viewOrder(orderId) {
                 document.getElementById('view-total').textContent = `₹${parseFloat(data.order.total_amount).toFixed(2)}`;
                 
                 // Update delivery information
-                document.getElementById('view-order-type').textContent = data.order.order_type || '-';
+                document.getElementById('view-order-type').textContent = data.order.order_type ? data.order.order_type.replace('_', ' ').toUpperCase() : '-';
                 document.getElementById('view-location').textContent = data.order.delivery_location || '-';
                 document.getElementById('view-building').textContent = data.order.building_name || '-';
                 document.getElementById('view-floor-room').textContent = 
-                    `${data.order.floor_number || '-'}/${data.order.room_number || '-'}`;
+                    data.order.floor_number && data.order.room_number ? 
+                    `Floor ${data.order.floor_number}, Room ${data.order.room_number}` : '-';
                 document.getElementById('view-contact').textContent = data.order.contact_number || '-';
 
                 // Update order items
                 const itemsContainer = document.getElementById('view-order-items');
                 itemsContainer.innerHTML = '';
+                let total = 0;
+
                 data.items.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.name}</td>
-                        <td>${item.quantity}</td>
-                        <td class="text-end">₹${parseFloat(item.unit_price).toFixed(2)}</td>
-                        <td class="text-end">₹${(item.quantity * item.unit_price).toFixed(2)}</td>
+                    const subtotal = item.quantity * item.unit_price;
+                    total += subtotal;
+                    itemsContainer.innerHTML += `
+                        <tr>
+                            <td>${item.name}</td>
+                            <td>${item.quantity}</td>
+                            <td class="text-end">₹${parseFloat(item.unit_price).toFixed(2)}</td>
+                            <td class="text-end">₹${parseFloat(subtotal).toFixed(2)}</td>
+                        </tr>
                     `;
-                    itemsContainer.appendChild(row);
                 });
 
                 // Show the modal
@@ -1024,7 +1031,9 @@ function viewOrder(orderId) {
             alert('Failed to load order details');
         })
         .finally(() => {
-            document.querySelector('.loading-overlay').style.display = 'none';
+            if (loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
         });
 }
 
@@ -1122,11 +1131,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// View order details
-function viewOrder(orderId) {
-    window.location.href = 'view_order.php?id=' + orderId;
-}
-
 // Accept order
 function acceptOrder(orderId) {
     if (confirm('Are you sure you want to accept this order?')) {
@@ -1179,9 +1183,9 @@ function rejectOrder(orderId) {
 document.addEventListener('DOMContentLoaded', function() {
     // Add click handlers to all view buttons
     document.querySelectorAll('.view-order').forEach(button => {
-        button.onclick = function() {
+        button.addEventListener('click', function() {
             viewOrder(this.dataset.orderId);
-        }
+        });
     });
 });
 </script>

@@ -96,45 +96,38 @@ echo '
 
 <!-- Meal Subscription -->
 <li class="nav-item">
-    <a href="../student/meal_subscription.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'meal_subscription.php' ? 'active' : '') . '">
+    <a href="../student/subscription_portal.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_portal.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-utensils"></i>
         <p>Meal Subscription</p>
     </a>
 </li>
 
 <!-- Order Food -->
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['vendors.php', 'menu.php', 'cart.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['vendors.php', 'menu.php', 'cart.php']) ? 'active' : '') . '">
-        <i class="nav-icon fas fa-utensils"></i>
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['menu.php', 'cart.php', 'orders.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['menu.php', 'cart.php', 'orders.php']) ? 'active' : '') . '">
+        <i class="nav-icon fas fa-shopping-cart"></i>
         <p>
             Order Food
             <i class="fas fa-angle-left right"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
-      <!--  <li class="nav-item">
-            <a href="../student/vendors.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'vendors.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-store-alt"></i>
-                <p>Browse Vendors</p>
-            </a>
-        </li> -->
         <li class="nav-item">
             <a href="../student/menu.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-clipboard-list"></i>
+                <i class="far fa-circle nav-icon"></i>
                 <p>Menu</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="../student/scan_qr.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'scan_qr.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-qrcode"></i>
-                <p>Scan QR Menu</p>
+            <a href="../student/cart.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'cart.php' ? 'active' : '') . '">
+                <i class="far fa-circle nav-icon"></i>
+                <p>Cart</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="../student/cart.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'cart.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-shopping-basket"></i>
-                <p>Cart</p>
-                ' . ($cart_count > 0 ? '<span class="badge badge-success right">' . $cart_count . '</span>' : '') . '
+            <a href="../student/orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'active' : '') . '">
+                <i class="far fa-circle nav-icon"></i>
+                <p>My Orders</p>
             </a>
         </li>
     </ul>
@@ -191,13 +184,6 @@ echo '
     </ul>
 </li>
 
-<!-- Subscription Portal -->
-<li class="nav-item">
-<a href="../student/subscription_portal.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_portal.php' ? 'active' : '') . '">
-<i class="nav-icon fas fa-ticket-alt"></i>
-<p>Subscription Portal</p>
-</a>
-</li>
 <!-- Favorites -->
 <!--
 <li class="nav-item">

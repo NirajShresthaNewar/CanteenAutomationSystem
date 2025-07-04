@@ -42,8 +42,78 @@ try {
     }
 
     $cart_data = $_SESSION['cart_data'][$vendor_id];
-    $total_amount = $cart_data['total_amount'];
-    $staff_id = $cart_data['staff_id'];
+    $original_total = $cart_data['total_amount'];
+    
+    // Check for active subscription
+    $stmt = $conn->prepare("
+        SELECT us.*, sp.discount_percentage 
+        FROM user_subscriptions us
+        JOIN subscription_plans sp ON us.plan_id = sp.id
+        WHERE us.user_id = ? AND us.status = 'active'
+        AND us.start_date <= CURRENT_TIMESTAMP
+        AND us.end_date >= CURRENT_TIMESTAMP
+        AND sp.vendor_id = ?
+    ");
+    $stmt->execute([$_SESSION['user_id'], $vendor_id]);
+    $subscription = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($subscription) {
+        // Get menu categories for items in cart
+        $menu_items = [];
+        foreach ($cart_data['items'] as $item) {
+            $stmt = $conn->prepare("
+                SELECT mi.item_id, mi.name, mi.price, mc.category_id, mc.name as category_name
+                FROM menu_items mi
+                LEFT JOIN menu_categories mc ON mi.category_id = mc.category_id
+                WHERE mi.item_id = ?
+            ");
+            $stmt->execute([$item['menu_item_id']]);
+            $menu_items[$item['menu_item_id']] = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        // Apply discount with limitations
+        $discount_percentage = $subscription['discount_percentage'];
+        $discounted_total = 0;
+        $regular_total = 0;
+        $items_discounted = [];
+
+        foreach ($cart_data['items'] as $item) {
+            $menu_item = $menu_items[$item['menu_item_id']];
+            $subtotal = $item['price'] * $item['quantity'];
+            
+            // Discount rules:
+            // 1. Only main meals (categories 1 and 2) get discount
+            // 2. Maximum 2 items per category get discount
+            // 3. Maximum quantity of 2 per discounted item
+            if (in_array($menu_item['category_id'], [1, 2])) { // Main meals categories
+                if (!isset($items_discounted[$menu_item['category_id']])) {
+                    $items_discounted[$menu_item['category_id']] = 0;
+                }
+                
+                if ($items_discounted[$menu_item['category_id']] < 2) {
+                    // Apply discount to up to 2 quantities
+                    $discount_qty = min(2, $item['quantity']);
+                    $regular_qty = $item['quantity'] - $discount_qty;
+                    
+                    $discounted_amount = ($item['price'] * $discount_qty) * (1 - $discount_percentage/100);
+                    $regular_amount = $item['price'] * $regular_qty;
+                    
+                    $discounted_total += $discounted_amount;
+                    $regular_total += $regular_amount;
+                    
+                    $items_discounted[$menu_item['category_id']]++;
+                } else {
+                    $regular_total += $subtotal;
+                }
+            } else {
+                // Non-main meal items don't get discount
+                $regular_total += $subtotal;
+            }
+        }
+
+        $cart_data['total_amount'] = $discounted_total + $regular_total;
+        $_SESSION['cart_data'][$vendor_id] = $cart_data;
+    }
 
     // Before creating the order, check credit availability if using credit payment
     if ($payment_method === 'credit') {
@@ -61,7 +131,7 @@ try {
         }
 
         $available_credit = $credit_account['credit_limit'] - $credit_account['current_balance'];
-        if ($available_credit < $total_amount) {
+        if ($available_credit < $cart_data['total_amount']) {
             throw new Exception("Insufficient credit balance. Available: Rs. " . number_format($available_credit, 2));
         }
     }
@@ -87,9 +157,9 @@ try {
     $stmt->execute([
         $receipt_number,
         $_SESSION['user_id'],
-        $staff_id,
+        $cart_data['staff_id'],
         $vendor_id,
-        $total_amount,
+        $cart_data['total_amount'],
         $payment_method,
         'pending',
         $order_type
@@ -153,7 +223,7 @@ try {
         // Store order details in session for Khalti payment
         $_SESSION['in_payment_flow'] = true;
         $_SESSION['khalti_order'] = [
-            'amount' => $total_amount * 100, // Convert to paisa
+            'amount' => $cart_data['total_amount'] * 100, // Convert to paisa
             'order_id' => $order_id,
             'receipt_number' => $receipt_number,
             'order_details' => [
@@ -184,7 +254,7 @@ try {
         $stmt->execute([
             $_SESSION['user_id'],
             $vendor_id,
-            $total_amount,
+            $cart_data['total_amount'],
             $order_id
         ]);
 
@@ -196,7 +266,7 @@ try {
             WHERE user_id = ? AND vendor_id = ?
         ");
         $stmt->execute([
-            $total_amount,
+            $cart_data['total_amount'],
             $_SESSION['user_id'],
             $vendor_id
         ]);

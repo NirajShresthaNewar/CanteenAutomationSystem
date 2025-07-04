@@ -15,7 +15,7 @@ if (!file_exists($uploadDir)) {
 }
 
 // Get staff ID
-$stmt = $conn->prepare("SELECT id FROM staff_staff WHERE user_id = ?");
+$stmt = $conn->prepare("SELECT id FROM staff_students WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $staff = $stmt->fetch(PDO::FETCH_ASSOC);
 $staff_id = $staff['id'];
@@ -25,7 +25,6 @@ if (isset($_POST['update_profile'])) {
     try {
         $username = trim($_POST['username']);
         $contact_number = trim($_POST['contact_number']);
-        $department = trim($_POST['department'] ?? '');
         
         // Validate inputs
         if (empty($username)) {
@@ -41,12 +40,6 @@ if (isset($_POST['update_profile'])) {
         // Update user information
         $stmt = $conn->prepare("UPDATE users SET username = ?, contact_number = ? WHERE id = ?");
         $stmt->execute([$username, $contact_number, $_SESSION['user_id']]);
-        
-        // Update staff-specific information
-        if (!empty($department)) {
-            $stmt = $conn->prepare("UPDATE staff_staff SET department = ? WHERE id = ?");
-            $stmt->execute([$department, $staff_id]);
-        }
         
         $conn->commit();
         $_SESSION['success'] = "Profile information updated successfully";
@@ -133,7 +126,7 @@ if (isset($_POST['update_image'])) {
         
         // Generate a unique filename
         $fileExt = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $uniqueName = 'staff_' . $staff_id . '_' . uniqid() . '.' . $fileExt;
+        $uniqueName = $_SESSION['user_id'] . '_' . uniqid() . '.' . $fileExt;
         $targetFile = $uploadDir . $uniqueName;
         
         // Move the file to the uploads directory

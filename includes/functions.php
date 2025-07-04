@@ -102,7 +102,7 @@ function getServerIP() {
     }
 
     return array_values(array_unique($ip_addresses));
-}
+} 
 
 function getStatusBadgeClass($status) {
     switch (strtolower($status)) {

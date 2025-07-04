@@ -11,17 +11,38 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
 // Get cart items grouped by vendor
 $stmt = $conn->prepare("
     SELECT 
-        ci.*, mi.name as item_name, mi.price,
-        v.id as vendor_id, u.username as vendor_name
+        ci.*, mi.name as item_name, mi.price, mi.category_id,
+        v.id as vendor_id, u.username as vendor_name,
+        mc.name as category_name
     FROM cart_items ci
     JOIN menu_items mi ON ci.menu_item_id = mi.item_id
     JOIN vendors v ON mi.vendor_id = v.id
     JOIN users u ON v.user_id = u.id
+    JOIN menu_categories mc ON mi.category_id = mc.category_id
     WHERE ci.user_id = ?
     ORDER BY v.id, mi.name
 ");
 $stmt->execute([$_SESSION['user_id']]);
 $cart_items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Check for active subscription
+$stmt = $conn->prepare("
+    SELECT us.*, sp.discount_percentage, sp.vendor_id
+    FROM user_subscriptions us
+    JOIN subscription_plans sp ON us.plan_id = sp.id
+    WHERE us.user_id = ? 
+    AND us.status = 'active'
+    AND us.start_date <= NOW()
+    AND us.end_date >= NOW()
+");
+$stmt->execute([$_SESSION['user_id']]);
+$active_subscriptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Index subscriptions by vendor_id for easy lookup
+$vendor_subscriptions = [];
+foreach ($active_subscriptions as $sub) {
+    $vendor_subscriptions[$sub['vendor_id']] = $sub;
+}
 
 // Group items by vendor
 $vendors = [];
@@ -30,11 +51,35 @@ foreach ($cart_items as $item) {
         $vendors[$item['vendor_id']] = [
             'name' => $item['vendor_name'],
             'items' => [],
-            'total' => 0
+            'total' => 0,
+            'discount' => 0,
+            'has_subscription' => isset($vendor_subscriptions[$item['vendor_id']])
         ];
+        
+        if ($vendors[$item['vendor_id']]['has_subscription']) {
+            $vendors[$item['vendor_id']]['discount_percentage'] = 
+                $vendor_subscriptions[$item['vendor_id']]['discount_percentage'];
+        }
     }
+    
+    $item_total = $item['price'] * $item['quantity'];
+    $item['subtotal'] = $item_total;
+    $item['discount'] = 0;
+    
+    // Calculate discount if subscription exists
+    if ($vendors[$item['vendor_id']]['has_subscription']) {
+        // Only apply discount to main meals (categories 1 and 2)
+        if (in_array($item['category_id'], [1, 2])) {
+            $item['discount'] = $item_total * ($vendors[$item['vendor_id']]['discount_percentage'] / 100);
+            $vendors[$item['vendor_id']]['discount'] += $item['discount'];
+            $item['is_eligible'] = true;
+        } else {
+            $item['is_eligible'] = false;
+        }
+    }
+    
     $vendors[$item['vendor_id']]['items'][] = $item;
-    $vendors[$item['vendor_id']]['total'] += $item['price'] * $item['quantity'];
+    $vendors[$item['vendor_id']]['total'] += $item_total;
 }
 
 // Get credit account information for each vendor
@@ -160,16 +205,32 @@ ob_start();
                                 <thead>
                                     <tr>
                                         <th>Item</th>
+                                        <th>Category</th>
                                         <th>Price</th>
                                         <th>Quantity</th>
                                         <th>Subtotal</th>
+                                        <th>Final Price</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <?php foreach ($vendor['items'] as $item): ?>
+                                        <?php 
+                                            $subtotal = $item['price'] * $item['quantity'];
+                                            $discount = 0;
+                                            if ($vendor['has_subscription'] && in_array($item['category_id'], [1, 2])) {
+                                                $discount = $subtotal * ($vendor['discount_percentage'] / 100);
+                                            }
+                                            $final_price = $subtotal - $discount;
+                                        ?>
                                         <tr>
                                             <td><?php echo htmlspecialchars($item['item_name']); ?></td>
+                                            <td>
+                                                <?php echo htmlspecialchars($item['category_name']); ?>
+                                                <?php if ($vendor['has_subscription'] && in_array($item['category_id'], [1, 2])): ?>
+                                                    <span class="badge badge-success">Eligible for <?php echo $vendor['discount_percentage']; ?>% discount</span>
+                                                <?php endif; ?>
+                                            </td>
                                             <td>Rs. <?php echo number_format($item['price'], 2); ?></td>
                                             <td>
                                                 <div class="input-group" style="width: 120px;">
@@ -178,7 +239,8 @@ ob_start();
                                                     <button class="btn btn-outline-secondary btn-sm quantity-btn" data-action="increase" data-cart-id="<?php echo $item['id']; ?>">+</button>
                                                 </div>
                                             </td>
-                                            <td>Rs. <?php echo number_format($item['price'] * $item['quantity'], 2); ?></td>
+                                            <td>Rs. <?php echo number_format($subtotal, 2); ?></td>
+                                            <td>Rs. <?php echo number_format($final_price, 2); ?></td>
                                             <td>
                                                 <button class="btn btn-danger btn-sm remove-item" data-cart-id="<?php echo $item['id']; ?>">
                                                     <i class="fas fa-trash"></i>
@@ -189,10 +251,20 @@ ob_start();
                                 </tbody>
                                 <tfoot>
                                     <tr>
-                                        <td colspan="3" class="text-right"><strong>Total:</strong></td>
-                                        <td><strong class="cart-total">Rs. <?php echo number_format($vendor['total'], 2); ?></strong></td>
+                                        <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                                        <td><strong>Rs. <?php echo number_format($vendor['total'], 2); ?></strong></td>
+                                        <td class="cart-total"><strong>Rs. <?php echo number_format($vendor['total'] - $vendor['discount'], 2); ?></strong></td>
                                         <td></td>
                                     </tr>
+                                    <?php if ($vendor['has_subscription']): ?>
+                                    <tr>
+                                        <td colspan="7">
+                                            <div class="alert alert-info mb-0">
+                                                <i class="fas fa-info-circle"></i> Active Subscription: <?php echo $vendor['discount_percentage']; ?>% discount on Momo & Dumplings and Noodles & Chowmein
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endif; ?>
                                 </tfoot>
                             </table>
                         </div>

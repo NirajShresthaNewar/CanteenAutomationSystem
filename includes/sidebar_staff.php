@@ -2,6 +2,22 @@
 // Get database connection if not already included
 require_once dirname(__FILE__) . '/../connection/db_connection.php';
 
+// Get user details
+$user_details = null;
+if (isset($_SESSION['user_id'])) {
+    try {
+        $stmt = $conn->prepare("
+            SELECT u.username, u.profile_pic, u.role
+            FROM users u
+            WHERE u.id = ?
+        ");
+        $stmt->execute([$_SESSION['user_id']]);
+        $user_details = $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        // Handle error silently
+    }
+}
+
 // Get cart and active order counts
 $cart_count = 0;
 $active_orders_count = 0;
@@ -50,6 +66,11 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
+// Get profile image or default placeholder
+$profileImage = !empty($user_details['profile_pic']) ? 
+    '../uploads/profile/' . $user_details['profile_pic'] : 
+    'https://via.placeholder.com/150?text=' . substr($user_details['username'] ?? 'S', 0, 1);
+
 // Staff Sidebar
 echo '
 
@@ -57,7 +78,7 @@ echo '
 
  <div class="user-info">
                 <div class="user-avatar">
-                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User Avatar">
+                    <img src="' . $profileImage . '" class="sidebar-profile-img" alt="User Image">
                     <span class="status-indicator online"></span>
                 </div>
                 <div class="user-details">
@@ -135,13 +156,14 @@ echo '
 </li>
 
 <!-- Department Orders -->
+<!--
 <li class="nav-item">
     <a href="../staff/department_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'department_orders.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-building"></i>
         <p>Department Orders</p>
     </a>
 </li>
-
+-->
 <!-- Reports -->
 <li class="nav-item">
     <a href="../staff/reports.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'active' : '') . '">

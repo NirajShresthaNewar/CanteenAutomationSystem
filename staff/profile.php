@@ -12,10 +12,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'staff') {
 try {
     // Fetch user info with staff and school details
     $stmt = $conn->prepare("
-        SELECT u.*, ss.id as staff_id, ss.school_id, ss.department,
+        SELECT u.*, ss.id as staff_id, ss.school_id,
                s.name as school_name, s.address as school_address
         FROM users u
-        JOIN staff_staff ss ON u.id = ss.user_id
+        JOIN staff_students ss ON u.id = ss.user_id
         JOIN schools s ON ss.school_id = s.id
         WHERE u.id = ? AND u.role = 'staff'
     ");
@@ -31,8 +31,7 @@ try {
     // Role specific data
     $roleSpecificData = [
         'School' => $userData['school_name'],
-        'School Address' => $userData['school_address'],
-        'Department' => $userData['department']
+        'School Address' => $userData['school_address']
     ];
     
     // Sensitive information that can't be edited
@@ -181,14 +180,6 @@ try {
                                             <input type="text" class="form-control" id="contact_number" name="contact_number" 
                                                 value="<?php echo htmlspecialchars($userData['contact_number']); ?>"
                                                 <?php echo in_array('contact_number', $readOnlyFields) ? 'readonly' : ''; ?>>
-                                        </div>
-                                    </div>
-                                    <div class="form-group row">
-                                        <label for="department" class="col-sm-3 col-form-label">Department</label>
-                                        <div class="col-sm-9">
-                                            <input type="text" class="form-control" id="department" name="department" 
-                                                value="<?php echo htmlspecialchars($userData['department']); ?>"
-                                                <?php echo in_array('department', $readOnlyFields) ? 'readonly' : ''; ?>>
                                         </div>
                                     </div>
                                     <div class="form-group row">

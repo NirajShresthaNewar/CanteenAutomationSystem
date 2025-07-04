@@ -50,11 +50,50 @@ try {
         throw new Exception("Your cart is empty.");
     }
 
-    // Calculate total
+    // Calculate total and check subscription
     $total_amount = 0;
+    $discount_amount = 0;
+
+    // Check for active subscription
+    $stmt = $conn->prepare("
+        SELECT us.*, sp.discount_percentage
+        FROM user_subscriptions us
+        JOIN subscription_plans sp ON us.plan_id = sp.id
+        WHERE us.user_id = ? 
+        AND sp.vendor_id = ?
+        AND us.status = 'active'
+        AND us.start_date <= NOW()
+        AND us.end_date >= NOW()
+    ");
+    $stmt->execute([$_SESSION['user_id'], $vendor_id]);
+    $subscription = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Get menu categories for discount eligibility
+    $stmt = $conn->prepare("
+        SELECT category_id
+        FROM menu_items
+        WHERE item_id = ?
+    ");
+
     foreach ($cart_items as $item) {
-        $total_amount += $item['price'] * $item['quantity'];
+        $item_total = $item['price'] * $item['quantity'];
+        $total_amount += $item_total;
+        
+        // Apply discount if subscription exists and item is eligible
+        if ($subscription) {
+            $stmt->execute([$item['menu_item_id']]);
+            $category = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            // Only apply discount to main meals (categories 1 and 2)
+            if (in_array($category['category_id'], [1, 2])) {
+                $item_discount = $item_total * ($subscription['discount_percentage'] / 100);
+                $discount_amount += $item_discount;
     }
+        }
+    }
+
+    // Apply discount to total
+    $final_total = $total_amount - $discount_amount;
 
     // Get student ID
     $stmt = $conn->prepare("SELECT id FROM staff_students WHERE user_id = ?");
@@ -86,11 +125,11 @@ try {
         INSERT INTO orders (
             receipt_number, user_id, customer_id, vendor_id,
             total_amount, payment_method, payment_status,
-            order_date
+            order_type
         ) VALUES (
             ?, ?, ?, ?,
             ?, ?, ?,
-            CURRENT_TIMESTAMP
+            ?
         )
     ");
     $stmt->execute([
@@ -98,9 +137,10 @@ try {
         $_SESSION['user_id'],
         $student['id'],
         $vendor_id,
-        $total_amount,
+        $final_total,
         $payment_method,
-        'pending'
+        'pending',
+        $order_type
     ]);
 
     $order_id = $conn->lastInsertId();

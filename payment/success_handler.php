@@ -121,11 +121,12 @@ try {
 
         $receipt_number = 'ORD-' . date('Ymd') . '-' . uniqid();
         $total_amount = $payment_details['amount'] / 100; // Convert paisa to rupees
+        $order_type = $payment_details['order_details']['order_type']; // Get order type directly from order_details
 
         logDebug("Creating Order", [
             'user_id' => $_SESSION['user_id'],
             'vendor_id' => $payment_details['order_details']['vendor_id'],
-            'order_type' => $payment_details['order_details']['order_type'],
+            'order_type' => $order_type,
             'total_amount' => $total_amount,
             'receipt_number' => $receipt_number
         ]);
@@ -133,7 +134,7 @@ try {
         $stmt->execute([
             $_SESSION['user_id'],
             $payment_details['order_details']['vendor_id'],
-            $payment_details['order_details']['order_type'],
+            $order_type,
             $total_amount,
             $receipt_number
         ]);
@@ -218,6 +219,17 @@ try {
                 $order_id,
                 'dine_in',
                 $form_data['table_number']
+            ]);
+        } else {
+            // For pickup orders, still insert a record with just order_type
+            $stmt = $conn->prepare("
+                INSERT INTO order_delivery_details (
+                    order_id, order_type
+                ) VALUES (?, ?)
+            ");
+            $stmt->execute([
+                $order_id,
+                'pickup'
             ]);
         }
 

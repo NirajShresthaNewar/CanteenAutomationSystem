@@ -28,9 +28,13 @@ try {
     // Get order details
     $stmt = $conn->prepare("
         SELECT o.*, u.username as customer_name, u.email as customer_email,
-            COALESCE(ot.status, 'pending') as current_status
+            COALESCE(ot.status, 'pending') as current_status,
+            odd.order_type, odd.delivery_location, odd.building_name,
+            odd.floor_number, odd.room_number, odd.contact_number,
+            odd.table_number
         FROM orders o
         JOIN users u ON o.user_id = u.id
+        LEFT JOIN order_delivery_details odd ON o.id = odd.order_id
         LEFT JOIN (
             SELECT order_id, status
             FROM order_tracking

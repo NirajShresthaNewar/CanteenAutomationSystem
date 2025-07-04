@@ -131,7 +131,7 @@ ob_start();
                 <p><strong>Discount: </strong><?php echo $active_subscription['discount_percentage']; ?>% off on all orders</p>
                 <p><strong>Valid until: </strong><?php echo date('F j, Y', strtotime($active_subscription['end_date'])); ?></p>
                 <div class="mt-3">
-                    <a href="order_food.php" class="btn btn-primary">
+                    <a href="menu.php" class="btn btn-primary">
                         Order Food Now
                     </a>
                 </div>

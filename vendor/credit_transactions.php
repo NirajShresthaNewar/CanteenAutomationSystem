@@ -192,7 +192,7 @@ ob_start();
             </div>
             <?php unset($_SESSION['success']); ?>
         <?php endif; ?>
-
+        
         <!-- Student Details (if filtering by student) -->
         <?php if (isset($student)): ?>
             <div class="card">
@@ -247,7 +247,7 @@ ob_start();
                 </button>
             </div>
         <?php endif; ?>
-
+        
         <!-- Transactions Summary -->
         <div class="row">
             <div class="col-lg-4 col-6">
@@ -286,7 +286,7 @@ ob_start();
                 </div>
             </div>
         </div>
-
+        
         <!-- Filter Form -->
         <div class="card collapsed-card">
             <div class="card-header">
@@ -444,7 +444,7 @@ ob_start();
                                     <?php echo htmlspecialchars($s['username']); ?> 
                                     (Balance: ₹<?php echo number_format($s['current_balance'], 2); ?>)
                                     <?php echo ($s['status'] !== 'active') ? ' - ' . ucfirst($s['status']) : ''; ?>
-                                </option>
+                                    </option>
                             <?php endforeach; ?>
                         </select>
                         <div id="studentError" class="payment-error"></div>

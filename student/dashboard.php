@@ -43,18 +43,15 @@ $stmt->execute([$_SESSION['user_id']]);
 $result = $stmt->fetch(PDO::FETCH_ASSOC);
 $monthly_orders_count = $result['month_count'];
 
-// Get favorite menu items count - using menu_items table instead of favorites
+// Get total credit balance across all vendors
 $stmt = $conn->prepare("
-    SELECT COUNT(*) as fav_count
-    FROM menu_items mi
-    JOIN order_items oi ON mi.item_id = oi.menu_item_id
-    JOIN orders o ON oi.order_id = o.id
-    WHERE o.user_id = ?
-    GROUP BY mi.item_id
-    HAVING COUNT(*) > 1
+    SELECT COALESCE(SUM(current_balance), 0) as total_credit
+    FROM credit_accounts
+    WHERE user_id = ? AND status = 'active'
 ");
 $stmt->execute([$_SESSION['user_id']]);
-$favorite_items_count = $stmt->rowCount();
+$result = $stmt->fetch(PDO::FETCH_ASSOC);
+$total_credit = $result['total_credit'];
 
 $page_title = 'Student Dashboard';
 ob_start();
@@ -76,16 +73,16 @@ ob_start();
     <div class="container-fluid">
         <!-- Info boxes -->
         <div class="row">
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
                 <div class="info-box">
-                    <span class="info-box-icon bg-info"><i class="fas fa-wallet"></i></span>
+                    <span class="info-box-icon bg-info"><i class="fas fa-credit-card"></i></span>
                     <div class="info-box-content">
-                        <span class="info-box-text">Wallet Balance</span>
-                        <span class="info-box-number">₹0</span>
+                        <span class="info-box-text">Credit Balance</span>
+                        <span class="info-box-number">₹<?php echo number_format($total_credit, 2); ?></span>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
                 <div class="info-box">
                     <span class="info-box-icon bg-success"><i class="fas fa-shopping-cart"></i></span>
                     <div class="info-box-content">
@@ -94,7 +91,7 @@ ob_start();
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-sm-6 col-md-4">
                 <div class="info-box">
                     <span class="info-box-icon bg-warning"><i class="fas fa-clock"></i></span>
                     <div class="info-box-content">
@@ -103,20 +100,11 @@ ob_start();
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <div class="info-box">
-                    <span class="info-box-icon bg-danger"><i class="fas fa-heart"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Favorite Items</span>
-                        <span class="info-box-number"><?php echo $favorite_items_count; ?></span>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Orders and Favorites -->
+        <!-- Orders -->
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Recent Orders</h3>
@@ -134,23 +122,83 @@ ob_start();
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td colspan="6" class="text-center">No orders found</td>
-                                </tr>
+                                <?php
+                                // Get recent orders
+                                $stmt = $conn->prepare("
+                                    SELECT 
+                                        o.id,
+                                        o.receipt_number,
+                                        o.total_amount,
+                                        u.username as vendor_name,
+                                        ot.status as order_status
+                                    FROM orders o
+                                    JOIN vendors v ON o.vendor_id = v.id
+                                    JOIN users u ON v.user_id = u.id
+                                    LEFT JOIN (
+                                        SELECT ot1.*
+                                        FROM order_tracking ot1
+                                        INNER JOIN (
+                                            SELECT order_id, MAX(status_changed_at) as max_date
+                                            FROM order_tracking
+                                            GROUP BY order_id
+                                        ) ot2 ON ot1.order_id = ot2.order_id AND ot1.status_changed_at = ot2.max_date
+                                    ) ot ON o.id = ot.order_id
+                                    WHERE o.user_id = ?
+                                    ORDER BY o.order_date DESC
+                                    LIMIT 5
+                                ");
+                                $stmt->execute([$_SESSION['user_id']]);
+                                $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                                if (empty($orders)) {
+                                    echo '<tr><td colspan="6" class="text-center">No orders found</td></tr>';
+                                } else {
+                                    foreach ($orders as $order) {
+                                        // Get order items
+                                        $stmt = $conn->prepare("
+                                            SELECT 
+                                                oi.quantity,
+                                                mi.name as item_name
+                                            FROM order_items oi
+                                            JOIN menu_items mi ON oi.menu_item_id = mi.item_id
+                                            WHERE oi.order_id = ?
+                                        ");
+                                        $stmt->execute([$order['id']]);
+                                        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                        
+                                        $items_text = array_map(function($item) {
+                                            return $item['quantity'] . 'x ' . $item['item_name'];
+                                        }, $items);
+                                        $items_text = implode(', ', $items_text);
+                                        
+                                        // Get status badge class
+                                        $status_class = match($order['order_status']) {
+                                            'pending' => 'warning',
+                                            'accepted' => 'info',
+                                            'in_progress' => 'primary',
+                                            'ready' => 'success',
+                                            'completed' => 'secondary',
+                                            'cancelled' => 'danger',
+                                            default => 'secondary'
+                                        };
+                                        
+                                        echo '<tr>
+                                            <td>#' . htmlspecialchars($order['receipt_number']) . '</td>
+                                            <td>' . htmlspecialchars($order['vendor_name']) . '</td>
+                                            <td>' . htmlspecialchars($items_text) . '</td>
+                                            <td>₹' . number_format($order['total_amount'], 2) . '</td>
+                                            <td><span class="badge badge-' . $status_class . '">' . ucfirst($order['order_status']) . '</span></td>
+                                            <td>
+                                                <a href="view_order.php?id=' . $order['id'] . '" class="btn btn-sm btn-info">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>';
+                                    }
+                                }
+                                ?>
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Favorite Vendors</h3>
-                    </div>
-                    <div class="card-body p-0">
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item">No favorite vendors found</li>
-                        </ul>
                     </div>
                 </div>
             </div>

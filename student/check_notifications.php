@@ -17,7 +17,7 @@ try {
         FROM notifications n
         LEFT JOIN orders o ON n.message LIKE CONCAT('%#', o.receipt_number, '%')
         WHERE n.user_id = ? 
-        AND n.is_read = 0 
+        AND n.status = 'unread' 
         AND n.type = 'order_ready'
         ORDER BY n.created_at DESC
         LIMIT 1
@@ -29,7 +29,7 @@ try {
         // Mark notification as read
         $stmt = $conn->prepare("
             UPDATE notifications 
-            SET is_read = 1 
+            SET status = 'read' 
             WHERE id = ?
         ");
         $stmt->execute([$notification['id']]);

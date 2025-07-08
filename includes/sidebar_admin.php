@@ -124,24 +124,24 @@ echo '
 </li>
 
 <!-- Financial Management -->
-<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['transactions.php', 'financial_reports.php']) ? 'menu-open' : '') . '">
-    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['transactions.php', 'financial_reports.php']) ? 'active' : '') . '">
-        <i class="nav-icon fas fa-money-bill"></i>
+<li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['transactions.php', 'reports.php']) ? 'menu-open' : '') . '">
+    <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['transactions.php', 'reports.php']) ? 'active' : '') . '">
+        <i class="nav-icon fas fa-money-bill-wave"></i>
         <p>
             Financial Management
-            <i class="fas fa-angle-left right"></i>
+            <i class="right fas fa-angle-left"></i>
         </p>
     </a>
     <ul class="nav nav-treeview">
         <li class="nav-item">
-            <a href="../admin/transactions.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'transactions.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-exchange-alt"></i>
+            <a href="../admin/transactions.php" class="nav-link">
+                <i class="fas fa-exchange-alt nav-icon"></i>
                 <p>Transactions</p>
             </a>
         </li>
         <li class="nav-item">
-            <a href="../admin/financial_reports.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'financial_reports.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-chart-line"></i>
+            <a href="../admin/reports.php" class="nav-link">
+                <i class="fas fa-chart-line nav-ico"></i>
                 <p>Financial Reports</p>
             </a>
         </li>
@@ -149,6 +149,7 @@ echo '
 </li>
 
 <!-- Reports -->
+<!--
 <li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['user_reports.php', 'vendor_reports.php']) ? 'menu-open' : '') . '">
     <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['user_reports.php', 'vendor_reports.php']) ? 'active' : '') . '">
         <i class="nav-icon fas fa-chart-pie"></i>
@@ -172,6 +173,7 @@ echo '
         </li>
     </ul>
 </li>
+-->
 
 <!-- Profile -->
 <li class="nav-item">

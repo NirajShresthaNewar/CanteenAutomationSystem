@@ -347,31 +347,33 @@ echo '</p>
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../vendor/subscription_plans.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_plans.php' ? 'active' : '') . '">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="fas fa-list-alt nav-icon"></i>
                 <p>Manage Plans</p>
             </a>
         </li>
+        <!--
         <li class="nav-item">
             <a href="../vendor/meal_slots.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'meal_slots.php' ? 'active' : '') . '">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="fas fa-clock nav-icon"></i>
                 <p>Meal Time Slots</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../vendor/meal_combos.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'meal_combos.php' ? 'active' : '') . '">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="fas fa-layer-group nav-icon"></i>
                 <p>Meal Combos</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../vendor/subscription_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'subscription_orders.php' ? 'active' : '') . '">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="fas fa-clipboard-list nav-icon"></i>
                 <p>Subscription Orders</p>
             </a>
-        </li>
+        </li>-->
     </ul>
 </li>
 
+<!-- Sales & Analytics -->
 <li class="nav-item">
     <a href="../vendor/analytics.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'analytics.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-chart-line"></i>

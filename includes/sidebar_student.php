@@ -114,22 +114,22 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../student/menu.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'menu.php' ? 'active' : '') . '">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="far fa-list-alt nav-icon"></i>
                 <p>Menu</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../student/cart.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'cart.php' ? 'active' : '') . '">
-                <i class="far fa-circle nav-icon"></i>
+                <i class="fas fa-shopping-basket nav-icon"></i>
                 <p>Cart</p>
             </a>
         </li>
-        <li class="nav-item">
-            <a href="../student/orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'active' : '') . '">
+     <!--   <li class="nav-item">
+            <a href="../student/active_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'orders.php' ? 'active' : '') . '">
                 <i class="far fa-circle nav-icon"></i>
                 <p>My Orders</p>
             </a>
-        </li>
+        </li> -->
     </ul>
 </li>
 
@@ -145,14 +145,14 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../student/active_orders.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'active_orders.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-spinner"></i>
+                <i class="fas fa-spinner nav-icon"></i>
                 <p>Active Orders</p>
                 ' . ($active_orders_count > 0 ? '<span class="badge badge-info right">' . $active_orders_count . '</span>' : '') . '
             </a>
         </li>
         <li class="nav-item">
             <a href="../student/order_history.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'order_history.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-history"></i>
+                <i class="fas fa-history nav-icon"></i>
                 <p>Order History</p>
             </a>
         </li>
@@ -171,13 +171,13 @@ echo '
     <ul class="nav nav-treeview">
         <li class="nav-item">
             <a href="../student/view_credit_requests.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'view_credit_requests.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-wallet"></i>
+                <i class="fas fa-wallet nav-icon"></i>
                 <p>My Credit Accounts</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="../student/request_credit.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'request_credit.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-plus-circle"></i>
+                <i class="fas fa-plus-circle nav-icon"></i>
                 <p>Request Credit</p>
             </a>
         </li>

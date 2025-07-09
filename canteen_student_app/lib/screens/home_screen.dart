@@ -168,7 +168,7 @@ class HomeScreen extends StatelessWidget {
                 subtitle: 'Browse Items',
                 color: Colors.blue,
                 onTap: () {
-                  Navigator.pushNamed(context, '/menu');
+                  Navigator.pushNamed(context, '/menu', arguments: user);
                 },
               ),
               _buildQuickActionCard(
@@ -178,7 +178,7 @@ class HomeScreen extends StatelessWidget {
                 subtitle: 'View Cart',
                 color: Colors.purple,
                 onTap: () {
-                  Navigator.pushNamed(context, '/cart');
+                  Navigator.pushNamed(context, '/cart', arguments: user);
                 },
               ),
               _buildQuickActionCard(
@@ -188,7 +188,7 @@ class HomeScreen extends StatelessWidget {
                 subtitle: 'Track Orders',
                 color: Colors.orange,
                 onTap: () {
-                  Navigator.pushNamed(context, '/orders');
+                  Navigator.pushNamed(context, '/orders', arguments: user);
                 },
               ),
               _buildQuickActionCard(

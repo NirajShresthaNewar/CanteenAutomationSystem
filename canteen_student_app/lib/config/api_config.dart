@@ -1,11 +1,14 @@
+import 'app_config.dart';
+
 class ApiConfig {
   // Base URL configuration
-  static const String baseUrl =
-      'http://Bhojraj/CanteenAutomationSystem/api'; // Updated to hostname
+  static String get baseUrl => AppConfig.baseUrl + '/api';
 
   // API endpoints
   static const String login = '/auth/login.php';
   static const String test = '/test.php';
+  static const String menuItems = '/menu/items.php';
+  static const String menuImage = '/menu/image.php';
 
   // Headers
   static Map<String, String> headers(String? token) {

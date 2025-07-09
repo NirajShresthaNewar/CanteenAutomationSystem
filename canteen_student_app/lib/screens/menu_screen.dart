@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../config/app_config.dart';
+import '../config/api_config.dart';
 import '../models/user.dart';
 import '../models/cart_item.dart';
 import '../services/cart_service.dart';
+import '../services/auth_service.dart'; // Added import for AuthService
 
 class MenuScreen extends StatefulWidget {
   final User user;
@@ -37,15 +40,25 @@ class _MenuScreenState extends State<MenuScreen> {
       return imagePath;
     }
     
-    // Handle local images from API
-    // The image path should be relative to the API endpoint
-    return '${AppConfig.baseUrl}/api/menu/image.php?path=$imagePath';
+    // Remove any file:// prefix
+    imagePath = imagePath.replaceAll(RegExp(r'^file://'), '');
+    
+    // If the path starts with uploads/, append it to the base URL without the api prefix
+    if (imagePath.startsWith('uploads/')) {
+      final baseUrlWithoutApi = AppConfig.baseUrl;
+      return '$baseUrlWithoutApi/$imagePath';
+    }
+    
+    // Otherwise use the menu image endpoint
+    return '${ApiConfig.baseUrl}${ApiConfig.menuImage}?path=$imagePath';
   }
 
   @override
   void initState() {
     super.initState();
-    _initializeScreen();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeScreen();
+    });
     _cartService.addListener(_onCartChanged);
   }
 
@@ -57,7 +70,9 @@ class _MenuScreenState extends State<MenuScreen> {
 
   void _onCartChanged() {
     if (mounted) {
-      setState(() {});
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {});
+      });
     }
   }
 
@@ -83,12 +98,28 @@ class _MenuScreenState extends State<MenuScreen> {
     });
 
     try {
+      final url = ApiConfig.baseUrl + ApiConfig.menuItems;
+      print('Fetching menu items from: $url');
+      print('Using token: ${widget.user.token}');  // Debug token
+      
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ${widget.user.token}',
+      };
+      print('Request headers: $headers');  // Debug headers
+
       final response = await http.get(
-        Uri.parse('${AppConfig.baseUrl}/api/menu/items.php'),
-        headers: {
-          'Authorization': 'Bearer ${widget.user.token}',
+        Uri.parse(url),
+        headers: headers,
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Connection timed out. Please check your internet connection.');
         },
       );
+
+      print('Menu response status: ${response.statusCode}');
+      print('Menu response body: ${response.body}');
 
       if (!mounted) return;
 
@@ -108,25 +139,45 @@ class _MenuScreenState extends State<MenuScreen> {
             _isLoading = false;
           });
         } else {
-          if (!mounted) return;
-          setState(() {
-            _error = data['message'] ?? 'No menu items available';
-            _isLoading = false;
-            _menuItems = [];
-          });
+          throw Exception(data['message'] ?? 'No menu items available');
         }
+      } else if (response.statusCode == 401 || response.statusCode == 500) {
+        // If unauthorized or server error, try to refresh the token
+        final authService = AuthService();
+        final updatedUser = await authService.checkAuth();
+        if (updatedUser != null) {
+          // Retry with new token
+          final retryResponse = await http.get(
+            Uri.parse(url),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ${updatedUser.token}',
+            },
+          );
+          
+          if (retryResponse.statusCode == 200) {
+            final data = json.decode(retryResponse.body);
+            if (data['status'] == 'success' && data['data'] != null) {
+              setState(() {
+                _vendors = List<Map<String, dynamic>>.from(data['data']);
+                if (_vendors.isNotEmpty) {
+                  _selectedVendor = _vendors.first;
+                  _menuItems = _selectedVendor?['items'] ?? [];
+                }
+                _isLoading = false;
+              });
+              return;
+            }
+          }
+        }
+        throw Exception('Session expired. Please login again.');
       } else {
-        if (!mounted) return;
-        setState(() {
-          _error = 'Failed to load menu items. Please try again.';
-          _isLoading = false;
-          _menuItems = [];
-        });
+        throw Exception('Server returned ${response.statusCode}: ${response.body}');
       }
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _error = 'Network error. Please check your connection.';
+        _error = e.toString().replaceAll('Exception: ', '');
         _isLoading = false;
         _menuItems = [];
       });
@@ -166,7 +217,11 @@ class _MenuScreenState extends State<MenuScreen> {
             label: 'VIEW CART',
             onPressed: () {
               if (mounted) {
-                Navigator.pushNamed(context, '/cart');
+                Navigator.pushNamed(
+                  context,
+                  '/cart',
+                  arguments: widget.user,
+                );
               }
             },
           ),
@@ -193,19 +248,22 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: RefreshIndicator(
-        onRefresh: _fetchMenuItems,
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              minHeight: MediaQuery.of(context).size.height - 
-                        MediaQuery.of(context).padding.top - 
-                        MediaQuery.of(context).padding.bottom,
-            ),
-            child: _buildContent(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Menu'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.pushNamed(context, '/cart', arguments: widget.user);
+            },
           ),
+        ],
+      ),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _fetchMenuItems,
+          child: _buildContent(),
         ),
       ),
     );
@@ -223,14 +281,12 @@ class _MenuScreenState extends State<MenuScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(12.0),
-              child: Text(
-                _error!,
-                style: const TextStyle(color: Colors.red),
-                textAlign: TextAlign.center,
-              ),
+            Text(
+              _error!,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red),
             ),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: _fetchMenuItems,
               child: const Text('Retry'),
@@ -242,204 +298,139 @@ class _MenuScreenState extends State<MenuScreen> {
 
     if (_vendors.isEmpty) {
       return const Center(
-        child: Text('No vendors available'),
+        child: Text('No menu items available'),
       );
     }
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-          child: DropdownButtonFormField<String>(
-            value: _selectedVendor?['vendor_email'],
-            isExpanded: true,
-            decoration: const InputDecoration(
-              labelText: 'Select Vendor',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            ),
-            items: _vendors.map((vendor) {
-              return DropdownMenuItem<String>(
-                value: vendor['vendor_email'] as String?,
-                child: Text(
-                  vendor['vendor_name'] ?? 'Unknown Vendor',
-                  overflow: TextOverflow.ellipsis,
-                ),
-              );
-            }).toList(),
-            onChanged: (String? vendorEmail) {
-              if (vendorEmail != null) {
-                final vendor = _vendors.firstWhere(
-                  (v) => v['vendor_email'] == vendorEmail,
-                  orElse: () => {'items': []},
-                );
-                setState(() {
-                  _selectedVendor = vendor;
-                  _menuItems = vendor['items'] ?? [];
-                });
-              }
-            },
-          ),
-        ),
-        _menuItems.isEmpty
-            ? const Expanded(
-                child: Center(
-                  child: Text('No menu items available for this vendor'),
-                ),
-              )
-            : ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-                itemCount: _menuItems.length,
-                itemBuilder: (context, index) {
-                  final item = _menuItems[index];
-                  if (item == null) return const SizedBox.shrink();
-                  
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildItemImage(item),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildItemDetails(item, context),
-                          ),
-                        ],
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: _vendors.length,
+      itemBuilder: (context, vendorIndex) {
+        final vendor = _vendors[vendorIndex];
+        final items = vendor['items'] as List;
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Vendor Header
+            Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      vendor['vendor_name'],
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      vendor['opening_hours'] ?? 'Hours not specified',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
                       ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Menu Items Grid
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return _buildMenuItem(item);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildMenuItem(Map<String, dynamic> item) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => _addToCart(item),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image
+            AspectRatio(
+              aspectRatio: 1.0,
+              child: Image.network(
+                _getImageUrl(item['image_path']),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    color: Colors.grey[200],
+                    child: const Icon(
+                      Icons.restaurant,
+                      size: 48,
+                      color: Colors.grey,
                     ),
                   );
                 },
               ),
-      ],
-    );
-  }
-
-  Widget _buildItemImage(Map<String, dynamic> item) {
-    final size = MediaQuery.of(context).size.width * 0.2; // 20% of screen width
-    return SizedBox(
-      width: size,
-      height: size,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(6),
-        child: Container(
-          color: Colors.grey[200],
-          child: item['image_path'] != null
-              ? Image.network(
-                  _getImageUrl(item['image_path']),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    print('Error loading image: $error');
-                    return Icon(
-                      Icons.restaurant,
-                      size: size * 0.5,
-                      color: Colors.grey,
-                    );
-                  },
-                  loadingBuilder: (context, child, loadingProgress) {
-                    if (loadingProgress == null) return child;
-                    return Center(
-                      child: CircularProgressIndicator(
-                        value: loadingProgress.expectedTotalBytes != null
-                            ? loadingProgress.cumulativeBytesLoaded / 
-                              loadingProgress.expectedTotalBytes!
-                            : null,
-                      ),
-                    );
-                  },
-                )
-              : Icon(
-                  Icons.restaurant,
-                  size: size * 0.5,
-                  color: Colors.grey,
-                ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildItemDetails(Map<String, dynamic> item, BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 360; // Adjust layout for very small screens
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          item['name'] ?? 'Unnamed Item',
-          style: TextStyle(
-            fontSize: isSmallScreen ? 14 : 16,
-            fontWeight: FontWeight.bold,
-          ),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
-        if (item['description'] != null && item['description'].toString().isNotEmpty) ...[
-          const SizedBox(height: 4),
-          Text(
-            item['description'].toString(),
-            style: TextStyle(
-              fontSize: isSmallScreen ? 12 : 13,
-              color: Colors.grey[600],
             ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-          ),
-        ],
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Text(
-              'RM ${(item['price'] ?? 0.0).toStringAsFixed(2)}',
-              style: TextStyle(
-                fontSize: isSmallScreen ? 14 : 15,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
+            
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item['name'],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Rs. ${item['price']}',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            SizedBox(
-              height: 32,
-              child: ElevatedButton.icon(
-                onPressed: _isAddingToCart
-                    ? null
-                    : () => _addToCart(item),
-                icon: _isAddingToCart
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Icon(
-                        Icons.add_shopping_cart,
-                        size: isSmallScreen ? 16 : 18,
-                      ),
-                label: Text(
-                  _isAddingToCart ? 'Adding...' : 'Add to Cart',
-                  style: TextStyle(fontSize: isSmallScreen ? 12 : 14),
-                ),
+            
+            // Add to Cart Button
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: ElevatedButton(
+                onPressed: () => _addToCart(item),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
-                  disabledBackgroundColor:
-                      Theme.of(context).primaryColor.withOpacity(0.6),
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  textStyle: const TextStyle(fontSize: 12),
                 ),
+                child: const Text('Add to Cart'),
               ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 } 

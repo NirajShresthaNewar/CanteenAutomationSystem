@@ -7,32 +7,27 @@ require_once __DIR__ . '/../config/auth.php';
 
 // Log request details
 error_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
-error_log("Headers: " . json_encode(getallheaders()));
+error_log("Raw Headers: " . json_encode(getallheaders()));
 
 try {
     $database = new Database();
     $db = $database->connect();
 
-    // Get the token from the Authorization header
-    $headers = getallheaders();
-    $auth_header = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-    if (empty($auth_header)) {
-        throw new Exception('No Authorization header found');
+    // Get and verify the token
+    $token = getBearerToken();
+    
+    if (!$token) {
+        throw new Exception('No valid Bearer token found');
     }
-
-    if (!preg_match('/Bearer\s+(.*)$/i', $auth_header, $matches)) {
-        throw new Exception('Invalid token format');
-    }
-
-    $token = $matches[1];
+    
     $user_data = verifyToken($token);
 
     if (!$user_data) {
-        throw new Exception('Invalid token');
+        throw new Exception('Invalid or expired token');
     }
 
     $user_id = $user_data->user_id;
+    error_log("Processing request for user_id: " . $user_id);
 
     // First, get the user's school ID
     $school_query = "SELECT ss.school_id 

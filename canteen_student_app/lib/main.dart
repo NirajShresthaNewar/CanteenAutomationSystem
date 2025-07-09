@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/menu_screen.dart';
+import 'screens/cart_screen.dart';
+import 'screens/orders_screen.dart';
 import 'services/auth_service.dart';
 import 'models/user.dart';
 import 'config/app_config.dart';
@@ -51,6 +54,20 @@ class MyApp extends StatelessWidget {
           centerTitle: true,
         ),
       ),
+      routes: {
+        '/menu': (context) {
+          final user = ModalRoute.of(context)!.settings.arguments as User;
+          return MenuScreen(user: user);
+        },
+        '/cart': (context) {
+          final user = ModalRoute.of(context)!.settings.arguments as User;
+          return CartScreen(user: user);
+        },
+        '/orders': (context) {
+          final user = ModalRoute.of(context)!.settings.arguments as User;
+          return OrdersScreen(user: user);
+        },
+      },
       initialRoute: '/',
       onGenerateRoute: (settings) {
         if (settings.name == '/home') {

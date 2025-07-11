@@ -4,6 +4,10 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/cart_item.dart';
 import '../config/api_config.dart';
+import '../services/auth_service.dart';
+import '../models/user.dart';
+import 'package:flutter/widgets.dart';
+import 'dart:async';
 
 class CartService with ChangeNotifier {
   static CartService? _instance;
@@ -20,50 +24,76 @@ class CartService with ChangeNotifier {
   int? _currentVendorId;
   bool _isInitialized = false;
   bool _isLoading = false;
+  Timer? _notifyTimer;
 
   List<CartItem> get items => List.unmodifiable(_items);
   int? get currentVendorId => _currentVendorId;
   bool get isLoading => _isLoading;
+  bool get isInitialized => _isInitialized;
   
   double get totalAmount => _items.fold(0, (sum, item) => sum + item.totalPrice);
   
   int get itemCount => _items.fold(0, (sum, item) => sum + item.quantity);
+
+  void _debounceNotify() {
+    _notifyTimer?.cancel();
+    _notifyTimer = Timer(const Duration(milliseconds: 100), () {
+      notifyListeners();
+    });
+  }
+
+  @override
+  void dispose() {
+    _notifyTimer?.cancel();
+    super.dispose();
+  }
 
   Future<void> initialize() async {
     if (_isLoading) return;
     
     try {
       _isLoading = true;
-      notifyListeners();
-      
+      _debounceNotify();
+
       if (!_isInitialized) {
+        print('Initializing cart service...');
         await loadCart();
         _isInitialized = true;
+        print('Cart service initialized with ${_items.length} items');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error initializing cart: $e');
+      print('Stack trace: $stackTrace');
       _items = [];
       _currentVendorId = null;
       _isInitialized = false;
+      rethrow;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _debounceNotify();
     }
   }
 
   Future<void> loadCart() async {
     try {
+      print('Loading cart from storage...');
       final cartData = await _storage.read(key: _cartKey);
+      print('Cart data from storage: $cartData');
+      
       if (cartData != null) {
         final List<dynamic> decodedData = json.decode(cartData);
+        print('Decoded cart data: $decodedData');
         _items = decodedData.map((item) => CartItem.fromJson(item)).toList();
+        print('Loaded ${_items.length} items into cart');
         _updateCurrentVendor();
       } else {
+        print('No cart data found in storage');
         _items = [];
         _currentVendorId = null;
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error loading cart: $e');
+      print('Stack trace: $stackTrace');
       _items = [];
       _currentVendorId = null;
       rethrow;
@@ -72,10 +102,14 @@ class CartService with ChangeNotifier {
 
   Future<void> saveCart() async {
     try {
+      print('Saving cart with ${_items.length} items');
       final cartData = json.encode(_items.map((item) => item.toJson()).toList());
+      print('Cart data to save: $cartData');
       await _storage.write(key: _cartKey, value: cartData);
-    } catch (e) {
+      print('Cart saved successfully');
+    } catch (e, stackTrace) {
       print('Error saving cart: $e');
+      print('Stack trace: $stackTrace');
       throw Exception('Failed to save cart: $e');
     }
   }
@@ -85,9 +119,11 @@ class CartService with ChangeNotifier {
     
     try {
       _isLoading = true;
-      notifyListeners();
+      _debounceNotify();
 
+      print('Adding item to cart: ${newItem.name}');
       if (!_isInitialized) {
+        print('Cart not initialized, initializing...');
         await initialize();
       }
 
@@ -100,18 +136,26 @@ class CartService with ChangeNotifier {
       final existingItemIndex = _items.indexWhere((item) => item.itemId == newItem.itemId);
       
       if (existingItemIndex >= 0) {
+        print('Updating quantity for existing item');
         // Update quantity if item exists
         _items[existingItemIndex].quantity += newItem.quantity;
       } else {
+        print('Adding new item to cart');
         // Add new item
         _items.add(newItem);
         _updateCurrentVendor();
       }
 
+      print('Saving cart after adding item');
       await saveCart();
+      print('Cart updated successfully, total items: ${_items.length}');
+    } catch (e, stackTrace) {
+      print('Error adding item to cart: $e');
+      print('Stack trace: $stackTrace');
+      rethrow;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _debounceNotify();
     }
   }
 
@@ -120,7 +164,7 @@ class CartService with ChangeNotifier {
     
     try {
       _isLoading = true;
-      notifyListeners();
+      _debounceNotify();
 
       if (!_isInitialized) {
         await initialize();
@@ -133,7 +177,7 @@ class CartService with ChangeNotifier {
       await saveCart();
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _debounceNotify();
     }
   }
 
@@ -142,7 +186,7 @@ class CartService with ChangeNotifier {
     
     try {
       _isLoading = true;
-      notifyListeners();
+      _debounceNotify();
 
       if (!_isInitialized) {
         await initialize();
@@ -159,7 +203,7 @@ class CartService with ChangeNotifier {
       }
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _debounceNotify();
     }
   }
 
@@ -168,7 +212,7 @@ class CartService with ChangeNotifier {
     
     try {
       _isLoading = true;
-      notifyListeners();
+      _debounceNotify();
 
       if (!_isInitialized) {
         await initialize();
@@ -179,11 +223,12 @@ class CartService with ChangeNotifier {
       await _storage.delete(key: _cartKey);
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _debounceNotify();
     }
   }
 
   Future<void> checkout({
+    required User user,
     required String orderType,
     required String paymentMethod,
     String? deliveryLocation,
@@ -198,14 +243,26 @@ class CartService with ChangeNotifier {
     
     try {
       _isLoading = true;
-      notifyListeners();
+      _debounceNotify();
+
+      print('Starting checkout process...');
+      print('Current cart items: ${_items.length}');
+      print('Cart items details: ${_items.map((item) => '${item.name}: ${item.quantity}').join(', ')}');
 
       if (!_isInitialized) {
+        print('Cart not initialized, initializing...');
         await initialize();
       }
 
+      // Double check cart items after initialization
       if (_items.isEmpty) {
+        print('Cart is empty after initialization');
         throw Exception('Cart is empty');
+      }
+
+      if (user.token == null) {
+        print('User token is null');
+        throw Exception('User not authenticated');
       }
 
       // Validate required fields
@@ -222,9 +279,13 @@ class CartService with ChangeNotifier {
         }
       }
 
+      // Create a copy of cart items to prevent any race conditions
+      final itemsToCheckout = List<CartItem>.from(_items);
+
       // Prepare order data
       final orderData = {
-        'vendor_id': _currentVendorId,
+        'user_id': user.id.toString(),
+        'vendor_id': _currentVendorId.toString(),
         'payment_method': paymentMethod,
         'order_type': orderType,
         'delivery_location': deliveryLocation,
@@ -234,27 +295,60 @@ class CartService with ChangeNotifier {
         'contact_number': contactNumber,
         'delivery_instructions': deliveryInstructions,
         'table_number': tableNumber,
+        'items': itemsToCheckout.map((item) => {
+          'menu_item_id': item.itemId,
+          'quantity': item.quantity,
+          'price': item.price,
+          'name': item.name,
+        }).toList(),
       };
 
-      // Send order to server
+      print('Sending checkout request with data: ${json.encode(orderData)}');
+
+      final checkoutUrl = '${ApiConfig.baseUrl}/checkout.php';
+      print('Checkout URL: $checkoutUrl');
+
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/checkout.php'),
-        body: json.encode(orderData),
+        Uri.parse(checkoutUrl),
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${user.token}',
         },
+        body: json.encode(orderData),
       );
 
+      print('Checkout response status: ${response.statusCode}');
+      print('Checkout response body: ${response.body}');
+
       if (response.statusCode != 200) {
-        final error = json.decode(response.body);
-        throw Exception(error['error'] ?? 'Failed to place order');
+        try {
+          final errorBody = json.decode(response.body);
+          throw Exception(errorBody['error'] ?? 'Server error: ${response.statusCode}');
+        } catch (e) {
+          if (e is FormatException) {
+            throw Exception('Server error: ${response.statusCode}. Please try again.');
+          }
+          rethrow;
+        }
       }
 
-      // Clear cart after successful order
+      final responseData = json.decode(response.body);
+      
+      if (!responseData['success']) {
+        throw Exception(responseData['error'] ?? 'Failed to place order');
+      }
+
+      // Clear cart only after successful order
+      print('Order successful, clearing cart');
       await clearCart();
+      
+    } catch (e, stackTrace) {
+      print('Checkout error: $e');
+      print('Checkout error stack trace: $stackTrace');
+      rethrow;
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _debounceNotify();
     }
   }
 

@@ -5,10 +5,36 @@ import '../config/api_config.dart';
 import '../models/user.dart';
 
 class AuthService {
+  static AuthService? _instance;
+  static AuthService get instance {
+    _instance ??= AuthService._internal();
+    return _instance!;
+  }
+
+  AuthService._internal();
+
   final storage = const FlutterSecureStorage();
   User? _currentUser;
 
   User? get currentUser => _currentUser;
+
+  Future<String?> getCurrentUserId() async {
+    try {
+      if (_currentUser != null) {
+        return _currentUser!.id.toString();
+      }
+      
+      final userData = await storage.read(key: 'user_data');
+      if (userData != null) {
+        final userMap = jsonDecode(userData);
+        return userMap['id']?.toString();
+      }
+      return null;
+    } catch (e) {
+      print('Error getting user ID: $e');
+      return null;
+    }
+  }
 
   Future<User> login(String email, String password) async {
     try {

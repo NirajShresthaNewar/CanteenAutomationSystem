@@ -20,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   late List<Widget> _screens;
   late List<String> _titles;
-  final AuthService _authService = AuthService();
+  final AuthService _authService = AuthService.instance;
   bool _isLoggingOut = false;
 
   @override

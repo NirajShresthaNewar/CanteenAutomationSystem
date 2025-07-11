@@ -7,7 +7,8 @@ import '../config/api_config.dart';
 import '../models/user.dart';
 import '../models/cart_item.dart';
 import '../services/cart_service.dart';
-import '../services/auth_service.dart'; // Added import for AuthService
+import '../services/auth_service.dart';
+import '../widgets/app_scaffold.dart';
 
 class MenuScreen extends StatefulWidget {
   final User user;
@@ -26,6 +27,7 @@ class _MenuScreenState extends State<MenuScreen> {
   List<Map<String, dynamic>> _vendors = [];
   final CartService _cartService = CartService.instance;
   bool _isAddingToCart = false;
+  Timer? _debounceTimer;
 
   String _getImageUrl(String? imagePath) {
     if (imagePath == null || imagePath.isEmpty) return '';
@@ -57,7 +59,7 @@ class _MenuScreenState extends State<MenuScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeScreen();
+    _initializeScreen();
     });
     _cartService.addListener(_onCartChanged);
   }
@@ -65,17 +67,27 @@ class _MenuScreenState extends State<MenuScreen> {
   @override
   void dispose() {
     _cartService.removeListener(_onCartChanged);
+    _debounceTimer?.cancel();
     super.dispose();
   }
 
   void _onCartChanged() {
-    if (mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
         setState(() {});
-      });
-    }
+      }
+    });
   }
 
+/*************  ✨ Windsurf Command ⭐  *************/
+/// Initializes the screen by setting up the cart service and fetching menu items.
+/// 
+/// This function attempts to initialize the cart service and then retrieve the 
+/// available menu items. If an error occurs during either of these processes, 
+/// it sets an error message and stops loading.
+
+/*******  0588c874-f4fc-4431-9a5e-b3499b22af43  *******/
   Future<void> _initializeScreen() async {
     try {
       await _cartService.initialize();
@@ -143,7 +155,7 @@ class _MenuScreenState extends State<MenuScreen> {
         }
       } else if (response.statusCode == 401 || response.statusCode == 500) {
         // If unauthorized or server error, try to refresh the token
-        final authService = AuthService();
+        final authService = AuthService.instance;
         final updatedUser = await authService.checkAuth();
         if (updatedUser != null) {
           // Retry with new token
@@ -158,14 +170,14 @@ class _MenuScreenState extends State<MenuScreen> {
           if (retryResponse.statusCode == 200) {
             final data = json.decode(retryResponse.body);
             if (data['status'] == 'success' && data['data'] != null) {
-              setState(() {
+          setState(() {
                 _vendors = List<Map<String, dynamic>>.from(data['data']);
                 if (_vendors.isNotEmpty) {
                   _selectedVendor = _vendors.first;
                   _menuItems = _selectedVendor?['items'] ?? [];
                 }
-                _isLoading = false;
-              });
+            _isLoading = false;
+          });
               return;
             }
           }
@@ -248,23 +260,193 @@ class _MenuScreenState extends State<MenuScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Menu'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_cart),
-            onPressed: () {
-              Navigator.pushNamed(context, '/cart', arguments: widget.user);
-            },
+    return AppScaffold(
+      user: widget.user,
+      title: 'Menu',
+      actions: [
+        if (_cartService.items.isNotEmpty)
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/cart',
+                    arguments: widget.user,
+                  );
+                },
+              ),
+              if (_cartService.itemCount > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      _cartService.itemCount.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
           ),
-        ],
-      ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _fetchMenuItems,
-          child: _buildContent(),
+      ],
+      body: _error != null
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _error!,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _fetchMenuItems,
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            )
+          : _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  children: [
+                    // Vendor selection
+                    if (_vendors.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: DropdownButtonFormField<Map<String, dynamic>>(
+                          value: _selectedVendor,
+                          decoration: const InputDecoration(
+                            labelText: 'Select Vendor',
+                            border: OutlineInputBorder(),
+                          ),
+                          items: _vendors.map((vendor) {
+                            return DropdownMenuItem<Map<String, dynamic>>(
+                              value: vendor,
+                              child: Text(vendor['name'] ?? 'Unknown Vendor'),
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              _selectedVendor = newValue;
+                              _menuItems = _selectedVendor?['items'] ?? [];
+                            });
+                          },
+                        ),
+                      ),
+                    // Menu items
+                    Expanded(
+                      child: _menuItems.isEmpty
+                          ? const Center(
+                              child: Text('No menu items available'),
+                            )
+                          : RefreshIndicator(
+                              onRefresh: _fetchMenuItems,
+                              child: GridView.builder(
+                                padding: const EdgeInsets.all(8),
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  childAspectRatio: 0.75,
+                                  mainAxisSpacing: 8,
+                                  crossAxisSpacing: 8,
+                                ),
+                                itemCount: _menuItems.length,
+                                itemBuilder: (context, index) {
+                                  final item = _menuItems[index];
+                                  return Card(
+                                    clipBehavior: Clip.antiAlias,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        AspectRatio(
+                                          aspectRatio: 1,
+                                          child: Image.network(
+                                            _getImageUrl(item['image_path']),
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              return Container(
+                                                color: Colors.grey[200],
+                                                child: const Icon(
+                                                  Icons.restaurant,
+                                                  size: 48,
+                                                  color: Colors.grey,
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  item['name'] ?? 'Unnamed Item',
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  'Rs. ${item['price'] ?? '0.00'}',
+                                                  style: TextStyle(
+                                                    color: Theme.of(context).primaryColor,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton(
+                                              onPressed: _isAddingToCart
+                                                  ? null
+                                                  : () => _addToCart(item),
+                                              style: ElevatedButton.styleFrom(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 4,
+                                                ),
+            ),
+                                              child: Text(
+                                                _isAddingToCart ? 'Adding...' : 'Add to Cart',
+                                                style: const TextStyle(fontSize: 12),
+          ),
         ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                    ),
+                  ],
       ),
     );
   }
@@ -282,9 +464,9 @@ class _MenuScreenState extends State<MenuScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              _error!,
+                _error!,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.red),
+                style: const TextStyle(color: Colors.red),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
@@ -310,18 +492,18 @@ class _MenuScreenState extends State<MenuScreen> {
       itemBuilder: (context, vendorIndex) {
         final vendor = _vendors[vendorIndex];
         final items = vendor['items'] as List;
-        
-        return Column(
+
+    return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      children: [
             // Vendor Header
             Card(
               margin: const EdgeInsets.only(bottom: 16),
-              child: Padding(
+                    child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                     Text(
                       vendor['vendor_name'],
                       style: Theme.of(context).textTheme.titleLarge,
@@ -347,14 +529,14 @@ class _MenuScreenState extends State<MenuScreen> {
                 childAspectRatio: 0.75,
                 crossAxisSpacing: 16,
                 mainAxisSpacing: 16,
-              ),
+                    ),
               itemCount: items.length,
               itemBuilder: (context, index) {
                 final item = items[index];
                 return _buildMenuItem(item);
-              },
-            ),
-          ],
+                },
+              ),
+      ],
         );
       },
     );
@@ -372,44 +554,44 @@ class _MenuScreenState extends State<MenuScreen> {
             AspectRatio(
               aspectRatio: 1.0,
               child: Image.network(
-                _getImageUrl(item['image_path']),
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
+                  _getImageUrl(item['image_path']),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
                   return Container(
                     color: Colors.grey[200],
                     child: const Icon(
                       Icons.restaurant,
                       size: 48,
                       color: Colors.grey,
-                    ),
-                  );
-                },
-              ),
-            ),
+                      ),
+                    );
+                  },
+                ),
+        ),
             
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
                       item['name'],
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.bold,
                         fontSize: 14,
-                      ),
+          ),
                       maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
+          overflow: TextOverflow.ellipsis,
+        ),
+          const SizedBox(height: 4),
+          Text(
                       'Rs. ${item['price']}',
-                      style: TextStyle(
+            style: TextStyle(
                         color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.bold,
                       ),
-                    ),
+              ),
                   ],
                 ),
               ),

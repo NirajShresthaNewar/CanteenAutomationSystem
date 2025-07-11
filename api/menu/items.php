@@ -15,11 +15,11 @@ try {
 
     // Get and verify the token
     $token = getBearerToken();
-    
+
     if (!$token) {
         throw new Exception('No valid Bearer token found');
     }
-    
+
     $user_data = verifyToken($token);
 
     if (!$user_data) {

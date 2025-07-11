@@ -15,6 +15,8 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   final _formKey = GlobalKey<FormState>();
   final CartService _cartService = CartService.instance;
+  bool _isLoading = false;
+  String? _error;
   
   String _orderType = 'delivery';
   String _paymentMethod = 'cash';
@@ -29,6 +31,112 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   
   // Dine-in details
   final _tableNumberController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _validateCart();
+  }
+
+  Future<void> _validateCart() async {
+    try {
+      if (!_cartService.isInitialized) {
+        await _cartService.initialize();
+      }
+
+      if (_cartService.items.isEmpty) {
+        print('Cart is empty during validation');
+        Navigator.of(context).pushReplacementNamed('/cart');
+        return;
+      }
+
+      print('Cart validated successfully. Items count: ${_cartService.items.length}');
+      print('Cart items: ${_cartService.items.map((item) => '${item.name}: ${item.quantity}').join(', ')}');
+    } catch (e) {
+      print('Error validating cart: $e');
+      Navigator.of(context).pushReplacementNamed('/cart');
+    }
+  }
+
+  Future<void> _handleCheckout() async {
+    if (!mounted) return;
+
+    // Validate form
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+
+    try {
+      print('Starting checkout process...');
+      print('Current cart items: ${_cartService.items.length}');
+      
+      if (_cartService.items.isEmpty) {
+        throw Exception('Cart is empty');
+      }
+
+      await _cartService.checkout(
+        user: widget.user,
+        orderType: _orderType,
+        paymentMethod: _paymentMethod,
+        deliveryLocation: _orderType == 'delivery' ? _deliveryLocationController.text : null,
+        buildingName: _orderType == 'delivery' ? _buildingNameController.text : null,
+        floorNumber: _orderType == 'delivery' ? _floorNumberController.text : null,
+        roomNumber: _orderType == 'delivery' ? _roomNumberController.text : null,
+        contactNumber: _orderType == 'delivery' ? _contactNumberController.text : null,
+        deliveryInstructions: _orderType == 'delivery' ? _deliveryInstructionsController.text : null,
+        tableNumber: _orderType == 'dine_in' ? _tableNumberController.text : null,
+      );
+
+      if (!mounted) return;
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Order placed successfully!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Add delay before navigation
+      await Future.delayed(const Duration(seconds: 1));
+
+      if (!mounted) return;
+
+      // Navigate back to home screen and clear all previous routes
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        '/home',
+        (route) => false,
+        arguments: widget.user,
+      );
+
+    } catch (e) {
+      print('Error during checkout: $e');
+      if (!mounted) return;
+      
+      setState(() {
+        _error = e.toString();
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Checkout failed: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -251,117 +359,52 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     );
   }
 
-  Future<void> _processCheckout() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    try {
-      // Show loading indicator
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => const Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-
-      // Process checkout
-      await _cartService.checkout(
-        orderType: _orderType,
-        paymentMethod: _paymentMethod,
-        deliveryLocation: _deliveryLocationController.text,
-        buildingName: _buildingNameController.text,
-        floorNumber: _floorNumberController.text,
-        roomNumber: _roomNumberController.text,
-        contactNumber: _contactNumberController.text,
-        deliveryInstructions: _deliveryInstructionsController.text,
-        tableNumber: _tableNumberController.text,
-      );
-
-      // Remove loading indicator
-      Navigator.pop(context);
-
-      // Show success message
-      if (!mounted) return;
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Success'),
-          content: const Text('Your order has been placed successfully!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Go back to cart
-                Navigator.pop(context); // Go back to menu
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    } catch (e) {
-      // Remove loading indicator
-      Navigator.pop(context);
-
-      // Show error message
-      if (!mounted) return;
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Error'),
-          content: Text('Failed to place order: $e'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Checkout'),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            _buildOrderTypeSection(),
-            const SizedBox(height: 24),
-            if (_orderType == 'delivery') _buildDeliveryDetailsSection(),
-            if (_orderType == 'dine_in') _buildDineInDetailsSection(),
-            const SizedBox(height: 24),
-            _buildOrderSummary(),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _processCheckout,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text(
-                  'Place Order',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_error != null)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: Text(
+                          _error!,
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    _buildOrderTypeSection(),
+                    const SizedBox(height: 24),
+                    if (_orderType == 'delivery') ...[
+                      _buildDeliveryDetailsSection(),
+                      const SizedBox(height: 24),
+                    ],
+                    if (_orderType == 'dine_in') ...[
+                      _buildDineInDetailsSection(),
+                      const SizedBox(height: 24),
+                    ],
+                    _buildOrderSummary(),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _handleCheckout,
+                      child: Text(_isLoading ? 'Processing...' : 'Place Order'),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 } 

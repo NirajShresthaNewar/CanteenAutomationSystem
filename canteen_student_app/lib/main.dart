@@ -100,7 +100,7 @@ class MyApp extends StatelessWidget {
   }
 
   Future<User?> _checkAuth() async {
-    final authService = AuthService();
+    final authService = AuthService.instance;
     return await authService.checkAuth();
   }
 }

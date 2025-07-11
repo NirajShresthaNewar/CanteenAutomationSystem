@@ -1,11 +1,41 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
 import '../config/app_config.dart';
+import '../services/cart_service.dart';
+import '../widgets/app_scaffold.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final User user;
 
   const HomeScreen({Key? key, required this.user}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final CartService _cartService = CartService.instance;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCart();
+  }
+
+  Future<void> _initializeCart() async {
+    try {
+      await _cartService.initialize();
+    } catch (e) {
+      print('Error initializing cart: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   Widget _buildProfileAvatar(BuildContext context) {
     return Container(
@@ -19,10 +49,10 @@ class HomeScreen extends StatelessWidget {
       child: CircleAvatar(
         radius: 32,
         backgroundColor: Theme.of(context).primaryColor.withOpacity(0.1),
-        child: user.profilePic != null && user.profilePic!.isNotEmpty
+        child: widget.user.profilePic != null && widget.user.profilePic!.isNotEmpty
             ? ClipOval(
                 child: Image.network(
-                  '${AppConfig.baseUrl}/api/profile/image.php?path=${user.profilePic}',
+                  '${AppConfig.baseUrl}/api/profile/image.php?path=${widget.user.profilePic}',
                   width: 64,
                   height: 64,
                   fit: BoxFit.cover,
@@ -39,7 +69,7 @@ class HomeScreen extends StatelessWidget {
 
   Widget _buildDefaultAvatar() {
     return Text(
-      user.username[0].toUpperCase(),
+      widget.user.username[0].toUpperCase(),
       style: const TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.bold,
@@ -86,176 +116,185 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        // TODO: Implement refresh functionality
-      },
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // User Welcome Card
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
+    return AppScaffold(
+      user: widget.user,
+      title: 'Dashboard',
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: () async {
+                // TODO: Implement refresh functionality
+              },
+              child: ListView(
+                padding: const EdgeInsets.all(16),
                 children: [
-                  _buildProfileAvatar(context),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Welcome back,',
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          user.username,
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.school,
-                              size: 16,
-                              color: Colors.grey[600],
-                            ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                user.schoolName ?? 'Unknown School',
-                                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Colors.grey[600],
+                  // User Welcome Card
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          _buildProfileAvatar(context),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Welcome back,',
+                                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  widget.user.username,
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.school,
+                                      size: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Expanded(
+                                      child: Text(
+                                        widget.user.schoolName ?? 'Unknown School',
+                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          color: Colors.grey[600],
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
-          // Quick Actions Grid
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 16,
-            crossAxisSpacing: 16,
-            children: [
-              _buildQuickActionCard(
-                context,
-                icon: Icons.restaurant_menu,
-                title: 'Menu',
-                subtitle: 'Browse Items',
-                color: Colors.blue,
-                onTap: () {
-                  Navigator.pushNamed(context, '/menu', arguments: user);
-                },
-              ),
-              _buildQuickActionCard(
-                context,
-                icon: Icons.shopping_cart,
-                title: 'Cart',
-                subtitle: 'View Cart',
-                color: Colors.purple,
-                onTap: () {
-                  Navigator.pushNamed(context, '/cart', arguments: user);
-                },
-              ),
-              _buildQuickActionCard(
-                context,
-                icon: Icons.receipt_long,
-                title: 'Orders',
-                subtitle: 'Track Orders',
-                color: Colors.orange,
-                onTap: () {
-                  Navigator.pushNamed(context, '/orders', arguments: user);
-                },
-              ),
-              _buildQuickActionCard(
-                context,
-                icon: Icons.account_balance_wallet,
-                title: 'Wallet',
-                subtitle: 'Coming Soon',
-                color: Colors.green,
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Wallet feature coming soon!'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 24),
-
-          // Recent Activity Card
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  // Quick Actions Grid
+                  GridView.count(
+                    crossAxisCount: 2,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: 16,
+                    crossAxisSpacing: 16,
                     children: [
-                      Text(
-                        'Recent Activity',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/orders');
+                      _buildQuickActionCard(
+                        context,
+                        icon: Icons.restaurant_menu,
+                        title: 'Menu',
+                        subtitle: 'Browse Items',
+                        color: Colors.blue,
+                        onTap: () {
+                          Navigator.pushNamed(context, '/menu', arguments: widget.user);
                         },
-                        child: const Text('View All'),
+                      ),
+                      _buildQuickActionCard(
+                        context,
+                        icon: Icons.shopping_cart,
+                        title: 'Cart',
+                        subtitle: 'View Cart',
+                        color: Colors.purple,
+                        onTap: () {
+                          Navigator.pushNamed(context, '/cart', arguments: widget.user);
+                        },
+                      ),
+                      _buildQuickActionCard(
+                        context,
+                        icon: Icons.receipt_long,
+                        title: 'Orders',
+                        subtitle: 'Track Orders',
+                        color: Colors.orange,
+                        onTap: () {
+                          Navigator.pushNamed(context, '/orders', arguments: widget.user);
+                        },
+                      ),
+                      _buildQuickActionCard(
+                        context,
+                        icon: Icons.account_balance_wallet,
+                        title: 'Wallet',
+                        subtitle: 'Coming Soon',
+                        color: Colors.green,
+                        onTap: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Wallet feature coming soon!'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
-                  const Divider(),
-                  // Show a message when no recent activity
-                  Center(
+
+                  const SizedBox(height: 24),
+
+                  // Recent Activity Card
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
-                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.receipt_outlined,
-                            size: 48,
-                            color: Colors.grey[400],
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Recent Activity',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/orders', arguments: widget.user);
+                                },
+                                child: const Text('View All'),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'No recent activity',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 16,
+                          const Divider(),
+                          // Show a message when no recent activity
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.receipt_outlined,
+                                    size: 48,
+                                    color: Colors.grey[400],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'No recent activity',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -265,9 +304,6 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ],
-      ),
     );
   }
 } 

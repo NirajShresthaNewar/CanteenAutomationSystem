@@ -3,6 +3,8 @@ import '../models/user.dart';
 import '../config/app_config.dart';
 import '../services/cart_service.dart';
 import '../widgets/app_scaffold.dart';
+import '../models/order.dart';
+import '../services/order_service.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
@@ -109,6 +111,197 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentOrderCard(Order order) {
+    return Card(
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            order.orderType == 'delivery' ? Icons.delivery_dining : Icons.restaurant,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+        title: Text(
+          order.vendorName,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Order #${order.id}'),
+            const SizedBox(height: 4),
+            _buildStatusChip(order.status),
+          ],
+        ),
+        trailing: Text(
+          'Rs. ${order.totalAmount.toStringAsFixed(2)}',
+          style: TextStyle(
+            color: Theme.of(context).primaryColor,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          Navigator.pushNamed(context, '/orders', arguments: widget.user);
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    Color color;
+    switch (status.toLowerCase()) {
+      case 'pending':
+        color = Colors.orange;
+        break;
+      case 'confirmed':
+        color = Colors.blue;
+        break;
+      case 'preparing':
+        color = Colors.amber;
+        break;
+      case 'ready':
+        color = Colors.green;
+        break;
+      case 'out_for_delivery':
+        color = Colors.purple;
+        break;
+      case 'delivered':
+        color = Colors.green;
+        break;
+      case 'cancelled':
+        color = Colors.red;
+        break;
+      default:
+        color = Colors.grey;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        status.replaceAll('_', ' ').toUpperCase(),
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w500,
+          fontSize: 10,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecentActivitySection() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Recent Orders',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/orders', arguments: widget.user);
+                  },
+                  child: const Text('View All'),
+                ),
+              ],
+            ),
+            const Divider(),
+            FutureBuilder<List<Order>>(
+              future: OrderService.instance.getOrders(widget.user, activeOnly: true),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            size: 48,
+                            color: Colors.red[300],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Error loading orders',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                final orders = snapshot.data ?? [];
+
+                if (orders.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.receipt_outlined,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No recent orders',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: orders.length > 3 ? 3 : orders.length,
+                  separatorBuilder: (context, index) => const Divider(),
+                  itemBuilder: (context, index) => _buildRecentOrderCard(orders[index]),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -245,62 +438,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
 
                   const SizedBox(height: 24),
-
-                  // Recent Activity Card
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Recent Activity',
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/orders', arguments: widget.user);
-                                },
-                                child: const Text('View All'),
-                              ),
-                            ],
-                          ),
-                          const Divider(),
-                          // Show a message when no recent activity
-                          Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.receipt_outlined,
-                                    size: 48,
-                                    color: Colors.grey[400],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'No recent activity',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _buildRecentActivitySection(),
                 ],
               ),
             ),

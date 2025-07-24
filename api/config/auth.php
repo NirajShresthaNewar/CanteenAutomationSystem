@@ -38,31 +38,22 @@ function getBearerToken() {
 
 function verifyToken($token) {
     try {
-        error_log("Attempting to verify token: " . $token);
-        
         $database = new Database();
         $db = $database->connect();
         
-        // Get token from auth_tokens table
-        $query = "SELECT user_id, expires_at FROM auth_tokens WHERE token = ? AND expires_at > NOW()";
-        $stmt = $db->prepare($query);
+        $stmt = $db->prepare("
+            SELECT u.id as user_id, u.role 
+            FROM auth_tokens a
+            JOIN users u ON a.user_id = u.id
+            WHERE a.token = ? AND a.expires_at > NOW()
+        ");
         $stmt->execute([$token]);
+        $result = $stmt->fetch(PDO::FETCH_OBJ);
         
-        error_log("Token query result count: " . $stmt->rowCount());
-        
-        if ($stmt->rowCount() > 0) {
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            error_log("Token verified for user_id: " . $result['user_id']);
-            return (object)[
-                'user_id' => $result['user_id'],
-                'expires_at' => $result['expires_at']
-            ];
-        }
-        
-        error_log("Token verification failed - no matching valid token found");
-        return false;
+        error_log("Token verification result: " . ($result ? json_encode($result) : 'null'));
+        return $result;
     } catch (Exception $e) {
         error_log("Token verification error: " . $e->getMessage());
-        return false;
+        return null;
     }
 } 

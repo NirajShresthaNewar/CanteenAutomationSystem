@@ -1,0 +1,7 @@
+# Ignore log files
+*.log
+error_log
+debug.log
+logs/
+khalti_errors.log
+orders_debug.log

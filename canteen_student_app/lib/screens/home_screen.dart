@@ -419,21 +419,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           Navigator.pushNamed(context, '/orders', arguments: widget.user);
                         },
                       ),
-                      _buildQuickActionCard(
-                        context,
-                        icon: Icons.account_balance_wallet,
-                        title: 'Wallet',
-                        subtitle: 'Coming Soon',
-                        color: Colors.green,
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Wallet feature coming soon!'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ),
 

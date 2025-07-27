@@ -187,6 +187,7 @@ echo '
 </li>
 
 <!-- Production Management -->
+<!--
 <li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['record_production.php', 'production_history.php']) ? 'menu-open' : '') . '">
     <a href="#" class="nav-link ' . (in_array(basename($_SERVER['PHP_SELF']), ['record_production.php', 'production_history.php']) ? 'active' : '') . '">
         <i class="nav-icon fas fa-industry"></i>
@@ -210,6 +211,7 @@ echo '
         </li>
     </ul>
 </li>
+-->
 
 <!-- Inventory Management -->
 <li class="nav-item has-treeview ' . (in_array(basename($_SERVER['PHP_SELF']), ['inventory.php', 'add_inventory.php', 'inventory_history.php', 'ingredient_settings.php', 'inventory_alerts.php']) ? 'menu-open' : '') . '">

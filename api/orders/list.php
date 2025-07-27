@@ -64,13 +64,13 @@ try {
             o.id as order_id,
             o.user_id,
             o.vendor_id,
-            u.username as vendor_name,
+            v.user_id as vendor_user_id,
+            (SELECT username FROM users WHERE id = v.user_id) as vendor_name,
             o.order_type,
             o.payment_method,
             o.payment_status as status,
             o.total_amount,
             o.order_date,
-            o.preferred_delivery_time as estimated_delivery_time,
             od.delivery_location,
             od.building_name,
             od.floor_number,
@@ -80,8 +80,11 @@ try {
             od.table_number
         FROM orders o
         LEFT JOIN order_delivery_details od ON o.id = od.order_id
-        LEFT JOIN users u ON o.vendor_id = u.id
+        LEFT JOIN vendors v ON o.vendor_id = v.id
+        INNER JOIN staff_students ss ON o.user_id = ss.user_id
         WHERE o.user_id = ?
+        AND ss.role = 'student'
+        AND ss.approval_status = 'approved'
     ";
 
     if ($activeOnly) {
@@ -90,6 +93,20 @@ try {
 
     $query .= " ORDER BY o.order_date DESC";
     debugLog("Query: " . str_replace("\n", " ", $query));
+
+    // First verify if the user is a student
+    $studentCheck = $db->prepare("
+        SELECT 1 
+        FROM staff_students 
+        WHERE user_id = ? 
+        AND role = 'student' 
+        AND approval_status = 'approved'
+    ");
+    $studentCheck->execute([$userId]);
+    
+    if ($studentCheck->rowCount() === 0) {
+        throw new Exception('Access denied. Only students can view orders.');
+    }
 
     $stmt = $db->prepare($query);
     $stmt->execute([$userId]);

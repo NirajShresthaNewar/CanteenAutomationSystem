@@ -375,8 +375,9 @@ class _MenuScreenState extends State<MenuScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
+                                        // Image with fixed aspect ratio
                                         AspectRatio(
-                                          aspectRatio: 1,
+                                          aspectRatio: 16/9,
                                           child: Image.network(
                                             _getImageUrl(item['image_path']),
                                             fit: BoxFit.cover,
@@ -392,51 +393,71 @@ class _MenuScreenState extends State<MenuScreen> {
                                             },
                                           ),
                                         ),
+                                        // Content padding wrapped in Expanded
                                         Expanded(
                                           child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
+                                            padding: const EdgeInsets.all(12.0),
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
+                                                // Item name
                                                 Text(
                                                   item['name'] ?? 'Unnamed Item',
                                                   style: const TextStyle(
                                                     fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
                                                   ),
-                                                  maxLines: 2,
+                                                  maxLines: 1,
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
-                                                const SizedBox(height: 4),
+                                                const SizedBox(height: 8),
+                                                // Description wrapped in Flexible
+                                                Flexible(
+                                                  child: Text(
+                                                    item['description'] ?? 'No description available',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[600],
+                                                      fontSize: 14,
+                                                      height: 1.2,
+                                                    ),
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                // Price
                                                 Text(
-                                                  'Rs. ${item['price'] ?? '0.00'}',
+                                                  'Rs. ${(double.parse(item['price'].toString())).toStringAsFixed(2)}',
                                                   style: TextStyle(
                                                     color: Theme.of(context).primaryColor,
                                                     fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 8),
+                                                // Add to Cart button
+                                                SizedBox(
+                                                  width: double.infinity,
+                                                  child: ElevatedButton(
+                                                    onPressed: _isAddingToCart
+                                                        ? null
+                                                        : () => _addToCart(item),
+                                                    style: ElevatedButton.styleFrom(
+                                                      padding: const EdgeInsets.symmetric(
+                                                        vertical: 12,
+                                                      ),
+                                                    ),
+                                                    child: Text(
+                                                      _isAddingToCart ? 'Adding...' : 'Add to Cart',
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
                                                   ),
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: SizedBox(
-                                            width: double.infinity,
-                                            child: ElevatedButton(
-                                              onPressed: _isAddingToCart
-                                                  ? null
-                                                  : () => _addToCart(item),
-                                              style: ElevatedButton.styleFrom(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 8,
-                                                  vertical: 4,
-                                                ),
-            ),
-                                              child: Text(
-                                                _isAddingToCart ? 'Adding...' : 'Add to Cart',
-                                                style: const TextStyle(fontSize: 12),
-          ),
-        ),
                                           ),
                                         ),
                                       ],

@@ -29,10 +29,11 @@ function generateInventoryAlerts($conn, $specific_vendor_id = null) {
                 vi.reorder_point,
                 SUM(COALESCE(inv.available_quantity, 0)) as total_available_quantity,
                 SUM(COALESCE(inv.reserved_quantity, 0)) as total_reserved_quantity,
-                v.name as vendor_name
+                u.username as vendor_name
             FROM vendor_ingredients vi
             JOIN ingredients i ON vi.ingredient_id = i.id
             JOIN vendors v ON vi.vendor_id = v.id
+            JOIN users u ON v.user_id = u.id
             LEFT JOIN inventory inv ON i.id = inv.ingredient_id 
                 AND inv.vendor_id = vi.vendor_id
                 AND inv.status = 'active'
@@ -104,10 +105,11 @@ function generateInventoryAlerts($conn, $specific_vendor_id = null) {
                 inv.reserved_quantity,
                 inv.expiry_date,
                 inv.cost_per_unit,
-                v.name as vendor_name
+                u.username as vendor_name
             FROM inventory inv
             JOIN ingredients i ON inv.ingredient_id = i.id
             JOIN vendors v ON inv.vendor_id = v.id
+            JOIN users u ON v.user_id = u.id
             WHERE inv.expiry_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 7 DAY)
             AND inv.available_quantity > 0
             AND inv.status = 'active'
@@ -173,10 +175,11 @@ function generateInventoryAlerts($conn, $specific_vendor_id = null) {
                 inv.reserved_quantity,
                 inv.expiry_date,
                 inv.cost_per_unit,
-                v.name as vendor_name
+                u.username as vendor_name
             FROM inventory inv
             JOIN ingredients i ON inv.ingredient_id = i.id
             JOIN vendors v ON inv.vendor_id = v.id
+            JOIN users u ON v.user_id = u.id
             WHERE inv.expiry_date < NOW()
             AND inv.available_quantity > 0
             AND inv.status = 'active'

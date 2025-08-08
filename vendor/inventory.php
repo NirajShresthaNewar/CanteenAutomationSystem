@@ -168,9 +168,9 @@ ob_start();
                     <div class="inner">
                         <?php
                         $stmt = $conn->prepare("
-                            SELECT SUM(i.current_quantity * vi.cost_per_unit) as total_value
+                            SELECT SUM(i.current_quantity * COALESCE(vi.cost_per_unit, 0)) as total_value
                             FROM inventory i
-                            JOIN vendor_ingredients vi ON i.ingredient_id = vi.ingredient_id AND i.vendor_id = vi.vendor_id
+                            LEFT JOIN vendor_ingredients vi ON i.ingredient_id = vi.ingredient_id AND i.vendor_id = vi.vendor_id
                             WHERE i.vendor_id = ? AND i.status = 'active'
                         ");
                         $stmt->execute([$vendor_id]);
@@ -186,11 +186,116 @@ ob_start();
             </div>
         </div>
 
+        <!-- Inventory Filters -->
+         <!--
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-filter"></i> Inventory Filters
+                </h3>
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                                            <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="ingredientFilter">Ingredient</label>
+                                <select class="form-control" id="ingredientFilter">
+                                    <option value="">All Ingredients</option>
+                                    <?php
+                                    // Get unique ingredients for filter
+                                    $stmt = $conn->prepare("
+                                        SELECT DISTINCT ing.name, c.name as category_name
+                                        FROM inventory i
+                                        JOIN ingredients ing ON i.ingredient_id = ing.id
+                                        LEFT JOIN categories c ON ing.category_id = c.id
+                                        WHERE i.vendor_id = ? 
+                                        AND (i.current_quantity > 0 OR i.status = 'expired')
+                                        AND i.status != 'hidden'
+                                        ORDER BY ing.name
+                                    ");
+                                    $stmt->execute([$vendor_id]);
+                                    $filter_ingredients = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                    
+                                    foreach ($filter_ingredients as $ing) {
+                                        echo '<option value="' . htmlspecialchars($ing['name']) . '">' . 
+                                             htmlspecialchars($ing['name']) . ' (' . htmlspecialchars($ing['category_name']) . ')</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="categoryFilter">Category</label>
+                                <select class="form-control" id="categoryFilter">
+                                    <option value="">All Categories</option>
+                                    <?php
+                                    // Get unique categories for filter
+                                    $stmt = $conn->prepare("
+                                        SELECT DISTINCT c.name
+                                        FROM inventory i
+                                        JOIN ingredients ing ON i.ingredient_id = ing.id
+                                        LEFT JOIN categories c ON ing.category_id = c.id
+                                        WHERE i.vendor_id = ? 
+                                        AND (i.current_quantity > 0 OR i.status = 'expired')
+                                        AND i.status != 'hidden'
+                                        AND c.name IS NOT NULL
+                                        ORDER BY c.name
+                                    ");
+                                    $stmt->execute([$vendor_id]);
+                                    $filter_categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                                    
+                                    foreach ($filter_categories as $cat) {
+                                        echo '<option value="' . htmlspecialchars($cat['name']) . '">' . 
+                                             htmlspecialchars($cat['name']) . '</option>';
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="statusFilter">Status</label>
+                            <select class="form-control" id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="expired">Expired</option>
+                                <option value="expiring_soon">Expiring Soon</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="batchFilter">Batch Number</label>
+                            <input type="text" class="form-control" id="batchFilter" placeholder="Search batch...">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-sm btn-secondary" id="clearFilters">
+                            <i class="fas fa-times"></i> Clear All Filters
+                        </button>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        -->
         <!-- Inventory Table Card -->
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Current Inventory</h3>
                 <div class="card-tools">
+                    <a href="cleanup_inventory.php" class="btn btn-warning mr-2" 
+                       onclick="return confirm('This will mark expired items and hide empty batches. Continue?')">
+                        <i class="fas fa-broom"></i> Cleanup
+                    </a>
                     <a href="add_inventory.php" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Add Inventory
                     </a>
@@ -202,11 +307,12 @@ ob_start();
                             <tr>
                                 <th>Ingredient</th>
                                 <th>Category</th>
-                            <th>Batch Number</th>
+                                <th>Batch Number</th>
                                 <th>Current Quantity</th>
-                            <th>Available Quantity</th>
+                                <th>Available Quantity</th>
                                 <th>Unit</th>
-                            <th>Expiry Date</th>
+                                <th>Cost/Unit</th>
+                                <th>Expiry Date</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -216,11 +322,15 @@ ob_start();
                         $stmt = $conn->prepare("
                             SELECT i.*, ing.name as ingredient_name, ing.unit,
                                    c.name as category_name,
+                                   vi.cost_per_unit,
                                    DATEDIFF(i.expiry_date, CURRENT_DATE) as days_until_expiry
                             FROM inventory i
                             JOIN ingredients ing ON i.ingredient_id = ing.id
                             LEFT JOIN categories c ON ing.category_id = c.id
-                            WHERE i.vendor_id = ?
+                            LEFT JOIN vendor_ingredients vi ON i.ingredient_id = vi.ingredient_id AND i.vendor_id = vi.vendor_id
+                            WHERE i.vendor_id = ? 
+                            AND (i.current_quantity > 0 OR i.status = 'expired')
+                            AND i.status != 'hidden'
                             ORDER BY i.status, i.expiry_date ASC
                         ");
                         $stmt->execute([$vendor_id]);
@@ -246,6 +356,13 @@ ob_start();
                                 <td><?= number_format($row['current_quantity'], 2) ?></td>
                                 <td><?= number_format($row['available_quantity'], 2) ?></td>
                                 <td><?= htmlspecialchars($row['unit']) ?></td>
+                                <td>
+                                    <?php if ($row['cost_per_unit']): ?>
+                                        ₹<?= number_format($row['cost_per_unit'], 2) ?>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td data-order="<?= $row['expiry_date'] ?>">
                                     <?= date('Y-m-d', strtotime($row['expiry_date'])) ?>
                                     <?php if ($row['days_until_expiry'] <= 7 && $row['days_until_expiry'] > 0): ?>
@@ -261,7 +378,7 @@ ob_start();
                                             title="View History">
                                         <i class="fas fa-history"></i>
                                     </button>
-                                    <?php if ($row['status'] === 'active'): ?>
+                                    <?php if ($row['status'] === 'active' && $row['current_quantity'] > 0): ?>
                                         <button type="button" class="btn btn-sm btn-warning" 
                                                 onclick="adjustQuantity(<?= $row['id'] ?>)"
                                                 title="Adjust Quantity">
@@ -272,6 +389,10 @@ ob_start();
                                                 title="Mark as Expired">
                                             <i class="fas fa-times"></i>
                                         </button>
+                                    <?php elseif ($row['status'] === 'active' && $row['current_quantity'] <= 0): ?>
+                                        <span class="badge badge-secondary">Empty</span>
+                                    <?php elseif ($row['status'] === 'expired'): ?>
+                                        <span class="badge badge-danger">Expired</span>
                                     <?php endif; ?>
                                     </td>
                                 </tr>
@@ -360,6 +481,29 @@ ob_start();
                         <input type="number" class="form-control" id="adjustmentQuantity" 
                                name="quantity" step="0.01" min="0" required>
                     </div>
+                    
+                    <!-- Additional fields for adding inventory -->
+                    <div id="addFields" style="display: none;">
+                        <div class="form-group">
+                            <label for="adjustmentExpiryDate">Expiry Date</label>
+                            <input type="date" class="form-control" id="adjustmentExpiryDate" 
+                                   name="expiry_date" min="<?php echo date('Y-m-d'); ?>">
+                            <small class="form-text text-muted">Leave empty to use existing batch, or set new date to create new batch</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="adjustmentCostPerUnit">Cost per Unit (₹)</label>
+                            <input type="number" class="form-control" id="adjustmentCostPerUnit" 
+                                   name="cost_per_unit" step="0.01" min="0">
+                            <small class="form-text text-muted">Optional: Cost per unit for new batch</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="adjustmentSupplier">Supplier</label>
+                            <input type="text" class="form-control" id="adjustmentSupplier" 
+                                   name="supplier" placeholder="Enter supplier name">
+                            <small class="form-text text-muted">Optional: Different supplier will create new batch</small>
+                        </div>
+                    </div>
+                    
                     <div class="form-group">
                         <label for="adjustmentNotes">Notes</label>
                         <textarea class="form-control" id="adjustmentNotes" name="notes" rows="3"></textarea>
@@ -376,12 +520,57 @@ ob_start();
 
 <script>
 $(document).ready(function() {
+    // Add custom filtering BEFORE initializing DataTable
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const ingredientFilter = $('#ingredientFilter').val();
+        const categoryFilter = $('#categoryFilter').val();
+        const statusFilter = $('#statusFilter').val();
+        const batchFilter = $('#batchFilter').val().toLowerCase();
+        
+        const ingredient = data[0]; // Ingredient column
+        const category = data[1]; // Category column
+        const batch = data[2]; // Batch number column
+        const status = data[8]; // Status column (moved due to new Cost/Unit column)
+        
+        // Check ingredient filter
+        if (ingredientFilter && ingredientFilter !== '') {
+            // Extract ingredient name from "Ingredient (Category)" format
+            const ingredientName = ingredient.split(' (')[0];
+            if (ingredientName !== ingredientFilter) return false;
+        }
+        
+        // Check category filter
+        if (categoryFilter && categoryFilter !== '') {
+            if (category !== categoryFilter) return false;
+        }
+        
+        // Check status filter
+        if (statusFilter && statusFilter !== '') {
+            if (statusFilter === 'expiring_soon') {
+                // Check if item is expiring soon (within 7 days)
+                const expiryDate = new Date(data[7]); // Expiry date column (adjusted for new Cost/Unit column)
+                const today = new Date();
+                const daysDiff = (expiryDate - today) / (1000 * 60 * 60 * 24);
+                if (daysDiff > 7 || daysDiff <= 0) return false;
+            } else if (status.toLowerCase() !== statusFilter.toLowerCase()) {
+                return false;
+            }
+        }
+        
+        // Check batch filter
+        if (batchFilter && batchFilter !== '') {
+            if (!batch.toLowerCase().includes(batchFilter)) return false;
+        }
+        
+        return true;
+    });
+
     // Initialize DataTable
-    $('#inventoryTable').DataTable({
+    const table = $('#inventoryTable').DataTable({
         responsive: true,
         lengthChange: true,
         autoWidth: false,
-        order: [[6, 'asc']], // Sort by expiry date by default
+        order: [[7, 'asc']], // Sort by expiry date by default (adjusted for new Cost/Unit column)
         buttons: [
             'copy', 'csv', 'excel', 'pdf', 'print'
         ]
@@ -391,6 +580,66 @@ $(document).ready(function() {
     $('.select2').select2({
         theme: 'bootstrap4'
     });
+
+    // Handle adjustment type change
+    $('#adjustmentType').change(function() {
+        if ($(this).val() === 'add') {
+            $('#addFields').show();
+        } else {
+            $('#addFields').hide();
+        }
+    });
+
+    // Handle filter changes - trigger table redraw
+    $('#ingredientFilter, #categoryFilter, #statusFilter').change(function() {
+        console.log('Filter changed:', $(this).attr('id'), $(this).val());
+        table.draw();
+        updateFilterStatus();
+    });
+    
+    // Handle batch filter input - trigger on keyup
+    $('#batchFilter').on('keyup', function() {
+        console.log('Batch filter:', $(this).val());
+        table.draw();
+        updateFilterStatus();
+    });
+    
+    // Function to update filter status
+    function updateFilterStatus() {
+        const ingredientFilter = $('#ingredientFilter').val();
+        const categoryFilter = $('#categoryFilter').val();
+        const statusFilter = $('#statusFilter').val();
+        const batchFilter = $('#batchFilter').val();
+        
+        const activeFilters = [];
+        if (ingredientFilter) activeFilters.push('Ingredient: ' + ingredientFilter);
+        if (categoryFilter) activeFilters.push('Category: ' + categoryFilter);
+        if (statusFilter) activeFilters.push('Status: ' + statusFilter);
+        if (batchFilter) activeFilters.push('Batch: ' + batchFilter);
+        
+        // Show active filters count
+        if (activeFilters.length > 0) {
+            $('.card-title').html('<i class="fas fa-filter"></i> Inventory Filters <span class="badge badge-info">' + activeFilters.length + ' active</span>');
+        } else {
+            $('.card-title').html('<i class="fas fa-filter"></i> Inventory Filters');
+        }
+    }
+    
+    // Handle clear filters button
+    $('#clearFilters').click(function() {
+        $('#ingredientFilter').val('');
+        $('#categoryFilter').val('');
+        $('#statusFilter').val('');
+        $('#batchFilter').val('');
+        table.draw();
+        updateFilterStatus();
+    });
+    
+    // Force initial table draw to apply any existing filters
+    setTimeout(function() {
+        table.draw();
+        updateFilterStatus();
+    }, 100);
 });
 
 // View history function

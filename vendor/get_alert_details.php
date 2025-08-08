@@ -37,8 +37,8 @@ try {
         SELECT 
             a.*,
             i.name as ingredient_name,
-            u1.name as created_by_name,
-            u2.name as resolved_by_name,
+            u1.username as created_by_name,
+            u2.username as resolved_by_name,
             DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i:%s') as formatted_created_at,
             DATE_FORMAT(a.resolved_at, '%Y-%m-%d %H:%i:%s') as formatted_resolved_at
         FROM inventory_alerts a

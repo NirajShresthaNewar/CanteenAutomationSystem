@@ -116,7 +116,7 @@ function getAlertCount($conn, $vendor_id) {
     return count($alerts);
 }
 
-function generateInventoryAlerts($conn, $vendor_id) {
+function generateInventoryAlerts($conn, $vendor_id, $use_transaction = true) {
     try {
         // Get current alerts
         $alerts = getInventoryAlerts($conn, $vendor_id);
@@ -125,8 +125,10 @@ function generateInventoryAlerts($conn, $vendor_id) {
             return;
         }
 
-        // Start transaction
-        $conn->beginTransaction();
+        // Start transaction only if not already in one
+        if ($use_transaction && !$conn->inTransaction()) {
+            $conn->beginTransaction();
+        }
 
         // Delete existing unresolved alerts for this vendor
         $stmt = $conn->prepare("
@@ -151,15 +153,18 @@ function generateInventoryAlerts($conn, $vendor_id) {
             ]);
         }
 
-        // Commit transaction
-        $conn->commit();
+        // Commit transaction only if we started it
+        if ($use_transaction && $conn->inTransaction()) {
+            $conn->commit();
+        }
 
     } catch (Exception $e) {
-        // Rollback transaction on error
-        if ($conn->inTransaction()) {
+        // Rollback transaction on error only if we started it
+        if ($use_transaction && $conn->inTransaction()) {
             $conn->rollBack();
         }
         error_log("Error saving inventory alerts: " . $e->getMessage());
+        throw $e; // Re-throw the exception
     }
 }
 

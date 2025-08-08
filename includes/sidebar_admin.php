@@ -184,13 +184,14 @@ echo '
 </li>
 
 <!-- Settings -->
+<!--
 <li class="nav-item">
     <a href="../admin/settings.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-cog"></i>
         <p>Settings</p>
     </a>
 </li>
-
+-->
 <!-- Logout -->
 <li class="nav-item">
     <a href="../auth/logout.php" class="nav-link">

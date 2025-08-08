@@ -74,6 +74,7 @@ class CartService with ChangeNotifier {
     }
   }
 
+
   Future<void> loadCart() async {
     try {
       print('Loading cart from storage...');

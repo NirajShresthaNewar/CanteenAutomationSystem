@@ -35,9 +35,10 @@ try {
 
     // Check if item exists and is available
     $stmt = $conn->prepare("
-        SELECT item_id, vendor_id, is_available 
-        FROM menu_items 
-        WHERE item_id = ?
+        SELECT mi.item_id, mi.vendor_id, mi.is_available, v.school_id
+        FROM menu_items mi
+        JOIN vendors v ON mi.vendor_id = v.id
+        WHERE mi.item_id = ?
     ");
     $stmt->execute([$menu_item_id]);
     $menu_item = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -48,6 +49,19 @@ try {
 
     if (!$menu_item['is_available']) {
         throw new Exception('This item is currently not available');
+    }
+
+    // Check if user has access to this vendor (same school)
+    $stmt = $conn->prepare("
+        SELECT school_id 
+        FROM staff_students 
+        WHERE user_id = ? AND role = 'student'
+    ");
+    $stmt->execute([$_SESSION['user_id']]);
+    $user_school = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$user_school || $user_school['school_id'] != $menu_item['school_id']) {
+        throw new Exception('You do not have access to this vendor');
     }
 
     // Check if user already has this item in cart

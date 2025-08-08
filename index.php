@@ -93,14 +93,14 @@ ini_set('display_errors', 1);
                                 </ul>
                             </div>
                         </div>
-
+<!-- 
                         <div class="d-flex justify-content-between mb-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="rememberMe" name="remember">
                                 <label class="form-check-label" for="rememberMe">Remember me</label>
                             </div>
                             <a href="#forgot-password" class="text-decoration-none" style="color: var(--secondary-color);">Forgot Password?</a>
-                        </div>
+                        </div>  -->
                     </div>
 
                     <div class="mt-auto">
@@ -386,6 +386,27 @@ ini_set('display_errors', 1);
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="assets/js/script.js"></script>
 <script>
+// Initialize form validation state
+document.addEventListener('DOMContentLoaded', function() {
+    // Remove any existing validation classes on page load
+    const form = document.getElementById('signupFormElement');
+    if (form) {
+        form.classList.remove('was-validated');
+    }
+    
+    // Remove any existing invalid classes from inputs
+    const inputs = document.querySelectorAll('.is-invalid');
+    inputs.forEach(input => {
+        input.classList.remove('is-invalid');
+    });
+    
+    // Clear any dynamically created error messages
+    const dynamicErrors = document.querySelectorAll('.school-vendor-error');
+    dynamicErrors.forEach(error => {
+        error.remove();
+    });
+});
+
 // Password toggle function
 function togglePassword(inputId) {
     const input = document.getElementById(inputId);
@@ -456,6 +477,15 @@ document.getElementById('roleSelect').addEventListener('change', function() {
         schoolDropdown.disabled = true;
         schoolDropdown.required = false;
     }
+    
+    // Clear any existing school validation errors when role changes
+    if (schoolDropdown) {
+        schoolDropdown.classList.remove('is-invalid');
+        const errorDiv = schoolDropdown.parentNode.parentNode.querySelector('.school-vendor-error');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
+    }
 });
 
 // Form validation
@@ -504,16 +534,56 @@ if (signupPassword) {
 document.getElementById('confirmPassword').addEventListener('input', function() {
     const password = document.getElementById('signupPassword').value;
     const confirmPassword = this.value;
-    const feedback = this.nextElementSibling;
     
     if (password !== confirmPassword) {
         this.classList.add('is-invalid');
-        feedback.style.display = 'block';
     } else {
         this.classList.remove('is-invalid');
-        feedback.style.display = 'none';
     }
 });
+
+// School selection validation for vendors
+const schoolDropdown = document.getElementById('school_id');
+if (schoolDropdown) {
+    schoolDropdown.addEventListener('change', function() {
+        const selectedRole = document.getElementById('roleSelect').value;
+        const selectedSchool = this.value;
+        
+        if (selectedRole === 'vendor' && selectedSchool) {
+            // Check if school already has a vendor
+            fetch('auth/check_school_vendor.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'school_id=' + encodeURIComponent(selectedSchool)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.hasVendor) {
+                    this.classList.add('is-invalid');
+                    // Create or update error message
+                    let errorDiv = this.parentNode.nextElementSibling;
+                    if (!errorDiv || !errorDiv.classList.contains('school-vendor-error')) {
+                        errorDiv = document.createElement('div');
+                        errorDiv.className = 'invalid-feedback school-vendor-error';
+                        this.parentNode.parentNode.appendChild(errorDiv);
+                    }
+                    errorDiv.textContent = 'This school already has a vendor. Please select a different school.';
+                } else {
+                    this.classList.remove('is-invalid');
+                    const errorDiv = this.parentNode.parentNode.querySelector('.school-vendor-error');
+                    if (errorDiv) {
+                        errorDiv.remove();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error checking school vendor status:', error);
+            });
+        }
+    });
+}
 </script>
 
 <style>
@@ -531,6 +601,23 @@ document.getElementById('confirmPassword').addEventListener('input', function() 
 }
 .password-toggle-icon i {
     font-size: 1rem;
+}
+
+.school-vendor-error {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.invalid-feedback {
+    display: none;
+}
+
+/* Only show invalid feedback when form is validated or field is invalid */
+.was-validated .invalid-feedback,
+.is-invalid + .invalid-feedback {
+    display: block;
 }
 </style>
 </body>

@@ -1849,3 +1849,762 @@
 2025-07-26 16:18:47 - Order #78 has 3 items
 2025-07-26 16:18:47 - Order #77 has 4 items
 2025-07-26 16:18:47 - Sending success response
+
+
+2025-08-08 02:57:06 - New Request
+2025-08-08 02:57:06 - Orders list.php started
+2025-08-08 02:57:06 - Request Method: GET
+2025-08-08 02:57:06 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 02:57:06 - Database connection successful
+2025-08-08 02:57:06 - Token received: 92d50d84f6...
+2025-08-08 02:57:06 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 02:57:06 - User ID: 3, Active Only: true
+2025-08-08 02:57:06 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 02:57:06 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 02:57:06 - Found 16 orders
+2025-08-08 02:57:06 - Order #102 has 3 items
+2025-08-08 02:57:06 - Order #100 has 1 items
+2025-08-08 02:57:06 - Order #97 has 2 items
+2025-08-08 02:57:06 - Order #92 has 1 items
+2025-08-08 02:57:06 - Order #91 has 1 items
+2025-08-08 02:57:06 - Order #90 has 1 items
+2025-08-08 02:57:06 - Order #89 has 1 items
+2025-08-08 02:57:06 - Order #88 has 1 items
+2025-08-08 02:57:06 - Order #87 has 1 items
+2025-08-08 02:57:06 - Order #86 has 1 items
+2025-08-08 02:57:06 - Order #85 has 1 items
+2025-08-08 02:57:06 - Order #84 has 1 items
+2025-08-08 02:57:06 - Order #83 has 3 items
+2025-08-08 02:57:06 - Order #82 has 3 items
+2025-08-08 02:57:06 - Order #81 has 3 items
+2025-08-08 02:57:06 - Order #80 has 2 items
+2025-08-08 02:57:06 - Sending success response
+
+
+2025-08-08 02:57:17 - New Request
+2025-08-08 02:57:17 - Orders list.php started
+2025-08-08 02:57:17 - Request Method: GET
+2025-08-08 02:57:17 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 02:57:17 - Database connection successful
+2025-08-08 02:57:17 - Token received: 92d50d84f6...
+2025-08-08 02:57:17 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 02:57:17 - User ID: 3, Active Only: true
+2025-08-08 02:57:17 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 02:57:17 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 02:57:17 - Found 16 orders
+2025-08-08 02:57:17 - Order #102 has 3 items
+2025-08-08 02:57:17 - Order #100 has 1 items
+2025-08-08 02:57:17 - Order #97 has 2 items
+2025-08-08 02:57:17 - Order #92 has 1 items
+2025-08-08 02:57:17 - Order #91 has 1 items
+2025-08-08 02:57:17 - Order #90 has 1 items
+2025-08-08 02:57:17 - Order #89 has 1 items
+2025-08-08 02:57:17 - Order #88 has 1 items
+2025-08-08 02:57:17 - Order #87 has 1 items
+2025-08-08 02:57:17 - Order #86 has 1 items
+2025-08-08 02:57:17 - Order #85 has 1 items
+2025-08-08 02:57:17 - Order #84 has 1 items
+2025-08-08 02:57:17 - Order #83 has 3 items
+2025-08-08 02:57:17 - Order #82 has 3 items
+2025-08-08 02:57:17 - Order #81 has 3 items
+2025-08-08 02:57:17 - Order #80 has 2 items
+2025-08-08 02:57:17 - Sending success response
+
+
+2025-08-08 02:57:43 - New Request
+2025-08-08 02:57:43 - Orders list.php started
+2025-08-08 02:57:43 - Request Method: GET
+2025-08-08 02:57:43 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 02:57:43 - Database connection successful
+2025-08-08 02:57:43 - Token received: 92d50d84f6...
+2025-08-08 02:57:43 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 02:57:43 - User ID: 3, Active Only: true
+2025-08-08 02:57:43 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 02:57:43 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 02:57:43 - Found 16 orders
+2025-08-08 02:57:43 - Order #102 has 3 items
+2025-08-08 02:57:43 - Order #100 has 1 items
+2025-08-08 02:57:43 - Order #97 has 2 items
+2025-08-08 02:57:43 - Order #92 has 1 items
+2025-08-08 02:57:43 - Order #91 has 1 items
+2025-08-08 02:57:43 - Order #90 has 1 items
+2025-08-08 02:57:43 - Order #89 has 1 items
+2025-08-08 02:57:43 - Order #88 has 1 items
+2025-08-08 02:57:43 - Order #87 has 1 items
+2025-08-08 02:57:43 - Order #86 has 1 items
+2025-08-08 02:57:43 - Order #85 has 1 items
+2025-08-08 02:57:43 - Order #84 has 1 items
+2025-08-08 02:57:43 - Order #83 has 3 items
+2025-08-08 02:57:43 - Order #82 has 3 items
+2025-08-08 02:57:43 - Order #81 has 3 items
+2025-08-08 02:57:43 - Order #80 has 2 items
+2025-08-08 02:57:43 - Sending success response
+
+
+2025-08-08 02:57:43 - New Request
+2025-08-08 02:57:43 - Orders list.php started
+2025-08-08 02:57:43 - Request Method: GET
+2025-08-08 02:57:43 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 02:57:43 - Database connection successful
+2025-08-08 02:57:43 - Token received: 92d50d84f6...
+2025-08-08 02:57:43 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 02:57:43 - User ID: 3, Active Only: false
+2025-08-08 02:57:43 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 02:57:43 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      ORDER BY o.order_date DESC
+2025-08-08 02:57:43 - Found 20 orders
+2025-08-08 02:57:43 - Order #102 has 3 items
+2025-08-08 02:57:43 - Order #101 has 3 items
+2025-08-08 02:57:43 - Order #100 has 1 items
+2025-08-08 02:57:43 - Order #97 has 2 items
+2025-08-08 02:57:43 - Order #92 has 1 items
+2025-08-08 02:57:43 - Order #91 has 1 items
+2025-08-08 02:57:43 - Order #90 has 1 items
+2025-08-08 02:57:43 - Order #89 has 1 items
+2025-08-08 02:57:43 - Order #88 has 1 items
+2025-08-08 02:57:43 - Order #87 has 1 items
+2025-08-08 02:57:43 - Order #86 has 1 items
+2025-08-08 02:57:43 - Order #85 has 1 items
+2025-08-08 02:57:43 - Order #84 has 1 items
+2025-08-08 02:57:43 - Order #83 has 3 items
+2025-08-08 02:57:43 - Order #82 has 3 items
+2025-08-08 02:57:43 - Order #81 has 3 items
+2025-08-08 02:57:43 - Order #80 has 2 items
+2025-08-08 02:57:43 - Order #79 has 2 items
+2025-08-08 02:57:43 - Order #78 has 3 items
+2025-08-08 02:57:43 - Order #77 has 4 items
+2025-08-08 02:57:43 - Sending success response
+
+
+2025-08-08 02:57:53 - New Request
+2025-08-08 02:57:53 - Orders list.php started
+2025-08-08 02:57:53 - Request Method: GET
+2025-08-08 02:57:53 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 02:57:53 - Database connection successful
+2025-08-08 02:57:53 - Token received: 92d50d84f6...
+2025-08-08 02:57:53 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 02:57:53 - User ID: 3, Active Only: true
+2025-08-08 02:57:53 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 02:57:53 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 02:57:54 - Found 16 orders
+2025-08-08 02:57:54 - Order #102 has 3 items
+2025-08-08 02:57:54 - Order #100 has 1 items
+2025-08-08 02:57:54 - Order #97 has 2 items
+2025-08-08 02:57:54 - Order #92 has 1 items
+2025-08-08 02:57:54 - Order #91 has 1 items
+2025-08-08 02:57:54 - Order #90 has 1 items
+2025-08-08 02:57:54 - Order #89 has 1 items
+2025-08-08 02:57:54 - Order #88 has 1 items
+2025-08-08 02:57:54 - Order #87 has 1 items
+2025-08-08 02:57:54 - Order #86 has 1 items
+2025-08-08 02:57:54 - Order #85 has 1 items
+2025-08-08 02:57:54 - Order #84 has 1 items
+2025-08-08 02:57:54 - Order #83 has 3 items
+2025-08-08 02:57:54 - Order #82 has 3 items
+2025-08-08 02:57:54 - Order #81 has 3 items
+2025-08-08 02:57:54 - Order #80 has 2 items
+2025-08-08 02:57:54 - Sending success response
+
+
+2025-08-08 03:15:23 - New Request
+2025-08-08 03:15:23 - Orders list.php started
+2025-08-08 03:15:23 - Request Method: GET
+2025-08-08 03:15:23 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 03:15:23 - Database connection successful
+2025-08-08 03:15:23 - Token received: 92d50d84f6...
+2025-08-08 03:15:23 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 03:15:23 - User ID: 3, Active Only: true
+2025-08-08 03:15:23 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 03:15:23 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 03:15:23 - Found 16 orders
+2025-08-08 03:15:23 - Order #102 has 3 items
+2025-08-08 03:15:23 - Order #100 has 1 items
+2025-08-08 03:15:23 - Order #97 has 2 items
+2025-08-08 03:15:23 - Order #92 has 1 items
+2025-08-08 03:15:23 - Order #91 has 1 items
+2025-08-08 03:15:23 - Order #90 has 1 items
+2025-08-08 03:15:23 - Order #89 has 1 items
+2025-08-08 03:15:23 - Order #88 has 1 items
+2025-08-08 03:15:23 - Order #87 has 1 items
+2025-08-08 03:15:23 - Order #86 has 1 items
+2025-08-08 03:15:23 - Order #85 has 1 items
+2025-08-08 03:15:23 - Order #84 has 1 items
+2025-08-08 03:15:23 - Order #83 has 3 items
+2025-08-08 03:15:23 - Order #82 has 3 items
+2025-08-08 03:15:23 - Order #81 has 3 items
+2025-08-08 03:15:23 - Order #80 has 2 items
+2025-08-08 03:15:23 - Sending success response
+
+
+2025-08-08 03:15:29 - New Request
+2025-08-08 03:15:29 - Orders list.php started
+2025-08-08 03:15:29 - Request Method: GET
+2025-08-08 03:15:29 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 03:15:29 - Database connection successful
+2025-08-08 03:15:29 - Token received: 92d50d84f6...
+2025-08-08 03:15:29 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 03:15:29 - User ID: 3, Active Only: true
+2025-08-08 03:15:29 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 03:15:29 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 03:15:29 - Found 16 orders
+2025-08-08 03:15:29 - Order #102 has 3 items
+2025-08-08 03:15:29 - Order #100 has 1 items
+2025-08-08 03:15:29 - Order #97 has 2 items
+2025-08-08 03:15:29 - Order #92 has 1 items
+2025-08-08 03:15:29 - Order #91 has 1 items
+2025-08-08 03:15:29 - Order #90 has 1 items
+2025-08-08 03:15:29 - Order #89 has 1 items
+2025-08-08 03:15:29 - Order #88 has 1 items
+2025-08-08 03:15:29 - Order #87 has 1 items
+2025-08-08 03:15:29 - Order #86 has 1 items
+2025-08-08 03:15:29 - Order #85 has 1 items
+2025-08-08 03:15:29 - Order #84 has 1 items
+2025-08-08 03:15:29 - Order #83 has 3 items
+2025-08-08 03:15:29 - Order #82 has 3 items
+2025-08-08 03:15:29 - Order #81 has 3 items
+2025-08-08 03:15:29 - Order #80 has 2 items
+2025-08-08 03:15:29 - Sending success response
+
+
+2025-08-08 03:17:40 - New Request
+2025-08-08 03:17:40 - Orders list.php started
+2025-08-08 03:17:40 - Request Method: GET
+2025-08-08 03:17:40 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 03:17:40 - Database connection successful
+2025-08-08 03:17:40 - Token received: 92d50d84f6...
+2025-08-08 03:17:40 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 03:17:40 - User ID: 3, Active Only: true
+2025-08-08 03:17:40 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 03:17:40 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 03:17:40 - Found 16 orders
+2025-08-08 03:17:40 - Order #102 has 3 items
+2025-08-08 03:17:40 - Order #100 has 1 items
+2025-08-08 03:17:40 - Order #97 has 2 items
+2025-08-08 03:17:40 - Order #92 has 1 items
+2025-08-08 03:17:40 - Order #91 has 1 items
+2025-08-08 03:17:40 - Order #90 has 1 items
+2025-08-08 03:17:40 - Order #89 has 1 items
+2025-08-08 03:17:40 - Order #88 has 1 items
+2025-08-08 03:17:40 - Order #87 has 1 items
+2025-08-08 03:17:40 - Order #86 has 1 items
+2025-08-08 03:17:40 - Order #85 has 1 items
+2025-08-08 03:17:40 - Order #84 has 1 items
+2025-08-08 03:17:40 - Order #83 has 3 items
+2025-08-08 03:17:40 - Order #82 has 3 items
+2025-08-08 03:17:40 - Order #81 has 3 items
+2025-08-08 03:17:40 - Order #80 has 2 items
+2025-08-08 03:17:40 - Sending success response
+
+
+2025-08-08 03:19:48 - New Request
+2025-08-08 03:19:48 - Orders list.php started
+2025-08-08 03:19:48 - Request Method: GET
+2025-08-08 03:19:48 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 03:19:48 - Database connection successful
+2025-08-08 03:19:48 - Token received: 92d50d84f6...
+2025-08-08 03:19:48 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 03:19:48 - User ID: 3, Active Only: true
+2025-08-08 03:19:48 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 03:19:48 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 03:19:48 - Found 16 orders
+2025-08-08 03:19:48 - Order #102 has 3 items
+2025-08-08 03:19:48 - Order #100 has 1 items
+2025-08-08 03:19:48 - Order #97 has 2 items
+2025-08-08 03:19:48 - Order #92 has 1 items
+2025-08-08 03:19:48 - Order #91 has 1 items
+2025-08-08 03:19:48 - Order #90 has 1 items
+2025-08-08 03:19:48 - Order #89 has 1 items
+2025-08-08 03:19:48 - Order #88 has 1 items
+2025-08-08 03:19:48 - Order #87 has 1 items
+2025-08-08 03:19:48 - Order #86 has 1 items
+2025-08-08 03:19:48 - Order #85 has 1 items
+2025-08-08 03:19:48 - Order #84 has 1 items
+2025-08-08 03:19:48 - Order #83 has 3 items
+2025-08-08 03:19:48 - Order #82 has 3 items
+2025-08-08 03:19:48 - Order #81 has 3 items
+2025-08-08 03:19:48 - Order #80 has 2 items
+2025-08-08 03:19:48 - Sending success response
+
+
+2025-08-08 03:21:10 - New Request
+2025-08-08 03:21:10 - Orders list.php started
+2025-08-08 03:21:10 - Request Method: GET
+2025-08-08 03:21:10 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 03:21:10 - Database connection successful
+2025-08-08 03:21:10 - Token received: 92d50d84f6...
+2025-08-08 03:21:10 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 03:21:10 - User ID: 3, Active Only: true
+2025-08-08 03:21:10 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 03:21:10 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 03:21:10 - Found 16 orders
+2025-08-08 03:21:10 - Order #102 has 3 items
+2025-08-08 03:21:10 - Order #100 has 1 items
+2025-08-08 03:21:10 - Order #97 has 2 items
+2025-08-08 03:21:10 - Order #92 has 1 items
+2025-08-08 03:21:10 - Order #91 has 1 items
+2025-08-08 03:21:10 - Order #90 has 1 items
+2025-08-08 03:21:10 - Order #89 has 1 items
+2025-08-08 03:21:10 - Order #88 has 1 items
+2025-08-08 03:21:10 - Order #87 has 1 items
+2025-08-08 03:21:10 - Order #86 has 1 items
+2025-08-08 03:21:10 - Order #85 has 1 items
+2025-08-08 03:21:10 - Order #84 has 1 items
+2025-08-08 03:21:10 - Order #83 has 3 items
+2025-08-08 03:21:10 - Order #82 has 3 items
+2025-08-08 03:21:10 - Order #81 has 3 items
+2025-08-08 03:21:10 - Order #80 has 2 items
+2025-08-08 03:21:10 - Sending success response
+
+
+2025-08-08 06:25:32 - New Request
+2025-08-08 06:25:32 - Orders list.php started
+2025-08-08 06:25:32 - Request Method: GET
+2025-08-08 06:25:32 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:25:32 - Database connection successful
+2025-08-08 06:25:32 - Token received: 92d50d84f6...
+2025-08-08 06:25:33 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:25:33 - User ID: 3, Active Only: true
+2025-08-08 06:25:33 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:25:33 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:25:33 - Found 16 orders
+2025-08-08 06:25:33 - Order #102 has 3 items
+2025-08-08 06:25:33 - Order #100 has 1 items
+2025-08-08 06:25:33 - Order #97 has 2 items
+2025-08-08 06:25:33 - Order #92 has 1 items
+2025-08-08 06:25:33 - Order #91 has 1 items
+2025-08-08 06:25:33 - Order #90 has 1 items
+2025-08-08 06:25:33 - Order #89 has 1 items
+2025-08-08 06:25:33 - Order #88 has 1 items
+2025-08-08 06:25:33 - Order #87 has 1 items
+2025-08-08 06:25:33 - Order #86 has 1 items
+2025-08-08 06:25:33 - Order #85 has 1 items
+2025-08-08 06:25:33 - Order #84 has 1 items
+2025-08-08 06:25:33 - Order #83 has 3 items
+2025-08-08 06:25:33 - Order #82 has 3 items
+2025-08-08 06:25:33 - Order #81 has 3 items
+2025-08-08 06:25:33 - Order #80 has 2 items
+2025-08-08 06:25:33 - Sending success response
+
+
+2025-08-08 06:26:02 - New Request
+2025-08-08 06:26:02 - Orders list.php started
+2025-08-08 06:26:02 - Request Method: GET
+2025-08-08 06:26:02 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:26:02 - Database connection successful
+2025-08-08 06:26:02 - Token received: 92d50d84f6...
+2025-08-08 06:26:02 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:26:02 - User ID: 3, Active Only: true
+2025-08-08 06:26:02 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:26:02 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:26:02 - Found 17 orders
+2025-08-08 06:26:02 - Order #103 has 3 items
+2025-08-08 06:26:02 - Order #102 has 3 items
+2025-08-08 06:26:02 - Order #100 has 1 items
+2025-08-08 06:26:02 - Order #97 has 2 items
+2025-08-08 06:26:02 - Order #92 has 1 items
+2025-08-08 06:26:02 - Order #91 has 1 items
+2025-08-08 06:26:02 - Order #90 has 1 items
+2025-08-08 06:26:02 - Order #89 has 1 items
+2025-08-08 06:26:02 - Order #88 has 1 items
+2025-08-08 06:26:02 - Order #87 has 1 items
+2025-08-08 06:26:02 - Order #86 has 1 items
+2025-08-08 06:26:02 - Order #85 has 1 items
+2025-08-08 06:26:02 - Order #84 has 1 items
+2025-08-08 06:26:02 - Order #83 has 3 items
+2025-08-08 06:26:02 - Order #82 has 3 items
+2025-08-08 06:26:02 - Order #81 has 3 items
+2025-08-08 06:26:02 - Order #80 has 2 items
+2025-08-08 06:26:02 - Sending success response
+
+
+2025-08-08 06:26:04 - New Request
+2025-08-08 06:26:04 - Orders list.php started
+2025-08-08 06:26:04 - Request Method: GET
+2025-08-08 06:26:04 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:26:04 - Database connection successful
+2025-08-08 06:26:04 - Token received: 92d50d84f6...
+2025-08-08 06:26:04 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:26:04 - User ID: 3, Active Only: true
+2025-08-08 06:26:04 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:26:04 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:26:04 - Found 17 orders
+2025-08-08 06:26:04 - Order #103 has 3 items
+2025-08-08 06:26:04 - Order #102 has 3 items
+2025-08-08 06:26:04 - Order #100 has 1 items
+2025-08-08 06:26:04 - Order #97 has 2 items
+2025-08-08 06:26:04 - Order #92 has 1 items
+2025-08-08 06:26:04 - Order #91 has 1 items
+2025-08-08 06:26:04 - Order #90 has 1 items
+2025-08-08 06:26:04 - Order #89 has 1 items
+2025-08-08 06:26:04 - Order #88 has 1 items
+2025-08-08 06:26:04 - Order #87 has 1 items
+2025-08-08 06:26:04 - Order #86 has 1 items
+2025-08-08 06:26:04 - Order #85 has 1 items
+2025-08-08 06:26:04 - Order #84 has 1 items
+2025-08-08 06:26:04 - Order #83 has 3 items
+2025-08-08 06:26:04 - Order #82 has 3 items
+2025-08-08 06:26:04 - Order #81 has 3 items
+2025-08-08 06:26:04 - Order #80 has 2 items
+2025-08-08 06:26:04 - Sending success response
+
+
+2025-08-08 06:26:04 - New Request
+2025-08-08 06:26:04 - Orders list.php started
+2025-08-08 06:26:04 - Request Method: GET
+2025-08-08 06:26:04 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:26:04 - Database connection successful
+2025-08-08 06:26:04 - Token received: 92d50d84f6...
+2025-08-08 06:26:04 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:26:04 - User ID: 3, Active Only: false
+2025-08-08 06:26:04 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:26:04 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      ORDER BY o.order_date DESC
+2025-08-08 06:26:04 - Found 21 orders
+2025-08-08 06:26:04 - Order #103 has 3 items
+2025-08-08 06:26:04 - Order #102 has 3 items
+2025-08-08 06:26:04 - Order #101 has 3 items
+2025-08-08 06:26:04 - Order #100 has 1 items
+2025-08-08 06:26:04 - Order #97 has 2 items
+2025-08-08 06:26:04 - Order #92 has 1 items
+2025-08-08 06:26:04 - Order #91 has 1 items
+2025-08-08 06:26:04 - Order #90 has 1 items
+2025-08-08 06:26:04 - Order #89 has 1 items
+2025-08-08 06:26:04 - Order #88 has 1 items
+2025-08-08 06:26:04 - Order #87 has 1 items
+2025-08-08 06:26:04 - Order #86 has 1 items
+2025-08-08 06:26:04 - Order #85 has 1 items
+2025-08-08 06:26:04 - Order #84 has 1 items
+2025-08-08 06:26:04 - Order #83 has 3 items
+2025-08-08 06:26:04 - Order #82 has 3 items
+2025-08-08 06:26:04 - Order #81 has 3 items
+2025-08-08 06:26:04 - Order #80 has 2 items
+2025-08-08 06:26:04 - Order #79 has 2 items
+2025-08-08 06:26:04 - Order #78 has 3 items
+2025-08-08 06:26:04 - Order #77 has 4 items
+2025-08-08 06:26:04 - Sending success response
+
+
+2025-08-08 06:26:14 - New Request
+2025-08-08 06:26:14 - Orders list.php started
+2025-08-08 06:26:14 - Request Method: GET
+2025-08-08 06:26:14 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:26:14 - Database connection successful
+2025-08-08 06:26:14 - Token received: 92d50d84f6...
+2025-08-08 06:26:14 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:26:14 - User ID: 3, Active Only: true
+2025-08-08 06:26:14 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:26:14 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:26:14 - Found 17 orders
+2025-08-08 06:26:14 - Order #103 has 3 items
+2025-08-08 06:26:14 - Order #102 has 3 items
+2025-08-08 06:26:14 - Order #100 has 1 items
+2025-08-08 06:26:14 - Order #97 has 2 items
+2025-08-08 06:26:14 - Order #92 has 1 items
+2025-08-08 06:26:14 - Order #91 has 1 items
+2025-08-08 06:26:14 - Order #90 has 1 items
+2025-08-08 06:26:14 - Order #89 has 1 items
+2025-08-08 06:26:14 - Order #88 has 1 items
+2025-08-08 06:26:14 - Order #87 has 1 items
+2025-08-08 06:26:14 - Order #86 has 1 items
+2025-08-08 06:26:14 - Order #85 has 1 items
+2025-08-08 06:26:14 - Order #84 has 1 items
+2025-08-08 06:26:14 - Order #83 has 3 items
+2025-08-08 06:26:14 - Order #82 has 3 items
+2025-08-08 06:26:14 - Order #81 has 3 items
+2025-08-08 06:26:14 - Order #80 has 2 items
+2025-08-08 06:26:14 - Sending success response
+
+
+2025-08-08 06:26:14 - New Request
+2025-08-08 06:26:14 - Orders list.php started
+2025-08-08 06:26:14 - Request Method: GET
+2025-08-08 06:26:14 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:26:14 - Database connection successful
+2025-08-08 06:26:14 - Token received: 92d50d84f6...
+2025-08-08 06:26:14 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:26:14 - User ID: 3, Active Only: false
+2025-08-08 06:26:14 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:26:14 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      ORDER BY o.order_date DESC
+2025-08-08 06:26:14 - Found 21 orders
+2025-08-08 06:26:14 - Order #103 has 3 items
+2025-08-08 06:26:14 - Order #102 has 3 items
+2025-08-08 06:26:14 - Order #101 has 3 items
+2025-08-08 06:26:14 - Order #100 has 1 items
+2025-08-08 06:26:14 - Order #97 has 2 items
+2025-08-08 06:26:14 - Order #92 has 1 items
+2025-08-08 06:26:14 - Order #91 has 1 items
+2025-08-08 06:26:14 - Order #90 has 1 items
+2025-08-08 06:26:14 - Order #89 has 1 items
+2025-08-08 06:26:14 - Order #88 has 1 items
+2025-08-08 06:26:14 - Order #87 has 1 items
+2025-08-08 06:26:14 - Order #86 has 1 items
+2025-08-08 06:26:14 - Order #85 has 1 items
+2025-08-08 06:26:14 - Order #84 has 1 items
+2025-08-08 06:26:14 - Order #83 has 3 items
+2025-08-08 06:26:14 - Order #82 has 3 items
+2025-08-08 06:26:14 - Order #81 has 3 items
+2025-08-08 06:26:14 - Order #80 has 2 items
+2025-08-08 06:26:14 - Order #79 has 2 items
+2025-08-08 06:26:14 - Order #78 has 3 items
+2025-08-08 06:26:14 - Order #77 has 4 items
+2025-08-08 06:26:14 - Sending success response
+
+
+2025-08-08 06:26:38 - New Request
+2025-08-08 06:26:38 - Orders list.php started
+2025-08-08 06:26:38 - Request Method: GET
+2025-08-08 06:26:38 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:26:38 - Database connection successful
+2025-08-08 06:26:38 - Token received: 92d50d84f6...
+2025-08-08 06:26:38 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:26:38 - User ID: 3, Active Only: true
+2025-08-08 06:26:38 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:26:38 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:26:38 - Found 17 orders
+2025-08-08 06:26:38 - Order #103 has 3 items
+2025-08-08 06:26:38 - Order #102 has 3 items
+2025-08-08 06:26:38 - Order #100 has 1 items
+2025-08-08 06:26:38 - Order #97 has 2 items
+2025-08-08 06:26:38 - Order #92 has 1 items
+2025-08-08 06:26:38 - Order #91 has 1 items
+2025-08-08 06:26:38 - Order #90 has 1 items
+2025-08-08 06:26:38 - Order #89 has 1 items
+2025-08-08 06:26:38 - Order #88 has 1 items
+2025-08-08 06:26:38 - Order #87 has 1 items
+2025-08-08 06:26:38 - Order #86 has 1 items
+2025-08-08 06:26:38 - Order #85 has 1 items
+2025-08-08 06:26:38 - Order #84 has 1 items
+2025-08-08 06:26:38 - Order #83 has 3 items
+2025-08-08 06:26:38 - Order #82 has 3 items
+2025-08-08 06:26:38 - Order #81 has 3 items
+2025-08-08 06:26:38 - Order #80 has 2 items
+2025-08-08 06:26:38 - Sending success response
+
+
+2025-08-08 06:27:08 - New Request
+2025-08-08 06:27:08 - Orders list.php started
+2025-08-08 06:27:08 - Request Method: GET
+2025-08-08 06:27:08 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:27:08 - Database connection successful
+2025-08-08 06:27:08 - Token received: 92d50d84f6...
+2025-08-08 06:27:08 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:27:08 - User ID: 3, Active Only: true
+2025-08-08 06:27:09 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:27:09 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:27:09 - Found 17 orders
+2025-08-08 06:27:09 - Order #103 has 3 items
+2025-08-08 06:27:09 - Order #102 has 3 items
+2025-08-08 06:27:09 - Order #100 has 1 items
+2025-08-08 06:27:09 - Order #97 has 2 items
+2025-08-08 06:27:09 - Order #92 has 1 items
+2025-08-08 06:27:09 - Order #91 has 1 items
+2025-08-08 06:27:09 - Order #90 has 1 items
+2025-08-08 06:27:09 - Order #89 has 1 items
+2025-08-08 06:27:09 - Order #88 has 1 items
+2025-08-08 06:27:09 - Order #87 has 1 items
+2025-08-08 06:27:09 - Order #86 has 1 items
+2025-08-08 06:27:09 - Order #85 has 1 items
+2025-08-08 06:27:09 - Order #84 has 1 items
+2025-08-08 06:27:09 - Order #83 has 3 items
+2025-08-08 06:27:09 - Order #82 has 3 items
+2025-08-08 06:27:09 - Order #81 has 3 items
+2025-08-08 06:27:09 - Order #80 has 2 items
+2025-08-08 06:27:09 - Sending success response
+
+
+2025-08-08 06:27:09 - New Request
+2025-08-08 06:27:09 - Orders list.php started
+2025-08-08 06:27:09 - Request Method: GET
+2025-08-08 06:27:09 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:27:09 - Database connection successful
+2025-08-08 06:27:09 - Token received: 92d50d84f6...
+2025-08-08 06:27:09 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:27:09 - User ID: 3, Active Only: false
+2025-08-08 06:27:09 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:27:09 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      ORDER BY o.order_date DESC
+2025-08-08 06:27:09 - Found 21 orders
+2025-08-08 06:27:09 - Order #103 has 3 items
+2025-08-08 06:27:09 - Order #102 has 3 items
+2025-08-08 06:27:09 - Order #101 has 3 items
+2025-08-08 06:27:09 - Order #100 has 1 items
+2025-08-08 06:27:09 - Order #97 has 2 items
+2025-08-08 06:27:09 - Order #92 has 1 items
+2025-08-08 06:27:09 - Order #91 has 1 items
+2025-08-08 06:27:09 - Order #90 has 1 items
+2025-08-08 06:27:09 - Order #89 has 1 items
+2025-08-08 06:27:09 - Order #88 has 1 items
+2025-08-08 06:27:09 - Order #87 has 1 items
+2025-08-08 06:27:09 - Order #86 has 1 items
+2025-08-08 06:27:09 - Order #85 has 1 items
+2025-08-08 06:27:09 - Order #84 has 1 items
+2025-08-08 06:27:09 - Order #83 has 3 items
+2025-08-08 06:27:09 - Order #82 has 3 items
+2025-08-08 06:27:09 - Order #81 has 3 items
+2025-08-08 06:27:09 - Order #80 has 2 items
+2025-08-08 06:27:09 - Order #79 has 2 items
+2025-08-08 06:27:09 - Order #78 has 3 items
+2025-08-08 06:27:09 - Order #77 has 4 items
+2025-08-08 06:27:09 - Sending success response
+
+
+2025-08-08 06:27:12 - New Request
+2025-08-08 06:27:12 - Orders list.php started
+2025-08-08 06:27:12 - Request Method: GET
+2025-08-08 06:27:12 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:27:12 - Database connection successful
+2025-08-08 06:27:12 - Token received: 92d50d84f6...
+2025-08-08 06:27:12 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:27:12 - User ID: 3, Active Only: true
+2025-08-08 06:27:12 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:27:12 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:27:12 - Found 17 orders
+2025-08-08 06:27:12 - Order #103 has 3 items
+2025-08-08 06:27:12 - Order #102 has 3 items
+2025-08-08 06:27:12 - Order #100 has 1 items
+2025-08-08 06:27:12 - Order #97 has 2 items
+2025-08-08 06:27:12 - Order #92 has 1 items
+2025-08-08 06:27:12 - Order #91 has 1 items
+2025-08-08 06:27:12 - Order #90 has 1 items
+2025-08-08 06:27:12 - Order #89 has 1 items
+2025-08-08 06:27:12 - Order #88 has 1 items
+2025-08-08 06:27:12 - Order #87 has 1 items
+2025-08-08 06:27:12 - Order #86 has 1 items
+2025-08-08 06:27:12 - Order #85 has 1 items
+2025-08-08 06:27:12 - Order #84 has 1 items
+2025-08-08 06:27:12 - Order #83 has 3 items
+2025-08-08 06:27:12 - Order #82 has 3 items
+2025-08-08 06:27:12 - Order #81 has 3 items
+2025-08-08 06:27:12 - Order #80 has 2 items
+2025-08-08 06:27:12 - Sending success response
+
+
+2025-08-08 06:27:35 - New Request
+2025-08-08 06:27:35 - Orders list.php started
+2025-08-08 06:27:35 - Request Method: GET
+2025-08-08 06:27:35 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:27:35 - Database connection successful
+2025-08-08 06:27:35 - Token received: 92d50d84f6...
+2025-08-08 06:27:36 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:27:36 - User ID: 3, Active Only: true
+2025-08-08 06:27:36 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:27:36 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:27:36 - Found 17 orders
+2025-08-08 06:27:36 - Order #103 has 3 items
+2025-08-08 06:27:36 - Order #102 has 3 items
+2025-08-08 06:27:36 - Order #100 has 1 items
+2025-08-08 06:27:36 - Order #97 has 2 items
+2025-08-08 06:27:36 - Order #92 has 1 items
+2025-08-08 06:27:36 - Order #91 has 1 items
+2025-08-08 06:27:36 - Order #90 has 1 items
+2025-08-08 06:27:36 - Order #89 has 1 items
+2025-08-08 06:27:36 - Order #88 has 1 items
+2025-08-08 06:27:36 - Order #87 has 1 items
+2025-08-08 06:27:36 - Order #86 has 1 items
+2025-08-08 06:27:36 - Order #85 has 1 items
+2025-08-08 06:27:36 - Order #84 has 1 items
+2025-08-08 06:27:36 - Order #83 has 3 items
+2025-08-08 06:27:36 - Order #82 has 3 items
+2025-08-08 06:27:36 - Order #81 has 3 items
+2025-08-08 06:27:36 - Order #80 has 2 items
+2025-08-08 06:27:36 - Sending success response
+
+
+2025-08-08 06:36:28 - New Request
+2025-08-08 06:36:28 - Orders list.php started
+2025-08-08 06:36:28 - Request Method: GET
+2025-08-08 06:36:28 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:36:28 - Database connection successful
+2025-08-08 06:36:28 - Token received: 92d50d84f6...
+2025-08-08 06:36:28 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:36:28 - User ID: 3, Active Only: true
+2025-08-08 06:36:28 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:36:28 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:36:28 - Found 17 orders
+2025-08-08 06:36:28 - Order #103 has 3 items
+2025-08-08 06:36:28 - Order #102 has 3 items
+2025-08-08 06:36:28 - Order #100 has 1 items
+2025-08-08 06:36:28 - Order #97 has 2 items
+2025-08-08 06:36:28 - Order #92 has 1 items
+2025-08-08 06:36:28 - Order #91 has 1 items
+2025-08-08 06:36:28 - Order #90 has 1 items
+2025-08-08 06:36:28 - Order #89 has 1 items
+2025-08-08 06:36:28 - Order #88 has 1 items
+2025-08-08 06:36:28 - Order #87 has 1 items
+2025-08-08 06:36:28 - Order #86 has 1 items
+2025-08-08 06:36:28 - Order #85 has 1 items
+2025-08-08 06:36:28 - Order #84 has 1 items
+2025-08-08 06:36:28 - Order #83 has 3 items
+2025-08-08 06:36:28 - Order #82 has 3 items
+2025-08-08 06:36:28 - Order #81 has 3 items
+2025-08-08 06:36:28 - Order #80 has 2 items
+2025-08-08 06:36:28 - Sending success response
+
+
+2025-08-08 06:36:33 - New Request
+2025-08-08 06:36:33 - Orders list.php started
+2025-08-08 06:36:33 - Request Method: GET
+2025-08-08 06:36:33 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:36:33 - Database connection successful
+2025-08-08 06:36:33 - Token received: 92d50d84f6...
+2025-08-08 06:36:33 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:36:33 - User ID: 3, Active Only: true
+2025-08-08 06:36:33 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:36:33 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:36:33 - Found 17 orders
+2025-08-08 06:36:33 - Order #103 has 3 items
+2025-08-08 06:36:33 - Order #102 has 3 items
+2025-08-08 06:36:33 - Order #100 has 1 items
+2025-08-08 06:36:33 - Order #97 has 2 items
+2025-08-08 06:36:33 - Order #92 has 1 items
+2025-08-08 06:36:33 - Order #91 has 1 items
+2025-08-08 06:36:33 - Order #90 has 1 items
+2025-08-08 06:36:33 - Order #89 has 1 items
+2025-08-08 06:36:33 - Order #88 has 1 items
+2025-08-08 06:36:33 - Order #87 has 1 items
+2025-08-08 06:36:33 - Order #86 has 1 items
+2025-08-08 06:36:33 - Order #85 has 1 items
+2025-08-08 06:36:33 - Order #84 has 1 items
+2025-08-08 06:36:33 - Order #83 has 3 items
+2025-08-08 06:36:33 - Order #82 has 3 items
+2025-08-08 06:36:33 - Order #81 has 3 items
+2025-08-08 06:36:33 - Order #80 has 2 items
+2025-08-08 06:36:33 - Sending success response
+
+
+2025-08-08 06:36:57 - New Request
+2025-08-08 06:36:57 - Orders list.php started
+2025-08-08 06:36:57 - Request Method: GET
+2025-08-08 06:36:57 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:37:01 - ERROR: Database connection failed
+2025-08-08 06:37:01 - Stack trace: #0 C:\xampp\htdocs\CanteenAutomationSystem\api\orders\list.php(33): Database->connect()
+#1 {main}
+2025-08-08 06:37:01 - Sending error response: {"status":"error","message":"Database connection failed","data":null}
+
+
+2025-08-08 06:40:44 - New Request
+2025-08-08 06:40:44 - Orders list.php started
+2025-08-08 06:40:44 - Request Method: GET
+2025-08-08 06:40:44 - Request Headers: {"user-agent":"Dart\/3.7 (dart:io)","content-type":"application\/json","accept-encoding":"gzip","authorization":"Bearer 92d50d84f6c15815a5ea243309c9ce42275f29ccf20bea3e04382154b16f116e","host":"78.31.45.134"}
+2025-08-08 06:40:44 - Database connection successful
+2025-08-08 06:40:44 - Token received: 92d50d84f6...
+2025-08-08 06:40:44 - Token verification result: {"user_id":3,"role":"student"}
+2025-08-08 06:40:44 - User ID: 3, Active Only: true
+2025-08-08 06:40:44 - Orders table columns: ["id","receipt_number","user_id","customer_id","vendor_id","credit_account_id","order_date","total_amount","cash_received","payment_method","notes","preparation_time","completed_at","cancelled_reason","payment_status","amount_tendered","change_amount","payment_received_at","payment_notes","payment_updated_at","order_type","assigned_worker_id"]
+2025-08-08 06:40:44 - Query:          SELECT              o.id as order_id,             o.user_id,             o.vendor_id,             v.user_id as vendor_user_id,             (SELECT username FROM users WHERE id = v.user_id) as vendor_name,             o.order_type,             o.payment_method,             o.payment_status as status,             o.total_amount,             o.order_date,             od.delivery_location,             od.building_name,             od.floor_number,             od.room_number,             od.contact_number,             od.delivery_instructions,             od.table_number         FROM orders o         LEFT JOIN order_delivery_details od ON o.id = od.order_id         LEFT JOIN vendors v ON o.vendor_id = v.id         INNER JOIN staff_students ss ON o.user_id = ss.user_id         WHERE o.user_id = ?         AND ss.role = 'student'         AND ss.approval_status = 'approved'      AND o.payment_status IN ('pending', 'processing', 'preparing', 'ready', 'delivering') ORDER BY o.order_date DESC
+2025-08-08 06:40:44 - Found 17 orders
+2025-08-08 06:40:44 - Order #103 has 3 items
+2025-08-08 06:40:44 - Order #102 has 3 items
+2025-08-08 06:40:44 - Order #100 has 1 items
+2025-08-08 06:40:44 - Order #97 has 2 items
+2025-08-08 06:40:44 - Order #92 has 1 items
+2025-08-08 06:40:44 - Order #91 has 1 items
+2025-08-08 06:40:44 - Order #90 has 1 items
+2025-08-08 06:40:44 - Order #89 has 1 items
+2025-08-08 06:40:44 - Order #88 has 1 items
+2025-08-08 06:40:44 - Order #87 has 1 items
+2025-08-08 06:40:44 - Order #86 has 1 items
+2025-08-08 06:40:44 - Order #85 has 1 items
+2025-08-08 06:40:44 - Order #84 has 1 items
+2025-08-08 06:40:44 - Order #83 has 3 items
+2025-08-08 06:40:44 - Order #82 has 3 items
+2025-08-08 06:40:44 - Order #81 has 3 items
+2025-08-08 06:40:44 - Order #80 has 2 items
+2025-08-08 06:40:44 - Sending success response

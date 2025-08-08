@@ -36,6 +36,20 @@ if ($order_type === 'dine_in' && empty($_POST['table_number'])) {
 }
 
 try {
+    // Validate that user has access to this vendor (same school)
+    $stmt = $conn->prepare("
+        SELECT ss.school_id 
+        FROM staff_students ss
+        JOIN vendors v ON ss.school_id = v.school_id
+        WHERE ss.user_id = ? AND ss.role = 'student' AND v.id = ?
+    ");
+    $stmt->execute([$_SESSION['user_id'], $vendor_id]);
+    $has_access = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$has_access) {
+        throw new Exception("You do not have access to this vendor.");
+    }
+
     // Get cart items for this vendor
     $stmt = $conn->prepare("
         SELECT ci.*, mi.name, mi.price

@@ -118,7 +118,7 @@ ob_start();
                                     <th>Items</th>
                                     <th>Amount</th>
                                     <th>Status</th>
-                                    <th>Action</th>
+                                  <!--  <th>Action</th> -->
                                 </tr>
                             </thead>
                             <tbody>
@@ -188,11 +188,11 @@ ob_start();
                                             <td>' . htmlspecialchars($items_text) . '</td>
                                             <td>₹' . number_format($order['total_amount'], 2) . '</td>
                                             <td><span class="badge badge-' . $status_class . '">' . ucfirst($order['order_status']) . '</span></td>
-                                            <td>
+                                           <!-- <td>
                                                 <a href="view_order.php?id=' . $order['id'] . '" class="btn btn-sm btn-info">
                                                     <i class="fas fa-eye"></i> View
                                                 </a>
-                                            </td>
+                                            </td> -->
                                         </tr>';
                                     }
                                 }

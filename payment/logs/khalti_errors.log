@@ -4028,3 +4028,2588 @@ Stack trace:
     "order_id": "79"
 }
 --------------------------------------------------------------------------------
+[2025-08-08 08:40:28] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=8b7b08dc8edd7af4d1fb044c28a5aea6546961ef6a1ba5c64a7997d07a6d6d95",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 2500,
+        "purchase_order_id": "ORDER-7-1754635227615",
+        "purchase_order_name": "Food Order",
+        "customer_info": {
+            "name": "student2",
+            "email": "student2@gmail.com",
+            "phone": "9800000001"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"2dHspm8SFN3Nw6eRd5D6m4\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=2dHspm8SFN3Nw6eRd5D6m4\",\"expires_at\":\"2025-08-08T12:55:29.815910+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 400\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 06:40:29 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!e9d9vYPXnBce+8Odi8GHrcsPaIwS0QRRs+aGW77pIhu6fFr+zp1vwpBDNlT5ei9nha4cyNz\/VqGOnQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:40:43] === Starting Khalti Success Handler ===
+{
+    "session_id": "pu507bdn6f0mg3khedovek3nq6",
+    "session_data": {
+        "user_id": 14,
+        "username": "student2",
+        "email": "student2@gmail.com",
+        "role": "student",
+        "in_payment_flow": true,
+        "payment_flow_started": 1754635227,
+        "payment_token": "8b7b08dc8edd7af4d1fb044c28a5aea6546961ef6a1ba5c64a7997d07a6d6d95",
+        "khalti_order": {
+            "amount": 2500,
+            "order_id": "ORDER-7-1754635227615",
+            "order_details": {
+                "vendor_id": "7",
+                "order_type": "pickup",
+                "form_data": {
+                    "vendor_id": "7",
+                    "order_type": "pickup",
+                    "delivery_location": "",
+                    "building_name": "",
+                    "floor_number": "",
+                    "room_number": "",
+                    "contact_number": "",
+                    "delivery_instructions": "",
+                    "table_number": "",
+                    "payment_method": "khalti"
+                }
+            },
+            "token": "8b7b08dc8edd7af4d1fb044c28a5aea6546961ef6a1ba5c64a7997d07a6d6d95"
+        }
+    },
+    "get_params": {
+        "token": "8b7b08dc8edd7af4d1fb044c28a5aea6546961ef6a1ba5c64a7997d07a6d6d95",
+        "pidx": "2dHspm8SFN3Nw6eRd5D6m4",
+        "transaction_id": "iMVoNLjRqNT4Ti2VsjZAD7",
+        "tidx": "iMVoNLjRqNT4Ti2VsjZAD7",
+        "txnId": "iMVoNLjRqNT4Ti2VsjZAD7",
+        "amount": "2500",
+        "total_amount": "2500",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORDER-7-1754635227615",
+        "purchase_order_name": "Food Order"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:40:44] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "2dHspm8SFN3Nw6eRd5D6m4"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"2dHspm8SFN3Nw6eRd5D6m4\",\"total_amount\":2500,\"status\":\"Completed\",\"transaction_id\":\"iMVoNLjRqNT4Ti2VsjZAD7\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 06:40:45 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!m19Ug+BZ1Cpj6j6di8GHrcsPaIwS0TDdpoUlav4xpnUdl9a6JSO5h5RG5XQjacVgv8UNX86foKlMzA==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:40:44] Khalti Payment Verification Result
+{
+    "pidx": "2dHspm8SFN3Nw6eRd5D6m4",
+    "result": {
+        "response": {
+            "pidx": "2dHspm8SFN3Nw6eRd5D6m4",
+            "total_amount": 2500,
+            "status": "Completed",
+            "transaction_id": "iMVoNLjRqNT4Ti2VsjZAD7",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:40:44] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 2500,
+        "order_id": "ORDER-7-1754635227615",
+        "order_details": {
+            "vendor_id": "7",
+            "order_type": "pickup",
+            "form_data": {
+                "vendor_id": "7",
+                "order_type": "pickup",
+                "delivery_location": "",
+                "building_name": "",
+                "floor_number": "",
+                "room_number": "",
+                "contact_number": "",
+                "delivery_instructions": "",
+                "table_number": "",
+                "payment_method": "khalti"
+            }
+        },
+        "token": "8b7b08dc8edd7af4d1fb044c28a5aea6546961ef6a1ba5c64a7997d07a6d6d95"
+    },
+    "response_data": {
+        "pidx": "2dHspm8SFN3Nw6eRd5D6m4",
+        "total_amount": 2500,
+        "status": "Completed",
+        "transaction_id": "iMVoNLjRqNT4Ti2VsjZAD7",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:40:44] Creating Order
+{
+    "user_id": 14,
+    "vendor_id": "7",
+    "order_type": "pickup",
+    "total_amount": 25,
+    "receipt_number": "ORD-20250808-68959bec6394f"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:40:44] Order Created
+{
+    "order_id": "104"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:53:40] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=f19bfdcbf2c3595c56a48f0b356f88bea3986bb6b2dc3214b5bc7eba8ce50786",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 2500,
+        "purchase_order_id": "ORDER-7-1754636020178",
+        "purchase_order_name": "Food Order",
+        "customer_info": {
+            "name": "student2",
+            "email": "student2@gmail.com",
+            "phone": "9800000001"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"tdXFFQRstx8eRSwV6r2Zaf\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=tdXFFQRstx8eRSwV6r2Zaf\",\"expires_at\":\"2025-08-08T13:08:42.303915+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 400\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 06:53:42 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!WynHPMT9QyYO6NSdi8GHrcsPaIwS0UMi3z0+1mdDesHZunqVZHAQq0adJxHUJKcTBm3ozdhV4T+IcQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:53:53] === Starting Khalti Success Handler ===
+{
+    "session_id": "buoi67273onir3hk638e6ij8ct",
+    "session_data": {
+        "user_id": 14,
+        "username": "student2",
+        "email": "student2@gmail.com",
+        "role": "student",
+        "in_payment_flow": true,
+        "payment_flow_started": 1754636020,
+        "payment_token": "f19bfdcbf2c3595c56a48f0b356f88bea3986bb6b2dc3214b5bc7eba8ce50786",
+        "khalti_order": {
+            "amount": 2500,
+            "order_id": "ORDER-7-1754636020178",
+            "order_details": {
+                "vendor_id": "7",
+                "order_type": "pickup",
+                "form_data": {
+                    "vendor_id": "7",
+                    "order_type": "pickup",
+                    "delivery_location": "",
+                    "building_name": "",
+                    "floor_number": "",
+                    "room_number": "",
+                    "contact_number": "",
+                    "delivery_instructions": "",
+                    "table_number": "",
+                    "payment_method": "khalti"
+                }
+            },
+            "token": "f19bfdcbf2c3595c56a48f0b356f88bea3986bb6b2dc3214b5bc7eba8ce50786"
+        }
+    },
+    "get_params": {
+        "token": "f19bfdcbf2c3595c56a48f0b356f88bea3986bb6b2dc3214b5bc7eba8ce50786",
+        "pidx": "tdXFFQRstx8eRSwV6r2Zaf",
+        "transaction_id": "mYKeacirx2aoi7SX5Csy6Z",
+        "tidx": "mYKeacirx2aoi7SX5Csy6Z",
+        "txnId": "mYKeacirx2aoi7SX5Csy6Z",
+        "amount": "2500",
+        "total_amount": "2500",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORDER-7-1754636020178",
+        "purchase_order_name": "Food Order"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:53:54] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "tdXFFQRstx8eRSwV6r2Zaf"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"tdXFFQRstx8eRSwV6r2Zaf\",\"total_amount\":2500,\"status\":\"Completed\",\"transaction_id\":\"mYKeacirx2aoi7SX5Csy6Z\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 06:53:55 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!nYbvYlxt08Lomoqdi8GHrcsPaIwS0ZRHaYfVUPXRogTa9502fn5waNQ1eBX\/CrWDUsiJjHCqZHpT2A==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:53:54] Khalti Payment Verification Result
+{
+    "pidx": "tdXFFQRstx8eRSwV6r2Zaf",
+    "result": {
+        "response": {
+            "pidx": "tdXFFQRstx8eRSwV6r2Zaf",
+            "total_amount": 2500,
+            "status": "Completed",
+            "transaction_id": "mYKeacirx2aoi7SX5Csy6Z",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:53:54] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 2500,
+        "order_id": "ORDER-7-1754636020178",
+        "order_details": {
+            "vendor_id": "7",
+            "order_type": "pickup",
+            "form_data": {
+                "vendor_id": "7",
+                "order_type": "pickup",
+                "delivery_location": "",
+                "building_name": "",
+                "floor_number": "",
+                "room_number": "",
+                "contact_number": "",
+                "delivery_instructions": "",
+                "table_number": "",
+                "payment_method": "khalti"
+            }
+        },
+        "token": "f19bfdcbf2c3595c56a48f0b356f88bea3986bb6b2dc3214b5bc7eba8ce50786"
+    },
+    "response_data": {
+        "pidx": "tdXFFQRstx8eRSwV6r2Zaf",
+        "total_amount": 2500,
+        "status": "Completed",
+        "transaction_id": "mYKeacirx2aoi7SX5Csy6Z",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:53:54] Creating Order
+{
+    "user_id": 14,
+    "vendor_id": "7",
+    "order_type": "pickup",
+    "total_amount": 25,
+    "receipt_number": "ORD-20250808-68959f021d451"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 08:53:54] Order Created
+{
+    "order_id": "106"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:23:27] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=2f4bee709b4c19270a66ca09a5f77091df1608d42045eaf53f98d1c871d24e20",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 2000,
+        "purchase_order_id": "ORD-20250808-6895a5ecba688",
+        "purchase_order_name": "Order #ORD-20250808-6895a5ecba688",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"fv42iY7HhxMV2bAP9zq34m\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=fv42iY7HhxMV2bAP9zq34m\",\"expires_at\":\"2025-08-08T13:38:28.541109+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 423\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 07:23:28 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!aZXK2Jl4YGZeRF+di8GHrcsPaIwS0RhCYWd386krx5khqjex\/8ZnOcgIRpzv8ZsiBCGTlh2Td1ZWKg==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:23:39] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "khalti_order": {
+            "amount": 2000,
+            "order_id": "ORD-20250808-6895a5ecba688",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 80,
+                    "order_id": 107,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "2f4bee709b4c19270a66ca09a5f77091df1608d42045eaf53f98d1c871d24e20"
+        },
+        "payment_token": "2f4bee709b4c19270a66ca09a5f77091df1608d42045eaf53f98d1c871d24e20"
+    },
+    "get_params": {
+        "token": "2f4bee709b4c19270a66ca09a5f77091df1608d42045eaf53f98d1c871d24e20",
+        "pidx": "fv42iY7HhxMV2bAP9zq34m",
+        "transaction_id": "tz8RBgVGZCs6VyB2XZxpnb",
+        "tidx": "tz8RBgVGZCs6VyB2XZxpnb",
+        "txnId": "tz8RBgVGZCs6VyB2XZxpnb",
+        "amount": "2000",
+        "total_amount": "2000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895a5ecba688",
+        "purchase_order_name": "Order #ORD-20250808-6895a5ecba688"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:23:39] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "fv42iY7HhxMV2bAP9zq34m"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"fv42iY7HhxMV2bAP9zq34m\",\"total_amount\":2000,\"status\":\"Completed\",\"transaction_id\":\"tz8RBgVGZCs6VyB2XZxpnb\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 07:23:41 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!pWBGl3DinALNZradi8GHrcsPaIwS0SVo3vUIIYwJ1xDfmY9wkMR6Jd2h83J+QAQSQmY+Vk9PO+GHtQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:23:39] Khalti Payment Verification Result
+{
+    "pidx": "fv42iY7HhxMV2bAP9zq34m",
+    "result": {
+        "response": {
+            "pidx": "fv42iY7HhxMV2bAP9zq34m",
+            "total_amount": 2000,
+            "status": "Completed",
+            "transaction_id": "tz8RBgVGZCs6VyB2XZxpnb",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:23:39] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 2000,
+        "order_id": "ORD-20250808-6895a5ecba688",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 80,
+                "order_id": 107,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "2f4bee709b4c19270a66ca09a5f77091df1608d42045eaf53f98d1c871d24e20"
+    },
+    "response_data": {
+        "pidx": "fv42iY7HhxMV2bAP9zq34m",
+        "total_amount": 2000,
+        "status": "Completed",
+        "transaction_id": "tz8RBgVGZCs6VyB2XZxpnb",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:23:39] Creating Order
+{
+    "user_id": 4,
+    "vendor_id": 1,
+    "order_type": "pickup",
+    "total_amount": 20,
+    "receipt_number": "ORD-20250808-6895a5fbca20a"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:23:39] Order Created
+{
+    "order_id": "108"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:24:46] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=a93e23dff12f712cbf2d0eb09b6e6690d5316707016359f633b045edb52a888d",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 10000,
+        "purchase_order_id": "ORD-20250808-6895a63c77e82",
+        "purchase_order_name": "Order #ORD-20250808-6895a63c77e82",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"54VgZc2LawMH5h3d5pigt8\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=54VgZc2LawMH5h3d5pigt8\",\"expires_at\":\"2025-08-08T13:39:48.518375+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 424\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 07:24:48 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!8t8JMHpok315AAudi8GHrcsPaIwS0QYu\/v1ObzvPbqCfY2eWFWcyMKp5AHyylieCLmAWLXjbEsjhnw==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:25:01] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "a93e23dff12f712cbf2d0eb09b6e6690d5316707016359f633b045edb52a888d",
+        "khalti_order": {
+            "amount": 10000,
+            "order_id": "ORD-20250808-6895a63c77e82",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 82,
+                    "order_id": 109,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "a93e23dff12f712cbf2d0eb09b6e6690d5316707016359f633b045edb52a888d"
+        }
+    },
+    "get_params": {
+        "token": "a93e23dff12f712cbf2d0eb09b6e6690d5316707016359f633b045edb52a888d",
+        "pidx": "54VgZc2LawMH5h3d5pigt8",
+        "transaction_id": "ycwkUtKxzp8AKTzoZb7rWg",
+        "tidx": "ycwkUtKxzp8AKTzoZb7rWg",
+        "txnId": "ycwkUtKxzp8AKTzoZb7rWg",
+        "amount": "10000",
+        "total_amount": "10000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895a63c77e82",
+        "purchase_order_name": "Order #ORD-20250808-6895a63c77e82"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:25:02] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "54VgZc2LawMH5h3d5pigt8"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"54VgZc2LawMH5h3d5pigt8\",\"total_amount\":10000,\"status\":\"Completed\",\"transaction_id\":\"ycwkUtKxzp8AKTzoZb7rWg\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 07:25:03 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 142\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!Fhus6OV8rV\/3Mkydi8GHrcsPaIwS0SwfGS0gKPCV6vM7p7YC3pob50MJwbJdidn\/ulK+i4ENrz9pJA==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:25:02] Khalti Payment Verification Result
+{
+    "pidx": "54VgZc2LawMH5h3d5pigt8",
+    "result": {
+        "response": {
+            "pidx": "54VgZc2LawMH5h3d5pigt8",
+            "total_amount": 10000,
+            "status": "Completed",
+            "transaction_id": "ycwkUtKxzp8AKTzoZb7rWg",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:25:02] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 10000,
+        "order_id": "ORD-20250808-6895a63c77e82",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 82,
+                "order_id": 109,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "a93e23dff12f712cbf2d0eb09b6e6690d5316707016359f633b045edb52a888d"
+    },
+    "response_data": {
+        "pidx": "54VgZc2LawMH5h3d5pigt8",
+        "total_amount": 10000,
+        "status": "Completed",
+        "transaction_id": "ycwkUtKxzp8AKTzoZb7rWg",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:25:02] Creating Order
+{
+    "user_id": 4,
+    "vendor_id": 1,
+    "order_type": "pickup",
+    "total_amount": 100,
+    "receipt_number": "ORD-20250808-6895a64e194a4"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:25:02] Order Created
+{
+    "order_id": "110"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:34:11] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=397f711035a189015783d22db27c80a4eb65e0b92d3fe79824aa3f9f5393b30f",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 5000,
+        "purchase_order_id": "ORD-20250808-6895a870edcec",
+        "purchase_order_name": "Order #ORD-20250808-6895a870edcec",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"gS83QoC9tDJ7EN52USXctN\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=gS83QoC9tDJ7EN52USXctN\",\"expires_at\":\"2025-08-08T13:49:13.060978+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 423\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 07:34:13 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!7HwaFgJaoMgldIGdi8GHrcsPaIwS0R+Xf\/CP3FW+awzbgLkz9E2TF3iJPb6MzMPAH84E0e2p5pS9xA==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:34:24] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "397f711035a189015783d22db27c80a4eb65e0b92d3fe79824aa3f9f5393b30f",
+        "khalti_order": {
+            "amount": 5000,
+            "order_id": "ORD-20250808-6895a870edcec",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 84,
+                    "order_id": 111,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "397f711035a189015783d22db27c80a4eb65e0b92d3fe79824aa3f9f5393b30f"
+        }
+    },
+    "get_params": {
+        "token": "397f711035a189015783d22db27c80a4eb65e0b92d3fe79824aa3f9f5393b30f",
+        "pidx": "gS83QoC9tDJ7EN52USXctN",
+        "transaction_id": "qwZrYz6oYpxq9mKJ4X6sSZ",
+        "tidx": "qwZrYz6oYpxq9mKJ4X6sSZ",
+        "txnId": "qwZrYz6oYpxq9mKJ4X6sSZ",
+        "amount": "5000",
+        "total_amount": "5000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895a870edcec",
+        "purchase_order_name": "Order #ORD-20250808-6895a870edcec"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:34:24] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "gS83QoC9tDJ7EN52USXctN"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"gS83QoC9tDJ7EN52USXctN\",\"total_amount\":5000,\"status\":\"Completed\",\"transaction_id\":\"qwZrYz6oYpxq9mKJ4X6sSZ\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 07:34:26 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!F7dUJP8L+I39qIudi8GHrcsPaIwS0age\/laTvLoFcLdUvmo6skx2p5Z8l4n\/N89H8F0GRus4EEzzFA==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:34:24] Khalti Payment Verification Result
+{
+    "pidx": "gS83QoC9tDJ7EN52USXctN",
+    "result": {
+        "response": {
+            "pidx": "gS83QoC9tDJ7EN52USXctN",
+            "total_amount": 5000,
+            "status": "Completed",
+            "transaction_id": "qwZrYz6oYpxq9mKJ4X6sSZ",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:34:24] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 5000,
+        "order_id": "ORD-20250808-6895a870edcec",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 84,
+                "order_id": 111,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "397f711035a189015783d22db27c80a4eb65e0b92d3fe79824aa3f9f5393b30f"
+    },
+    "response_data": {
+        "pidx": "gS83QoC9tDJ7EN52USXctN",
+        "total_amount": 5000,
+        "status": "Completed",
+        "transaction_id": "qwZrYz6oYpxq9mKJ4X6sSZ",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:34:24] Creating Order
+{
+    "user_id": 4,
+    "vendor_id": 1,
+    "order_type": "pickup",
+    "total_amount": 50,
+    "receipt_number": "ORD-20250808-6895a880af41a"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:34:24] Order Created
+{
+    "order_id": "112"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:35:57] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=a7dd1b3a3383649874af6c8843b90c9ffdc1eaafcb41be1e97aaa50ba7b48b43",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 15000,
+        "purchase_order_id": "ORD-20250808-6895a8da747fc",
+        "purchase_order_name": "Order #ORD-20250808-6895a8da747fc",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"RofmZkpd5cP3MMDJzbjGBA\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=RofmZkpd5cP3MMDJzbjGBA\",\"expires_at\":\"2025-08-08T13:50:59.096288+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 424\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 07:35:59 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!kKycYYZHBZNsAE+di8GHrcsPaIwS0WAy2ehjQXcgGM9KWnp1mgqqQYYlHPxm5X+TudwoCx2j5rkewQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:36:09] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "a7dd1b3a3383649874af6c8843b90c9ffdc1eaafcb41be1e97aaa50ba7b48b43",
+        "khalti_order": {
+            "amount": 15000,
+            "order_id": "ORD-20250808-6895a8da747fc",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 86,
+                    "order_id": 113,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "a7dd1b3a3383649874af6c8843b90c9ffdc1eaafcb41be1e97aaa50ba7b48b43"
+        }
+    },
+    "get_params": {
+        "token": "a7dd1b3a3383649874af6c8843b90c9ffdc1eaafcb41be1e97aaa50ba7b48b43",
+        "pidx": "RofmZkpd5cP3MMDJzbjGBA",
+        "transaction_id": "TpEuktvwwfqcNN2gkSs5tn",
+        "tidx": "TpEuktvwwfqcNN2gkSs5tn",
+        "txnId": "TpEuktvwwfqcNN2gkSs5tn",
+        "amount": "15000",
+        "total_amount": "15000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895a8da747fc",
+        "purchase_order_name": "Order #ORD-20250808-6895a8da747fc"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:36:10] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "RofmZkpd5cP3MMDJzbjGBA"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"RofmZkpd5cP3MMDJzbjGBA\",\"total_amount\":15000,\"status\":\"Completed\",\"transaction_id\":\"TpEuktvwwfqcNN2gkSs5tn\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 07:36:11 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 142\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!8V51s\/8a47L6Oa6di8GHrcsPaIwS0dXGWrb2JS1T70rof03tknaF\/DiwmzDOPevnUPvI+nWj8duMtQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:36:10] Khalti Payment Verification Result
+{
+    "pidx": "RofmZkpd5cP3MMDJzbjGBA",
+    "result": {
+        "response": {
+            "pidx": "RofmZkpd5cP3MMDJzbjGBA",
+            "total_amount": 15000,
+            "status": "Completed",
+            "transaction_id": "TpEuktvwwfqcNN2gkSs5tn",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:36:10] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 15000,
+        "order_id": "ORD-20250808-6895a8da747fc",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 86,
+                "order_id": 113,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "a7dd1b3a3383649874af6c8843b90c9ffdc1eaafcb41be1e97aaa50ba7b48b43"
+    },
+    "response_data": {
+        "pidx": "RofmZkpd5cP3MMDJzbjGBA",
+        "total_amount": 15000,
+        "status": "Completed",
+        "transaction_id": "TpEuktvwwfqcNN2gkSs5tn",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:36:10] Creating Order
+{
+    "user_id": 4,
+    "vendor_id": 1,
+    "order_type": "pickup",
+    "total_amount": 150,
+    "receipt_number": "ORD-20250808-6895a8ea0b981"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:36:10] Order Created
+{
+    "order_id": "114"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:50:08] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=a8435d8b25d3ba1cbe31760269734f980f8a4cc0abbb96ab57c9a6e6e1067ed4",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895ac2d59012",
+        "purchase_order_name": "Order #ORD-20250808-6895ac2d59012",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    },
+    "response_code": 400,
+    "response": "{\"customer_info\":{\"name\":[\"This field may not be blank.\"]},\"error_key\":\"validation_error\"}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 407\r\n\r\n< HTTP\/1.1 400 Bad Request\r\n< Date: Fri, 08 Aug 2025 07:50:10 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 90\r\n< Connection: keep-alive\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!ogbIi+AIbGFUwb6di8GHrcsPaIwS0apv0D7xdvbghYo7rnSeih24xuZ0TiWXGoikDCVrjB+K2\/H4UA==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:50:08] API Request Failed
+{
+    "error": "API request failed",
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=a8435d8b25d3ba1cbe31760269734f980f8a4cc0abbb96ab57c9a6e6e1067ed4",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895ac2d59012",
+        "purchase_order_name": "Order #ORD-20250808-6895ac2d59012",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:50:08] Payment Processing Error
+{
+    "error_message": "API request failed",
+    "trace": "#0 C:\\xampp\\htdocs\\CanteenAutomationSystem\\payment\\khalti_handler.php(53): makeKhaltiRequest('https:\/\/a.khalt...', Array)\n#1 {main}"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:53:38] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=ef583db9bf41134fb7ab12eae977cc14ba79999ca7692bd95b988855339d4bc5",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895acffa1889",
+        "purchase_order_name": "Order #ORD-20250808-6895acffa1889",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    },
+    "response_code": 400,
+    "response": "{\"customer_info\":{\"name\":[\"This field may not be blank.\"]},\"error_key\":\"validation_error\"}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 407\r\n\r\n< HTTP\/1.1 400 Bad Request\r\n< Date: Fri, 08 Aug 2025 07:53:39 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 90\r\n< Connection: keep-alive\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!Dec5u\/\/bnrOcvLSdi8GHrcsPaIwS0UWNGlDesdFRY9uhDACP6g9zGwQSkzpowdYSnNwkAAfNWuZfEw==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:53:38] API Request Failed
+{
+    "error": "API request failed",
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=ef583db9bf41134fb7ab12eae977cc14ba79999ca7692bd95b988855339d4bc5",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895acffa1889",
+        "purchase_order_name": "Order #ORD-20250808-6895acffa1889",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:53:38] Payment Processing Error
+{
+    "error_message": "API request failed",
+    "trace": "#0 C:\\xampp\\htdocs\\CanteenAutomationSystem\\payment\\khalti_handler.php(53): makeKhaltiRequest('https:\/\/a.khalt...', Array)\n#1 {main}"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:53:43] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=481ca3ce201a3b314edd80df240995d6eed4e8496179c34c7c457e65efd6cea1",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895acffa1889",
+        "purchase_order_name": "Order #ORD-20250808-6895acffa1889",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    },
+    "response_code": 400,
+    "response": "{\"customer_info\":{\"name\":[\"This field may not be blank.\"]},\"error_key\":\"validation_error\"}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 407\r\n\r\n< HTTP\/1.1 400 Bad Request\r\n< Date: Fri, 08 Aug 2025 07:53:45 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 90\r\n< Connection: keep-alive\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!OPFPjrxr21Uignedi8GHrcsPaIwS0QafP2Eq4gFvqKFmt7UkZUWW\/LzjCDetbwDKyEYsejOawV0p+Q==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:53:43] API Request Failed
+{
+    "error": "API request failed",
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=481ca3ce201a3b314edd80df240995d6eed4e8496179c34c7c457e65efd6cea1",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895acffa1889",
+        "purchase_order_name": "Order #ORD-20250808-6895acffa1889",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:53:43] Payment Processing Error
+{
+    "error_message": "API request failed",
+    "trace": "#0 C:\\xampp\\htdocs\\CanteenAutomationSystem\\payment\\khalti_handler.php(53): makeKhaltiRequest('https:\/\/a.khalt...', Array)\n#1 {main}"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:56:29] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=5c9008af3be1f33a0d5fba3750863afc6cdf7050d2e8cabcac5c4ccbd67d8030",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895adab33669",
+        "purchase_order_name": "Order #ORD-20250808-6895adab33669",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    },
+    "response_code": 400,
+    "response": "{\"customer_info\":{\"name\":[\"This field may not be blank.\"]},\"error_key\":\"validation_error\"}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 407\r\n\r\n< HTTP\/1.1 400 Bad Request\r\n< Date: Fri, 08 Aug 2025 07:56:31 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 90\r\n< Connection: keep-alive\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!iPjJn1KKOMIxCEqdi8GHrcsPaIwS0SjNsJuTbzcnagsHrfJBkNbZ5JYs9fkaQFP8zxUN9cttpfdrUQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:56:29] API Request Failed
+{
+    "error": "API request failed",
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=5c9008af3be1f33a0d5fba3750863afc6cdf7050d2e8cabcac5c4ccbd67d8030",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895adab33669",
+        "purchase_order_name": "Order #ORD-20250808-6895adab33669",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:56:29] Payment Processing Error
+{
+    "error_message": "API request failed",
+    "trace": "#0 C:\\xampp\\htdocs\\CanteenAutomationSystem\\payment\\khalti_handler.php(53): makeKhaltiRequest('https:\/\/a.khalt...', Array)\n#1 {main}"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:57:14] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=469f451e3c2c6d84d3ada6b0576e3d50a5249008d5e7bd31763beb8cb2f960b2",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895adab33669",
+        "purchase_order_name": "Order #ORD-20250808-6895adab33669",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    },
+    "response_code": 400,
+    "response": "{\"customer_info\":{\"name\":[\"This field may not be blank.\"]},\"error_key\":\"validation_error\"}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 407\r\n\r\n< HTTP\/1.1 400 Bad Request\r\n< Date: Fri, 08 Aug 2025 07:57:16 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 90\r\n< Connection: keep-alive\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!CvhiPB01bU9dmP6di8GHrcsPaIwS0c6cKIp\/aMMssxVMUA9TqmCkkJ0F6WHtRIajnvo9w5jtO53nhw==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:57:14] API Request Failed
+{
+    "error": "API request failed",
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=469f451e3c2c6d84d3ada6b0576e3d50a5249008d5e7bd31763beb8cb2f960b2",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 4000,
+        "purchase_order_id": "ORD-20250808-6895adab33669",
+        "purchase_order_name": "Order #ORD-20250808-6895adab33669",
+        "customer_info": {
+            "name": "",
+            "email": "staff@gmail.com",
+            "phone": ""
+        }
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 09:57:14] Payment Processing Error
+{
+    "error_message": "API request failed",
+    "trace": "#0 C:\\xampp\\htdocs\\CanteenAutomationSystem\\payment\\khalti_handler.php(53): makeKhaltiRequest('https:\/\/a.khalt...', Array)\n#1 {main}"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 10:37:44] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=960b2655811684fe36d1354835c1fa3e0fc7cb1c5ef8ec5be56a1cae5fde377c",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 5000,
+        "purchase_order_id": "ORD-20250808-6895b70417832",
+        "purchase_order_name": "Order #ORD-20250808-6895b70417832",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"KGXFWF4WozfGHqmdoP79tZ\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=KGXFWF4WozfGHqmdoP79tZ\",\"expires_at\":\"2025-08-08T14:52:46.057007+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 423\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 08:37:46 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!N7vYRUer2UxJShOdi8GHrcsPaIwS0WD+OsrbOsOdXWslASB48\/v4SoK3mFV02KRVK3qiUCrzMeL49g==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 10:37:59] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "960b2655811684fe36d1354835c1fa3e0fc7cb1c5ef8ec5be56a1cae5fde377c",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 5000,
+            "order_id": "ORD-20250808-6895b70417832",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 92,
+                    "order_id": 119,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "960b2655811684fe36d1354835c1fa3e0fc7cb1c5ef8ec5be56a1cae5fde377c"
+        }
+    },
+    "get_params": {
+        "token": "960b2655811684fe36d1354835c1fa3e0fc7cb1c5ef8ec5be56a1cae5fde377c",
+        "pidx": "KGXFWF4WozfGHqmdoP79tZ",
+        "transaction_id": "76TwczwcsCfVJwtCsYwTJR",
+        "tidx": "76TwczwcsCfVJwtCsYwTJR",
+        "txnId": "76TwczwcsCfVJwtCsYwTJR",
+        "amount": "5000",
+        "total_amount": "5000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895b70417832",
+        "purchase_order_name": "Order #ORD-20250808-6895b70417832"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 10:37:59] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "KGXFWF4WozfGHqmdoP79tZ"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"KGXFWF4WozfGHqmdoP79tZ\",\"total_amount\":5000,\"status\":\"Completed\",\"transaction_id\":\"76TwczwcsCfVJwtCsYwTJR\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 08:38:01 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!nBTPoxrgGB8ah2Cdi8GHrcsPaIwS0dkNIyJKOBitCdSDGdrs5k53q0+IXnemJsV1tOSapHqsImAc2Q==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 10:37:59] Khalti Payment Verification Result
+{
+    "pidx": "KGXFWF4WozfGHqmdoP79tZ",
+    "result": {
+        "response": {
+            "pidx": "KGXFWF4WozfGHqmdoP79tZ",
+            "total_amount": 5000,
+            "status": "Completed",
+            "transaction_id": "76TwczwcsCfVJwtCsYwTJR",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 10:37:59] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 5000,
+        "order_id": "ORD-20250808-6895b70417832",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 92,
+                "order_id": 119,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "960b2655811684fe36d1354835c1fa3e0fc7cb1c5ef8ec5be56a1cae5fde377c"
+    },
+    "response_data": {
+        "pidx": "KGXFWF4WozfGHqmdoP79tZ",
+        "total_amount": 5000,
+        "status": "Completed",
+        "transaction_id": "76TwczwcsCfVJwtCsYwTJR",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 10:37:59] Creating Order
+{
+    "user_id": 4,
+    "vendor_id": 1,
+    "order_type": "pickup",
+    "total_amount": 50,
+    "receipt_number": "ORD-20250808-6895b767c490c"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 10:37:59] Order Created
+{
+    "order_id": "120"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:03:34] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=2b3eb782edb374168a56f75fee7de9f29167a89783ace7c0cdaaf9cfe067dfc5",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 11000,
+        "purchase_order_id": "ORD-20250808-6895bd5df28ca",
+        "purchase_order_name": "Order #ORD-20250808-6895bd5df28ca",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"54jTCtHvNN7UvBgTQFzVJ2\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=54jTCtHvNN7UvBgTQFzVJ2\",\"expires_at\":\"2025-08-08T15:18:36.265937+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 424\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:03:36 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!FTGmgoGZlDeFWjudi8GHrcsPaIwS0Wd8DBrkRyFoCPq854NI\/qiJOiu+6CWk2TXcgyBOMbCdUo3oIw==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:03:49] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "2b3eb782edb374168a56f75fee7de9f29167a89783ace7c0cdaaf9cfe067dfc5",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 11000,
+            "order_id": "ORD-20250808-6895bd5df28ca",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 94,
+                    "order_id": 121,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "2b3eb782edb374168a56f75fee7de9f29167a89783ace7c0cdaaf9cfe067dfc5"
+        }
+    },
+    "get_params": {
+        "token": "2b3eb782edb374168a56f75fee7de9f29167a89783ace7c0cdaaf9cfe067dfc5",
+        "pidx": "54jTCtHvNN7UvBgTQFzVJ2",
+        "transaction_id": "YBtjBYozRsuvJdY2o4hcdn",
+        "tidx": "YBtjBYozRsuvJdY2o4hcdn",
+        "txnId": "YBtjBYozRsuvJdY2o4hcdn",
+        "amount": "11000",
+        "total_amount": "11000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895bd5df28ca",
+        "purchase_order_name": "Order #ORD-20250808-6895bd5df28ca"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:03:50] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "54jTCtHvNN7UvBgTQFzVJ2"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"54jTCtHvNN7UvBgTQFzVJ2\",\"total_amount\":11000,\"status\":\"Completed\",\"transaction_id\":\"YBtjBYozRsuvJdY2o4hcdn\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:03:51 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 142\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!WSlXHpiKj76PVY+di8GHrcsPaIwS0YHVy0eEsP70MwFpoG+1+Jr63bRg1pFijEI4NvjGQHEftoUn\/Q==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:03:50] Khalti Payment Verification Result
+{
+    "pidx": "54jTCtHvNN7UvBgTQFzVJ2",
+    "result": {
+        "response": {
+            "pidx": "54jTCtHvNN7UvBgTQFzVJ2",
+            "total_amount": 11000,
+            "status": "Completed",
+            "transaction_id": "YBtjBYozRsuvJdY2o4hcdn",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:03:50] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 11000,
+        "order_id": "ORD-20250808-6895bd5df28ca",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 94,
+                "order_id": 121,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "2b3eb782edb374168a56f75fee7de9f29167a89783ace7c0cdaaf9cfe067dfc5"
+    },
+    "response_data": {
+        "pidx": "54jTCtHvNN7UvBgTQFzVJ2",
+        "total_amount": 11000,
+        "status": "Completed",
+        "transaction_id": "YBtjBYozRsuvJdY2o4hcdn",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[08-Aug-2025 11:03:50 Europe/Berlin] PHP Warning:  Undefined variable $order_id in C:\xampp\htdocs\CanteenAutomationSystem\payment\success_handler.php on line 109
+[2025-08-08 11:10:44] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 6000,
+        "purchase_order_id": "ORD-20250808-6895bf11aa20c",
+        "purchase_order_name": "Order #ORD-20250808-6895bf11aa20c",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"qqpDsF3L2Fsu9ZRYgCQRcY\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=qqpDsF3L2Fsu9ZRYgCQRcY\",\"expires_at\":\"2025-08-08T15:25:46.541352+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 423\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:10:46 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!uFtgaeebEjdrSm2di8GHrcsPaIwS0dpcyD8uiAXKaikQeGY9UqqrlcKoBLJUmW3sElHf0DPY07z2YA==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:10:57] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 6000,
+            "order_id": "ORD-20250808-6895bf11aa20c",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 95,
+                    "order_id": 122,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6"
+        }
+    },
+    "get_params": {
+        "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6",
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+        "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+        "tidx": "YiMYaRc2Vn93TxSTFD8QpG",
+        "txnId": "YiMYaRc2Vn93TxSTFD8QpG",
+        "amount": "6000",
+        "total_amount": "6000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895bf11aa20c",
+        "purchase_order_name": "Order #ORD-20250808-6895bf11aa20c"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:10:58] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"qqpDsF3L2Fsu9ZRYgCQRcY\",\"total_amount\":6000,\"status\":\"Completed\",\"transaction_id\":\"YiMYaRc2Vn93TxSTFD8QpG\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:11:00 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!EGTajoRL8xszLkedi8GHrcsPaIwS0bmwfwAbjGAzp7W\/9rHhDjbI\/l8B+a2ahH5Ow\/rCjCl70KcmMA==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:10:58] Khalti Payment Verification Result
+{
+    "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+    "result": {
+        "response": {
+            "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+            "total_amount": 6000,
+            "status": "Completed",
+            "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:10:58] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 6000,
+        "order_id": "ORD-20250808-6895bf11aa20c",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 95,
+                "order_id": 122,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6"
+    },
+    "response_data": {
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+        "total_amount": 6000,
+        "status": "Completed",
+        "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[08-Aug-2025 11:10:58 Europe/Berlin] PHP Warning:  Undefined variable $order_id in C:\xampp\htdocs\CanteenAutomationSystem\payment\success_handler.php on line 112
+[2025-08-08 11:12:52] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 6000,
+            "order_id": "ORD-20250808-6895bf11aa20c",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 95,
+                    "order_id": 122,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6"
+        }
+    },
+    "get_params": {
+        "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6",
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+        "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+        "tidx": "YiMYaRc2Vn93TxSTFD8QpG",
+        "txnId": "YiMYaRc2Vn93TxSTFD8QpG",
+        "amount": "6000",
+        "total_amount": "6000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895bf11aa20c",
+        "purchase_order_name": "Order #ORD-20250808-6895bf11aa20c"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:12:52] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"qqpDsF3L2Fsu9ZRYgCQRcY\",\"total_amount\":6000,\"status\":\"Completed\",\"transaction_id\":\"YiMYaRc2Vn93TxSTFD8QpG\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:12:54 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!xWigXAgHkCwF816di8GHrcsPaIwS0ewkQNEapQVocasbHaY+RDS7P+3ZYN5Y6R5Ox53Uun6dgTXOFQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:12:52] Khalti Payment Verification Result
+{
+    "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+    "result": {
+        "response": {
+            "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+            "total_amount": 6000,
+            "status": "Completed",
+            "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:12:52] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 6000,
+        "order_id": "ORD-20250808-6895bf11aa20c",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 95,
+                "order_id": 122,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6"
+    },
+    "response_data": {
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+        "total_amount": 6000,
+        "status": "Completed",
+        "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:12:58] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 6000,
+            "order_id": "ORD-20250808-6895bf11aa20c",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 95,
+                    "order_id": 122,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6"
+        }
+    },
+    "get_params": {
+        "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6",
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+        "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+        "tidx": "YiMYaRc2Vn93TxSTFD8QpG",
+        "txnId": "YiMYaRc2Vn93TxSTFD8QpG",
+        "amount": "6000",
+        "total_amount": "6000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895bf11aa20c",
+        "purchase_order_name": "Order #ORD-20250808-6895bf11aa20c"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:12:58] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"qqpDsF3L2Fsu9ZRYgCQRcY\",\"total_amount\":6000,\"status\":\"Completed\",\"transaction_id\":\"YiMYaRc2Vn93TxSTFD8QpG\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:13:00 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!XNSLBLDaqUSwiradi8GHrcsPaIwS0YtZVshwB+5xwWUmJ1QtXYMDZ5U8nP2tmfM0\/wGQKwnuY9nCIQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:12:58] Khalti Payment Verification Result
+{
+    "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+    "result": {
+        "response": {
+            "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+            "total_amount": 6000,
+            "status": "Completed",
+            "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:12:58] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 6000,
+        "order_id": "ORD-20250808-6895bf11aa20c",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 95,
+                "order_id": 122,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "fb0747983722d05b005bec7b23309a83a863d22d5532b975ab18dfde7c1d68c6"
+    },
+    "response_data": {
+        "pidx": "qqpDsF3L2Fsu9ZRYgCQRcY",
+        "total_amount": 6000,
+        "status": "Completed",
+        "transaction_id": "YiMYaRc2Vn93TxSTFD8QpG",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:18:30] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=3aaeffbaaadb67253dc1180c61ae30164cd34e2434565fe4680d0c4c0c7ed9c2",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 17000,
+        "purchase_order_id": "ORD-20250808-6895c0e3dbaed",
+        "purchase_order_name": "Order #ORD-20250808-6895c0e3dbaed",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"SpCaBBGttzsmKUY6Eji5cJ\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=SpCaBBGttzsmKUY6Eji5cJ\",\"expires_at\":\"2025-08-08T15:33:32.463503+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 424\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:18:32 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!SsWvJV341PoDWh2di8GHrcsPaIwS0a0Ikq7a2pARWjuqpYeTCGea6D8lTr33RUdetxRYVl5T8UgYSQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:18:47] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "3aaeffbaaadb67253dc1180c61ae30164cd34e2434565fe4680d0c4c0c7ed9c2",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 17000,
+            "order_id": "ORD-20250808-6895c0e3dbaed",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 96,
+                    "order_id": 123,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "3aaeffbaaadb67253dc1180c61ae30164cd34e2434565fe4680d0c4c0c7ed9c2"
+        }
+    },
+    "get_params": {
+        "token": "3aaeffbaaadb67253dc1180c61ae30164cd34e2434565fe4680d0c4c0c7ed9c2",
+        "pidx": "SpCaBBGttzsmKUY6Eji5cJ",
+        "transaction_id": "KKUut6WWuAfxG7ed8XhyGZ",
+        "tidx": "KKUut6WWuAfxG7ed8XhyGZ",
+        "txnId": "KKUut6WWuAfxG7ed8XhyGZ",
+        "amount": "17000",
+        "total_amount": "17000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895c0e3dbaed",
+        "purchase_order_name": "Order #ORD-20250808-6895c0e3dbaed"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:18:47] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "SpCaBBGttzsmKUY6Eji5cJ"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"SpCaBBGttzsmKUY6Eji5cJ\",\"total_amount\":17000,\"status\":\"Completed\",\"transaction_id\":\"KKUut6WWuAfxG7ed8XhyGZ\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:18:49 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 142\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!cBg2byupdSdR+m6di8GHrcsPaIwS0ZvnZYGEdVwV2j\/Ocxs8VX7obSgLoZVFNuq5lTMvQJobqjGcrw==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:18:47] Khalti Payment Verification Result
+{
+    "pidx": "SpCaBBGttzsmKUY6Eji5cJ",
+    "result": {
+        "response": {
+            "pidx": "SpCaBBGttzsmKUY6Eji5cJ",
+            "total_amount": 17000,
+            "status": "Completed",
+            "transaction_id": "KKUut6WWuAfxG7ed8XhyGZ",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:18:47] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 17000,
+        "order_id": "ORD-20250808-6895c0e3dbaed",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "pickup",
+            "form_data": {
+                "id": 96,
+                "order_id": 123,
+                "order_type": "pickup",
+                "table_number": "",
+                "delivery_location": "",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "",
+                "contact_number": ""
+            }
+        },
+        "token": "3aaeffbaaadb67253dc1180c61ae30164cd34e2434565fe4680d0c4c0c7ed9c2"
+    },
+    "response_data": {
+        "pidx": "SpCaBBGttzsmKUY6Eji5cJ",
+        "total_amount": 17000,
+        "status": "Completed",
+        "transaction_id": "KKUut6WWuAfxG7ed8XhyGZ",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:20:40] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=3ceb5f546d2869319c195441a3474df607ed28a0e762f7940383e7e5be85eb4d",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 5000,
+        "purchase_order_id": "ORD-20250808-6895c16542d9b",
+        "purchase_order_name": "Order #ORD-20250808-6895c16542d9b",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"Nk2WSxTNE9eVioN55qoxGZ\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=Nk2WSxTNE9eVioN55qoxGZ\",\"expires_at\":\"2025-08-08T15:35:41.793875+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 423\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:20:41 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!anJgFDefMQSW5amdi8GHrcsPaIwS0S2fZdJJDfb1nnnJiCwNNvZqu25wiE5pck\/SHoNTjFz2o2XXyw==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:20:57] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "3ceb5f546d2869319c195441a3474df607ed28a0e762f7940383e7e5be85eb4d",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 5000,
+            "order_id": "ORD-20250808-6895c16542d9b",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "delivery",
+                "form_data": {
+                    "id": 97,
+                    "order_id": 124,
+                    "order_type": "delivery",
+                    "table_number": "",
+                    "delivery_location": "BCA Office",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "mjkghjgjh",
+                    "contact_number": "9825346958"
+                }
+            },
+            "token": "3ceb5f546d2869319c195441a3474df607ed28a0e762f7940383e7e5be85eb4d"
+        }
+    },
+    "get_params": {
+        "token": "3ceb5f546d2869319c195441a3474df607ed28a0e762f7940383e7e5be85eb4d",
+        "pidx": "Nk2WSxTNE9eVioN55qoxGZ",
+        "transaction_id": "abr9zzyndqztDcyKZy2hxL",
+        "tidx": "abr9zzyndqztDcyKZy2hxL",
+        "txnId": "abr9zzyndqztDcyKZy2hxL",
+        "amount": "5000",
+        "total_amount": "5000",
+        "mobile": "98XXXXX003",
+        "status": "Completed",
+        "purchase_order_id": "ORD-20250808-6895c16542d9b",
+        "purchase_order_name": "Order #ORD-20250808-6895c16542d9b"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:20:57] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "Nk2WSxTNE9eVioN55qoxGZ"
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"Nk2WSxTNE9eVioN55qoxGZ\",\"total_amount\":5000,\"status\":\"Completed\",\"transaction_id\":\"abr9zzyndqztDcyKZy2hxL\",\"fee\":0,\"refunded\":false}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:20:59 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 141\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!2mRgyGIHRHWcHLydi8GHrcsPaIwS0X6c7+DUVTfK\/mcEzgNcJyOpMMmUK02O1PCkMHJAQCLvoKdqYg==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:20:57] Khalti Payment Verification Result
+{
+    "pidx": "Nk2WSxTNE9eVioN55qoxGZ",
+    "result": {
+        "response": {
+            "pidx": "Nk2WSxTNE9eVioN55qoxGZ",
+            "total_amount": 5000,
+            "status": "Completed",
+            "transaction_id": "abr9zzyndqztDcyKZy2hxL",
+            "fee": 0,
+            "refunded": false
+        },
+        "status_code": 200
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:20:57] Starting Database Transaction
+{
+    "payment_details": {
+        "amount": 5000,
+        "order_id": "ORD-20250808-6895c16542d9b",
+        "order_details": {
+            "vendor_id": 1,
+            "order_type": "delivery",
+            "form_data": {
+                "id": 97,
+                "order_id": 124,
+                "order_type": "delivery",
+                "table_number": "",
+                "delivery_location": "BCA Office",
+                "building_name": null,
+                "floor_number": null,
+                "room_number": null,
+                "delivery_instructions": "mjkghjgjh",
+                "contact_number": "9825346958"
+            }
+        },
+        "token": "3ceb5f546d2869319c195441a3474df607ed28a0e762f7940383e7e5be85eb4d"
+    },
+    "response_data": {
+        "pidx": "Nk2WSxTNE9eVioN55qoxGZ",
+        "total_amount": 5000,
+        "status": "Completed",
+        "transaction_id": "abr9zzyndqztDcyKZy2hxL",
+        "fee": 0,
+        "refunded": false
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:26:53] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=3f2291356abd62a2aa3c021a295a5e21342a3ad6b85936697d23377c9a526f52",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 11000,
+        "purchase_order_id": "ORD-20250808-6895c2d990d84",
+        "purchase_order_name": "Order #ORD-20250808-6895c2d990d84",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"vNLQJArNvMi4iA9BvTb6AM\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=vNLQJArNvMi4iA9BvTb6AM\",\"expires_at\":\"2025-08-08T15:41:55.118780+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 424\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:26:55 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!ckFnXHbDCgcUrWadi8GHrcsPaIwS0QNPnIMWiTzHm\/caVQo+aKirNP+54Wa3ytoMA5FUyKMPaU\/0bg==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:27:06] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "3f2291356abd62a2aa3c021a295a5e21342a3ad6b85936697d23377c9a526f52",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 11000,
+            "order_id": "ORD-20250808-6895c2d990d84",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 98,
+                    "order_id": 125,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "3f2291356abd62a2aa3c021a295a5e21342a3ad6b85936697d23377c9a526f52"
+        }
+    },
+    "get_params": {
+        "token": "3f2291356abd62a2aa3c021a295a5e21342a3ad6b85936697d23377c9a526f52",
+        "pidx": "vNLQJArNvMi4iA9BvTb6AM",
+        "transaction_id": "",
+        "tidx": "",
+        "txnId": "",
+        "amount": "11000",
+        "total_amount": "11000",
+        "mobile": "",
+        "status": "User canceled",
+        "purchase_order_id": "ORD-20250808-6895c2d990d84",
+        "purchase_order_name": "Order #ORD-20250808-6895c2d990d84"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:27:06] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "vNLQJArNvMi4iA9BvTb6AM"
+    },
+    "response_code": 400,
+    "response": "{\"pidx\":\"vNLQJArNvMi4iA9BvTb6AM\",\"total_amount\":11000,\"status\":\"User canceled\",\"transaction_id\":null,\"fee\":0,\"refunded\":false,\"error_key\":\"khalti_error\"}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 400 Bad Request\r\n< Date: Fri, 08 Aug 2025 09:27:08 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 153\r\n< Connection: keep-alive\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!C6C0+3P4uiGAlHSdi8GHrcsPaIwS0aolQGmYkqHswov4Cywo5pdxMozwMOj2FGQvB5SZZIjDe81UaQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:27:06] API Request Failed
+{
+    "error": "API request failed",
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "vNLQJArNvMi4iA9BvTb6AM"
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:27:06] Payment Processing Error
+{
+    "error_message": "API request failed",
+    "trace": "#0 C:\\xampp\\htdocs\\CanteenAutomationSystem\\payment\\success_handler.php(79): makeKhaltiRequest('https:\/\/a.khalt...', Array)\n#1 {main}",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "in_payment_flow": true,
+        "payment_token": "3f2291356abd62a2aa3c021a295a5e21342a3ad6b85936697d23377c9a526f52",
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 11000,
+            "order_id": "ORD-20250808-6895c2d990d84",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 98,
+                    "order_id": 125,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "3f2291356abd62a2aa3c021a295a5e21342a3ad6b85936697d23377c9a526f52"
+        }
+    },
+    "get_params": {
+        "token": "3f2291356abd62a2aa3c021a295a5e21342a3ad6b85936697d23377c9a526f52",
+        "pidx": "vNLQJArNvMi4iA9BvTb6AM",
+        "transaction_id": "",
+        "tidx": "",
+        "txnId": "",
+        "amount": "11000",
+        "total_amount": "11000",
+        "mobile": "",
+        "status": "User canceled",
+        "purchase_order_id": "ORD-20250808-6895c2d990d84",
+        "purchase_order_name": "Order #ORD-20250808-6895c2d990d84"
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:27:45] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/initiate\/",
+    "request_data": {
+        "return_url": "http:\/\/localhost\/CanteenAutomationSystem\/payment\/success_handler.php?token=1bc877abad93611e73b6aa54d1e285b0cb9ba1e659be294913f484c3e685d85c",
+        "website_url": "http:\/\/localhost\/CanteenAutomationSystem",
+        "amount": 10000,
+        "purchase_order_id": "ORD-20250808-6895c30f33a75",
+        "purchase_order_name": "Order #ORD-20250808-6895c30f33a75",
+        "customer_info": {
+            "name": "staff",
+            "email": "staff@gmail.com",
+            "phone": "98256986588"
+        }
+    },
+    "response_code": 200,
+    "response": "{\"pidx\":\"ipT7Ht6CWynKCzaZGBHY7Z\",\"payment_url\":\"https:\/\/test-pay.khalti.com\/?pidx=ipT7Ht6CWynKCzaZGBHY7Z\",\"expires_at\":\"2025-08-08T15:42:47.392448+05:45\",\"expires_in\":1800}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/initiate\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 424\r\n\r\n< HTTP\/1.1 200 OK\r\n< Date: Fri, 08 Aug 2025 09:27:47 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 172\r\n< Connection: keep-alive\r\n< Vary: Accept-Encoding\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!bdGkEpdZvjt8h6ydi8GHrcsPaIwS0XzqX5DhUHh8vVcvc4Zg6Ehzw5tHQc9YlaUVjVhbmRFht4HiTQ==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:29:08] === Starting Khalti Success Handler ===
+{
+    "session_id": "cgv0c0jgvb60asn1m5dpf4t4jt",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 10000,
+            "order_id": "ORD-20250808-6895c30f33a75",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 99,
+                    "order_id": 126,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "1bc877abad93611e73b6aa54d1e285b0cb9ba1e659be294913f484c3e685d85c"
+        },
+        "in_payment_flow": true,
+        "payment_token": "1bc877abad93611e73b6aa54d1e285b0cb9ba1e659be294913f484c3e685d85c"
+    },
+    "get_params": {
+        "token": "1bc877abad93611e73b6aa54d1e285b0cb9ba1e659be294913f484c3e685d85c",
+        "pidx": "ipT7Ht6CWynKCzaZGBHY7Z",
+        "transaction_id": "",
+        "tidx": "",
+        "txnId": "",
+        "amount": "10000",
+        "total_amount": "10000",
+        "mobile": "",
+        "status": "User canceled",
+        "purchase_order_id": "ORD-20250808-6895c30f33a75",
+        "purchase_order_name": "Order #ORD-20250808-6895c30f33a75"
+    },
+    "post_params": []
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:29:08] API Request
+{
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "ipT7Ht6CWynKCzaZGBHY7Z"
+    },
+    "response_code": 400,
+    "response": "{\"pidx\":\"ipT7Ht6CWynKCzaZGBHY7Z\",\"total_amount\":10000,\"status\":\"User canceled\",\"transaction_id\":null,\"fee\":0,\"refunded\":false,\"error_key\":\"khalti_error\"}",
+    "verbose_log": "*   Trying 103.107.49.92:443...\n* Connected to a.khalti.com (103.107.49.92) port 443\n* ALPN: curl offers h2,http\/1.1\n*  CAfile: C:\\xampp\\apache\\bin\\curl-ca-bundle.crt\n*  CApath: none\n* SSL connection using TLSv1.2 \/ ECDHE-RSA-AES128-GCM-SHA256\n* ALPN: server did not agree on a protocol. Uses default.\n* Server certificate:\n*  subject: CN=*.khalti.com\n*  start date: Apr 17 00:00:00 2025 GMT\n*  expire date: Apr 19 23:59:59 2026 GMT\n*  subjectAltName: host \"a.khalti.com\" matched cert's \"*.khalti.com\"\n*  issuer: C=GB; ST=Greater Manchester; L=Salford; O=Sectigo Limited; CN=Sectigo RSA Domain Validation Secure Server CA\n*  SSL certificate verify ok.\n* using HTTP\/1.x\n> POST \/api\/v2\/epayment\/lookup\/ HTTP\/1.1\r\nHost: a.khalti.com\r\nAccept: *\/*\r\nAuthorization: Key live_secret_key_68791341fdd94846a146f0457ff7b455\r\nContent-Type: application\/json\r\nContent-Length: 33\r\n\r\n< HTTP\/1.1 400 Bad Request\r\n< Date: Fri, 08 Aug 2025 09:29:10 GMT\r\n< Content-Type: application\/json\r\n< Content-Length: 153\r\n< Connection: keep-alive\r\n< Allow: POST, OPTIONS\r\n< Vary: Accept-Language, Cookie, Origin\r\n< Content-Language: en-us\r\n< X-Frame-Options: SAMEORIGIN\r\n< x-content-type-options: nosniff\r\n< x-xss-protection: 1; mode=block\r\n< Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\r\n< Set-Cookie: sessioncookie=!xDAb\/yKX7OVNCu+di8GHrcsPaIwS0SLUCWX04+ml3JIhoXTe\/yuYUBn25kEBOtGTePYfm+2lOc06xw==; path=\/; Httponly; Secure\r\n< \r\n* Connection #0 to host a.khalti.com left intact\n"
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:29:08] API Request Failed
+{
+    "error": "API request failed",
+    "url": "https:\/\/a.khalti.com\/api\/v2\/epayment\/lookup\/",
+    "request_data": {
+        "pidx": "ipT7Ht6CWynKCzaZGBHY7Z"
+    }
+}
+--------------------------------------------------------------------------------
+[2025-08-08 11:29:08] Payment Processing Error
+{
+    "error_message": "API request failed",
+    "trace": "#0 C:\\xampp\\htdocs\\CanteenAutomationSystem\\payment\\success_handler.php(79): makeKhaltiRequest('https:\/\/a.khalt...', Array)\n#1 {main}",
+    "session_data": {
+        "user_id": 4,
+        "username": "staff",
+        "email": "staff@gmail.com",
+        "role": "staff",
+        "cart_data": [],
+        "pending_khalti_order": {
+            "vendor_id": "1",
+            "order_type": "",
+            "cart_data": {
+                "vendor_name": "vendor",
+                "total_amount": 40,
+                "staff_id": 2,
+                "items": [
+                    {
+                        "id": 131,
+                        "user_id": 4,
+                        "menu_item_id": 4,
+                        "quantity": 2,
+                        "special_instructions": null,
+                        "created_at": "2025-08-08 13:34:54",
+                        "updated_at": "2025-08-08 13:34:59",
+                        "item_name": "Milk Tea (Dudh Chiya)",
+                        "price": "20.00",
+                        "vendor_id": 1,
+                        "vendor_name": "vendor",
+                        "staff_id": 2,
+                        "credit_limit": null,
+                        "current_balance": null,
+                        "credit_status": null
+                    }
+                ]
+            },
+            "delivery_location": "",
+            "contact_number": "",
+            "delivery_instructions": "",
+            "table_number": ""
+        },
+        "khalti_order": {
+            "amount": 10000,
+            "order_id": "ORD-20250808-6895c30f33a75",
+            "order_details": {
+                "vendor_id": 1,
+                "order_type": "pickup",
+                "form_data": {
+                    "id": 99,
+                    "order_id": 126,
+                    "order_type": "pickup",
+                    "table_number": "",
+                    "delivery_location": "",
+                    "building_name": null,
+                    "floor_number": null,
+                    "room_number": null,
+                    "delivery_instructions": "",
+                    "contact_number": ""
+                }
+            },
+            "token": "1bc877abad93611e73b6aa54d1e285b0cb9ba1e659be294913f484c3e685d85c"
+        },
+        "in_payment_flow": true,
+        "payment_token": "1bc877abad93611e73b6aa54d1e285b0cb9ba1e659be294913f484c3e685d85c"
+    },
+    "get_params": {
+        "token": "1bc877abad93611e73b6aa54d1e285b0cb9ba1e659be294913f484c3e685d85c",
+        "pidx": "ipT7Ht6CWynKCzaZGBHY7Z",
+        "transaction_id": "",
+        "tidx": "",
+        "txnId": "",
+        "amount": "10000",
+        "total_amount": "10000",
+        "mobile": "",
+        "status": "User canceled",
+        "purchase_order_id": "ORD-20250808-6895c30f33a75",
+        "purchase_order_name": "Order #ORD-20250808-6895c30f33a75"
+    }
+}
+--------------------------------------------------------------------------------

@@ -225,7 +225,7 @@ ob_start();
                             </div>
 
                             <div class="text-right mt-3">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="checkoutBtn">
                                     <i class="fas fa-shopping-cart"></i> Proceed to Checkout
                                 </button>
                             </div>
@@ -330,9 +330,22 @@ $(document).ready(function() {
             });
         }
     });
+
 });
 </script>
-
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) {
+        checkoutBtn.addEventListener('click', function() {
+            checkoutBtn.disabled = true;
+            checkoutBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Processing...';
+            // Optionally, submit the form if not already submitting
+            checkoutBtn.form.submit();
+        });
+    }
+});
+</script>
 <?php
 $content = ob_get_clean();
 require_once '../includes/layout.php';

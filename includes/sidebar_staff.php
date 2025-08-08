@@ -165,13 +165,14 @@ echo '
 </li>
 -->
 <!-- Reports -->
+<!--
 <li class="nav-item">
     <a href="../staff/reports.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'reports.php' ? 'active' : '') . '">
         <i class="nav-icon fas fa-file-alt"></i>
         <p>Reports</p>
     </a>
 </li>
-
+-->
 <!-- Profile -->
 <li class="nav-item">
     <a href="../staff/profile.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'profile.php' ? 'active' : '') . '">

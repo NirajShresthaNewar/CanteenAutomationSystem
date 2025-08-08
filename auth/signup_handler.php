@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Validate required fields
         if (empty($username) || empty($email) || empty($contact_number) || 
             empty($password) || empty($confirm_password) || empty($role) || empty($school_id)) {
-            $_SESSION['signup_error'] = "All fields are required";
+            $_SESSION['signup_errors'] = ["All fields are required"];
             header('Location: ../index.php');
             exit();
         }
@@ -24,21 +24,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Validate role
         $allowed_roles = ['vendor', 'staff', 'student', 'worker'];
         if (!in_array($role, $allowed_roles)) {
-            $_SESSION['signup_error'] = "Invalid role selected";
+            $_SESSION['signup_errors'] = ["Invalid role selected"];
             header('Location: ../index.php');
             exit();
         }
 
         // Validate password
         if ($password !== $confirm_password) {
-            $_SESSION['signup_error'] = "Passwords do not match";
+            $_SESSION['signup_errors'] = ["Passwords do not match"];
             header('Location: ../index.php');
             exit();
         }
 
         // Validate school selection
         if (empty($_POST['school_id'])) {
-            $_SESSION['signup_error'] = "Please select a school";
+            $_SESSION['signup_errors'] = ["Please select a school"];
             header('Location: ../index.php');
             exit();
         }
@@ -66,6 +66,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt->execute([$school_id]);
                 if (!$stmt->fetch()) {
                     throw new Exception("Selected school does not exist");
+                }
+                
+                // Check if school already has a vendor (approved or pending)
+                $stmt = $conn->prepare("SELECT v.id, u.username FROM vendors v 
+                                      JOIN users u ON v.user_id = u.id 
+                                      WHERE v.school_id = ? AND v.approval_status IN ('approved', 'pending')");
+                $stmt->execute([$school_id]);
+                $existing_vendor = $stmt->fetch();
+                
+                if ($existing_vendor) {
+                    $conn->rollBack();
+                    $_SESSION['signup_errors'] = ["This school already has a vendor associated with it. Only one vendor is allowed per school. Please contact the administrator if you need assistance."];
+                    header('Location: ../index.php');
+                    exit();
                 }
                 
                 $stmt = $conn->prepare("INSERT INTO vendors (user_id, school_id, license_number, opening_hours, approval_status) 
@@ -101,7 +115,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     } catch(PDOException $e) {
         $conn->rollBack();
-        $_SESSION['signup_error'] = "Registration failed: " . $e->getMessage();
+        $_SESSION['signup_errors'] = ["Registration failed: " . $e->getMessage()];
         header('Location: ../index.php');
         exit();
     }

@@ -9,8 +9,15 @@ if (!isset($_SESSION['user_id']) || !in_array($_SESSION['role'], ['student', 'st
     exit();
 }
 
-// Function to get popular items based on current month's orders
-function getPopularItems($conn, $limit = 3) {
+// Function to get popular items based on current month's orders for affiliated vendors only
+function getPopularItems($conn, $affiliated_vendor_ids, $limit = 3) {
+    if (empty($affiliated_vendor_ids)) {
+        return [];
+    }
+    
+    // Create placeholders for the IN clause
+    $placeholders = str_repeat('?,', count($affiliated_vendor_ids) - 1) . '?';
+    
     $query = "
         SELECT 
             mi.item_id,
@@ -25,15 +32,24 @@ function getPopularItems($conn, $limit = 3) {
         JOIN order_items oi ON mi.item_id = oi.menu_item_id
         JOIN orders o ON oi.order_id = o.id
         WHERE mi.is_available = 1
+        AND mi.vendor_id IN ($placeholders)
         AND MONTH(o.order_date) = MONTH(CURRENT_DATE())
         AND YEAR(o.order_date) = YEAR(CURRENT_DATE())
         GROUP BY mi.item_id, mi.name, mi.description, mi.price, mi.image_path, mi.is_vegetarian, mi.vendor_id
         ORDER BY order_count DESC
-        LIMIT :limit
+        LIMIT ?
     ";
     
     $stmt = $conn->prepare($query);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    
+    // Bind vendor IDs
+    $param_index = 1;
+    foreach ($affiliated_vendor_ids as $vendor_id) {
+        $stmt->bindValue($param_index++, $vendor_id, PDO::PARAM_INT);
+    }
+    
+    // Bind limit
+    $stmt->bindValue($param_index, $limit, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -49,8 +65,11 @@ if (!$selected_vendor_id && !empty($vendors)) {
     $selected_vendor_id = $vendors[0]['id'];
 }
 
-// Get popular items
-$popular_items = getPopularItems($conn);
+// Get affiliated vendor IDs for filtering popular items
+$affiliated_vendor_ids = array_column($vendors, 'id');
+
+// Get popular items from affiliated vendors only
+$popular_items = getPopularItems($conn, $affiliated_vendor_ids);
 
 $menu_items = [];
 $categories = [];

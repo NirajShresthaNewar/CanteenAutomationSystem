@@ -104,8 +104,21 @@ try {
     $conn->beginTransaction();
 
     try {
+        if($_SESSION['role'] === 'staff')  
+             {
+                 $stmt = $conn->prepare("SELECT id FROM orders WHERE user_id = ? ORDER BY order_date DESC LIMIT 1");
+                 $stmt->execute([$_SESSION['user_id']]);
+                 $order = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($order) {
+                $order_id = $order['id'];
+                $stmt = $conn->prepare("UPDATE orders SET payment_status = 'paid' WHERE id = ?");
+                $stmt->execute([$order_id]);
+    }
+}
         // Create order
-        $stmt = $conn->prepare("
+        if($_SESSION['role'] === 'student')
+     {
+            $stmt = $conn->prepare("
             INSERT INTO orders (
                 user_id, vendor_id, order_type, 
                 payment_method, total_amount, 
@@ -232,7 +245,7 @@ try {
                 'pickup'
             ]);
         }
-
+    }
         // Clear cart
         $stmt = $conn->prepare("DELETE FROM cart_items WHERE user_id = ?");
         $stmt->execute([$_SESSION['user_id']]);
@@ -256,6 +269,7 @@ try {
         }
         exit();
 
+    
     } catch (PDOException $e) {
         logDebug("Database Error", [
             'error' => $e->getMessage(),
@@ -276,7 +290,24 @@ try {
         'session_data' => $_SESSION,
         'get_params' => $_GET
     ]);
-
+if ($_SESSION['role'] === 'staff') {
+    // Find the most recent pending order for this staff user
+    $stmt = $conn->prepare("SELECT id FROM orders WHERE user_id = ? AND payment_status = 'pending' ORDER BY order_date DESC LIMIT 1");
+    $stmt->execute([$_SESSION['user_id']]);
+    $order = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($order) {
+        $order_id = $order['id'];
+        // Delete order items
+        $stmt = $conn->prepare("DELETE FROM order_items WHERE order_id = ?");
+        $stmt->execute([$order_id]);
+        // Delete delivery details if any
+        $stmt = $conn->prepare("DELETE FROM order_delivery_details WHERE order_id = ?");
+        $stmt->execute([$order_id]);
+        // Delete the order itself
+        $stmt = $conn->prepare("DELETE FROM orders WHERE id = ?");
+        $stmt->execute([$order_id]);
+    }
+}
     // End payment flow
     endPaymentFlow();
 

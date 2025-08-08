@@ -50,7 +50,7 @@ try {
     $stmt = $conn->prepare("
         SELECT 
             ih.*,
-            u.name as changed_by_name,
+            u.username as changed_by_name,
             DATE_FORMAT(ih.created_at, '%Y-%m-%d %H:%i:%s') as formatted_date
         FROM inventory_history ih
         JOIN users u ON ih.changed_by = u.id

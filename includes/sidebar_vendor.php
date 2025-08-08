@@ -256,12 +256,7 @@ if ($alert_count > 0) {
 echo '</p>
             </a>
         </li>
-        <li class="nav-item">
-            <a href="../vendor/ingredient_settings.php" class="nav-link ' . (basename($_SERVER['PHP_SELF']) == 'ingredient_settings.php' ? 'active' : '') . '">
-                <i class="nav-icon fas fa-cog"></i>
-                <p>Ingredient Settings</p>
-            </a>
-        </li>
+       
     </ul>
 </li>
 

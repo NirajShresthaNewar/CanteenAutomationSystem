@@ -5,3 +5,4 @@ debug.log
 logs/
 khalti_errors.log
 orders_debug.log
+database_cleaner/

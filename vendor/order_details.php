@@ -20,7 +20,7 @@ try {
     // Get order details with delivery information
     $stmt = $conn->prepare("
         SELECT o.*, 
-               u.name as customer_name,
+               u.username as customer_name,
                odd.order_type,
                odd.table_number,
                odd.delivery_location,
@@ -32,7 +32,7 @@ try {
                ot.status as order_status,
                ot.status_changed_at
         FROM orders o
-        JOIN users u ON o.user_id = u.user_id
+        JOIN users u ON o.user_id = u.id
         LEFT JOIN order_delivery_details odd ON o.order_id = odd.order_id
         LEFT JOIN order_tracking ot ON o.order_id = ot.order_id
         WHERE o.order_id = ? AND o.vendor_id = ?

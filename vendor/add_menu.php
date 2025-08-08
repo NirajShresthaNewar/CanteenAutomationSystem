@@ -23,7 +23,7 @@ try {
     $vendor_id = $vendor['id'];
 
     // Fetch categories
-    $stmt = $conn->prepare("SELECT * FROM menu_categories WHERE vendor_id = ? OR vendor_id IS NULL");
+    $stmt = $conn->prepare("SELECT * FROM menu_categories WHERE vendor_id = ? OR vendor_id IS NULL ORDER BY name");
     $stmt->execute([$vendor_id]);
     $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -59,13 +59,14 @@ ob_start();
         <div class="card">
             <div class="card-body">
                 <form action="process_menu_item.php" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="add">
                     <!-- Menu Item Details -->
                     <div class="row">
                         <div class="col-md-8">
                             <!-- Basic Details -->
                             <div class="form-group">
                                 <label for="item_name">Item Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="item_name" name="item_name" required>
+                                <input type="text" class="form-control" id="item_name" name="name" required>
                             </div>
 
                             <div class="form-group">
@@ -80,7 +81,7 @@ ob_start();
                                         <label for="price">Price <span class="text-danger">*</span></label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
-                                                <span class="input-group-text">₱</span>
+                                                <span class="input-group-text">₹</span>
                                             </div>
                                             <input type="number" class="form-control" id="price" name="price" 
                                                    min="0" step="0.01" required>
@@ -91,10 +92,10 @@ ob_start();
                                     <div class="form-group">
                                         <label for="category">Category</label>
                                         <div class="input-group">
-                                            <select class="form-control" id="category" name="category">
+                                            <select class="form-control" id="category" name="category_id">
                                                 <option value="">Select Category</option>
                                                 <?php foreach ($categories as $category): ?>
-                                                <option value="<?php echo $category['id']; ?>">
+                                                <option value="<?php echo $category['category_id']; ?>">
                                                     <?php echo htmlspecialchars($category['name']); ?>
                                                 </option>
                                                 <?php endforeach; ?>
@@ -113,7 +114,7 @@ ob_start();
                             <div class="form-group">
                                 <label for="item_image">Item Image</label>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" id="item_image" name="item_image" 
+                                    <input type="file" class="custom-file-input" id="item_image" name="image" 
                                            accept="image/*">
                                     <label class="custom-file-label" for="item_image">Choose file</label>
                                 </div>
@@ -124,15 +125,15 @@ ob_start();
                             <div class="form-group">
                                 <label>Dietary Information</label>
                                 <div class="custom-control custom-switch mb-2">
-                                    <input type="checkbox" class="custom-control-input" id="vegetarian" name="dietary[]" value="vegetarian">
+                                    <input type="checkbox" class="custom-control-input" id="vegetarian" name="is_vegetarian" value="1">
                                     <label class="custom-control-label" for="vegetarian">Vegetarian</label>
                                 </div>
                                 <div class="custom-control custom-switch mb-2">
-                                    <input type="checkbox" class="custom-control-input" id="vegan" name="dietary[]" value="vegan">
+                                    <input type="checkbox" class="custom-control-input" id="vegan" name="is_vegan" value="1">
                                     <label class="custom-control-label" for="vegan">Vegan</label>
                                 </div>
                                 <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="gluten_free" name="dietary[]" value="gluten_free">
+                                    <input type="checkbox" class="custom-control-input" id="gluten_free" name="is_gluten_free" value="1">
                                     <label class="custom-control-label" for="gluten_free">Gluten Free</label>
                                 </div>
                             </div>
@@ -140,7 +141,7 @@ ob_start();
                             <!-- Availability -->
                             <div class="form-group mt-4">
                                 <div class="custom-control custom-switch">
-                                    <input type="checkbox" class="custom-control-input" id="available" name="available" value="1">
+                                    <input type="checkbox" class="custom-control-input" id="available" name="is_available" value="1">
                                     <label class="custom-control-label" for="available">Make Available Immediately</label>
                                 </div>
                             </div>
